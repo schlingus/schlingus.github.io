@@ -8,4 +8,9 @@ body {
 
 .main {
     display: flex;
+    gap: 200px;
+}
+
+.left h3 {
+    text-align: center;
 }
