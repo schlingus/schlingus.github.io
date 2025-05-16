@@ -4,6 +4,9 @@ body {
     height: 100vh;
     margin: 0;
     padding: 0;
+    background-image: url('assets/manface.jpg');
+    user-select: none;
+    font-family: 'Comic Sans MS', cursive, sans-serif;
 }
 
 .main {
@@ -13,4 +16,100 @@ body {
 
 .left h3 {
     text-align: center;
+    font-size: 30px;
+    margin-bottom: 50px;
+}
+
+.schlingus-image {
+    width: 200px;
+}
+
+.schlingus-image:hover {
+    opacity: 0.9;
+    cursor: pointer;
+    border-radius: 50%;
+    background-color: #fff;
+    box-shadow:
+      0 0 60px 30px #fff,  /* inner white */
+      0 0 100px 60px #f0f, /* middle magenta */
+      0 0 140px 90px #0ff; /* outer cyan */
+    
+}
+
+.schlingus-image:active {
+    transform: scale(0.9);
+    opacity: 0.8;
+    background-color: #fff;
+    box-shadow:
+      0 0 60px 30px #8d8585,  /* inner white */
+      0 0 100px 60px #a903a9, /* middle magenta */
+      0 0 140px 90px #007373; /* outer cyan */
+}
+
+.upgrade {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 330px;
+    height: 60px;
+    border: 4px solid black;
+    padding: 10px;
+    border-radius: 5px;
+    position: relative;
+    background-color: #d8d1d1;
+    z-index: 1;
+    overflow: visible; /* Allow .next-level-info to slide out */
+    margin-bottom: 10px;
+}
+
+.mid-section h4 {
+margin: 0;
+margin-bottom: 20px;
+font-size: 20px;
+}
+
+.mid-section p {
+    margin: 0;
+}
+
+.luis-upgrade-img {
+    width: 50px;
+}
+
+.schlingus-upgrade-img {
+    width: 20px;
+}
+
+.cost-info {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.next-level-info {
+    position: absolute;
+    top: 0;
+    right: -104px;
+    background-color: rgb(178, 186, 185);
+    height: 80px;
+    width: 100px;
+    text-align: center;
+    z-index: 0; /* Place it just below .upgrade, not -1 */
+    transform: translateX(-100%);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.2s;
+    clip-path: inset(0 0 0 100%); /* Fully clipped from the left side by default */
+}
+
+.upgrade:hover .next-level-info {
+    z-index: 2; /* Bring above .upgrade when visible */
+    transform: translateX(0);
+    opacity: 1;
+    pointer-events: auto;
+    clip-path: inset(0 0 0 0); /* Reveal from left to right */
+    transition:
+        transform 0.4s cubic-bezier(0.4,0,0.2,1),
+        opacity 0.2s,
+        clip-path 0.4s cubic-bezier(0.4,0,0.2,1);
 }
