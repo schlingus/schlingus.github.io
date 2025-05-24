@@ -21,6 +21,15 @@ body {
     margin-bottom: 50px;
 }
 
+.orange-text{
+    font-size: 32px;
+    font-weight: 700;
+    color: rgb(255, 119, 0);
+    text-shadow: 2px 2px 3px rgb(253, 80, 0);
+
+}
+
+
 .schlingus-image {
     width: 200px;
 }
