@@ -13,7 +13,18 @@ let redcliffLevel = document.querySelector(".redcliff-level");
 let redcliffIncrease = document.querySelector(".redcliff-increase");
 let parsedRedcliffIncrease = parseFloat(redcliffIncrease.innerHTML);
 
+let mistrakeCost = document.querySelector(".mistrake-cost");
+let parsedMistrakeCost = parseFloat(mistrakeCost.innerHTML);
+let mistrakeLevel = document.querySelector(".mistrake-level");
+let mistrakeIncrease = document.querySelector(".mistrake-increase");
+let parsedMistrakeIncrease = parseFloat(mistrakeIncrease.innerHTML);
+
+let spcText = document.getElementById("spc-text");
+let spsText = document.getElementById("sps-text");
+
 let spc = 1;
+
+let sps = 0;
 
 function incrementSchlingus() {
   schlingus.innerHTML = Math.round(parsedSchlingus +=spc);
@@ -38,7 +49,7 @@ function buyLuis() {
     if (parsedSchlingus >= parsedRedcliffCost) {
       schlingus.innerHTML = Math.round(parsedSchlingus -= parsedRedcliffCost)
       
-      redcliffLevel.innerHTML = (parseInt(redcliffLevel.innerHTML)) + 5;
+      redcliffLevel.innerHTML = (parseInt(redcliffLevel.innerHTML)) + 1;
   
       parsedRedcliffIncrease = parseFloat((parsedRedcliffIncrease * 1.03).toFixed(2));
       redcliffIncrease.innerHTML = parsedRedcliffIncrease;
@@ -48,3 +59,25 @@ function buyLuis() {
       redcliffCost.innerHTML = Math.round(parsedRedcliffCost);
      }
    }
+
+   function buyMistrake() {
+    if (parsedSchlingus >= parsedMistrakeCost) {
+      schlingus.innerHTML = Math.round(parsedSchlingus -= parsedMistrakeCost)
+      
+      mistrakeLevel.innerHTML = (parseInt(mistrakeLevel.innerHTML)) + 1;
+  parsedMistrakeIncrease = Math.floor(Math.random() * (500 - 50 + 1)) + 50;
+      parsedMistrakeIncrease = parseFloat((parsedMistrakeIncrease * 1.03).toFixed(2));
+      mistrakeIncrease.innerHTML = parsedMistrakeIncrease;
+      sps += parsedMistrakeIncrease;
+  
+      parsedMistrakeCost *= 1.18;
+      mistrakeCost.innerHTML = Math.round(parsedMistrakeCost);
+     }
+   }
+
+   setInterval(() => {
+parsedSchlingus += sps / 100
+schlingus.innerHTML = Math.round(parsedSchlingus);
+spcText.innerHTML = Math.round(spc)
+spsText.innerHTML = Math.round(sps);
+   },10)
