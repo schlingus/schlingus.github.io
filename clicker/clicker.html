@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>schlingus clicker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <section>
+        <div class="main">
+            <div class="left">
+                <h3>schlingus's: <br /><span class="schlingus-cost orange-text">0</span></h3>
+                <div class="schlingus-img-container">
+                    <img src="./assets/schlingus.png"
+                    alt=""
+                    class="schlingus-img"
+                    onclick="incrementSchlingus(event)"
+                    draggable='false'>
+                </div>
+            </div> 
+            <div class="right">
+
+                <div class="upgrade" onclick="buyUpgrade('luis')">
+                    <div class="left-section">
+                        <img src="./assets/luisgamercool23.png" alt="" srcset="" class="luis-upgrade-img">
+                    </div>
+                    <div class="mid-section">
+                        <h4>luisgamercool23</h4>
+                        <div class="cost-info">
+                            <p class="cost-text"><span class="luis-cost">10</span></p>
+                            <img src="./assets/schlingus.png" alt="" srcset="" class="schlingus-upgrade-img">
+                        </div>
+                    </div>
+                    <div class="right-section">Level <span class ="luis-level">0</span></div>
+
+                    <div class="next-level-info">
+                        <p>      
+                            +<span class="luis-increase">1</span> schlingus('s) <br /> per click<br>
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="upgrade" onclick="buyUpgrade('redcliff')">
+                    <div class="left-section">
+                        <img src="./assets/redcliff.png" alt="" srcset="" class="redcliff-upgrade-img">
+                    </div>
+                    <div class="mid-section">
+                        <h4>knight of redcliff</h4>
+                        <div class="cost-info">
+                            <p class="cost-text"><span class="redcliff-cost">150</span></p>
+                            <img src="./assets/schlingus.png" alt="" srcset="" class="schlingus-upgrade-img">
+                        </div>
+                    </div>
+                    <div class="right-section">Level <span class ="redcliff-level">0</span></div>
+
+                    <div class="next-level-info">
+                        <p>      
+                            +<span class="redcliff-increase">10</span> schlingus('s) <br /> per click<br>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="upgrade" onclick="buyUpgrade('mistrake')">
+                    <div class="left-section">
+                        <img src="./assets/mistrake.png" alt="" srcset="" class="mistrake-upgrade-img">
+                    </div>
+                    <div class="mid-section">
+                        <h4 class="mistrake-text">mistrake (pro gambler)</h4>
+                        <div class="cost-info">
+                            <p class="cost-text"><span class="mistrake-cost">750</span></p>
+                            <img src="./assets/schlingus.png" alt="" srcset="" class="schlingus-upgrade-img">
+                        </div>
+                    </div>
+                    <div class="right-section">Level <span class ="mistrake-level">0</span></div>
+
+                    <div class="next-level-info">
+                        <p>
+                            +<span class="mistrake-increase">50</span> schlingus('s) <br /> per second<br>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="upgrade" onclick="buyUpgrade('bungile')">
+                    <div class="left-section">
+                        <img src="./assets/bungile.png" alt="" srcset="" class="bungile-upgrade-img">
+                    </div>
+                    <div class="mid-section">
+                        <h4>bungile</h4>
+                        <div class="cost-info">
+                            <p class="cost-text"><span class="bungile-cost">2500</span></p>
+                            <img src="./assets/schlingus.png" alt="" srcset="" class="schlingus-upgrade-img">
+                        </div>
+                    </div>
+                    <div class="right-section">Level <span class ="bungile-level">0</span></div>
+
+                    <div class="next-level-info">
+                        <p>      
+                            +<span class="bungile-increase">750</span> schlingus('s) <br /> per second<br>
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="statistics">
+            <div class="texts">
+                <p>schlingus per click: <span id="spc-text" class="orange-text">1</span></p>
+                <p>schlingus per second: <span id="sps-text" class="orange-text">0</span></p>
+            </div>
+        </div>
+    </section>
+
+    <script src="index.js"></script>
+</body>
+</html>    <script src="index.js"></script>
+    <script>
+    // Utility to get a random integer between min and max, inclusive
+    function getRandomMistrakeIncrease() {
+        return Math.floor(Math.random() * (500 - 50 + 1)) + 50;
+    }
+
+    // Set initial mistrake-increase to a random value on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const mistrakeIncreaseSpan = document.querySelector('.mistrake-increase');
+        if (mistrakeIncreaseSpan) {
+            mistrakeIncreaseSpan.textContent = getRandomMistrakeIncrease();
+        }
+    });
+
+    // Wait until index.js is loaded and window.buyUpgrade is defined
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof window.buyUpgrade === 'function') {
+            const originalBuyUpgrade = window.buyUpgrade;
+            window.buyUpgrade = function(type) {
+                if (type === 'mistrake') {
+                    const mistrakeLevelSpan = document.querySelector('.mistrake-level');
+                    const mistrakeIncreaseSpan = document.querySelector('.mistrake-increase');
+                    if (mistrakeLevelSpan && mistrakeIncreaseSpan) {
+                        const prevLevel = Number(mistrakeLevelSpan.textContent);
+                        if (typeof originalBuyUpgrade === 'function') {
+                            originalBuyUpgrade.apply(this, arguments);
+                        }
+                        const newLevel = Number(mistrakeLevelSpan.textContent);
+                        if (newLevel > prevLevel) {
+                            let newValue, prevValue = Number(mistrakeIncreaseSpan.textContent);
+                            do {
+                                newValue = getRandomMistrakeIncrease();
+                            } while (newValue === prevValue && (500 - 50) > 0);
+                            mistrakeIncreaseSpan.textContent = newValue;
+                        }
+                        return;
+                    }
+                }
+                if (typeof originalBuyUpgrade === 'function') {
+                    originalBuyUpgrade.apply(this, arguments);
+                }
+            };
+        }
+    });
+    </script>
+</body>
+</html>
