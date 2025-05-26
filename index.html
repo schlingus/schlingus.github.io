@@ -3,60 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>schlingus</title>
-    <style>
-        body {
-            margin: 0;
-            min-height: 100vh;
-            background: linear-gradient(to bottom right, red, black);
-            color: #fff;
-            font-family: Arial, sans-serif;
-        }
-        .container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 80vh;
-            gap: 40px;
-        }
-        .thumbnail {
-            max-width: 220px;
-            border-radius: 12px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.4);
-        }
-        .content {
-            max-width: 400px;
-        }
-        .description {
-            font-size: 1.2em;
-            margin-bottom: 20px;
-        }
-        .clicker-link {
-            display: inline-block;
-            padding: 12px 24px;
-            background: rgba(255,255,255,0.1);
-            color: #fff;
-            border: 2px solid #fff;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: bold;
-            transition: background 0.2s, color 0.2s;
-        }
-        .clicker-link:hover {
-            background: #fff;
-            color: #c00;
-        }
-        .schlingus-box {
-            margin: 40px auto 0 auto;
-            width: fit-content;
-            background: rgba(255,255,255,0.15);
-            border: 2px solid #fff;
-            border-radius: 10px;
-            padding: 18px 32px;
-            font-size: 1.1em;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-            text-align: center;
-        }
-    </style>
+    <link rel="stylesheet" href="home-style.css">
 </head>
 <body>
     <div class="container">
@@ -65,11 +12,31 @@
             <div class="description">
                 <strong>schlingus clicker</strong> is an amazing clicker game, use luisgamercool23, a knight of redcliff, mistrake the gambler, and bungiile to earn schlingus's.
             </div>
-            <a href="./clicker/index.html" class="clicker-link">play schlingus clicker</a>
+            <a href="https://schlingus.github.io/clicker" class="clicker-link">play schlingus clicker</a>
         </div>
     </div>
-    <div class="schlingus-box">
-        i am schlingus and i am cool
-    </div>
+    <button class="schlingus-box" onclick="window.location.href='https://discord.gg/BUeBkPJs5v'">
+        join the discord!
+    </button>
+    <style>
+        .schlingus-box {
+            display: block;
+            margin: 32px auto 0 auto;
+            padding: 14px 32px;
+            background-color: #5865F2;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+            transition: background 0.2s, transform 0.2s;
+        }
+        .schlingus-box:hover {
+            background-color: #4752c4;
+            transform: translateY(-2px) scale(1.03);
+        }
+    </style>
 </body>
 </html>

@@ -1,5 +1,3 @@
-permalink: clicker/
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,92 +16,37 @@ permalink: clicker/
                     alt=""
                     class="schlingus-img"
                     onclick="incrementSchlingus(event)"
-                    draggable='false'>
+                    draggable="false">
                 </div>
             </div> 
-            <div class="right">
+            <script id="upgrade-template" type="text/template">
 
-                <div class="upgrade" onclick="buyUpgrade('luis')">
+                <div class="upgrade" onclick="buyUpgrade('{{name}}')">
                     <div class="left-section">
-                        <img src="./assets/luisgamercool23.png" alt="" srcset="" class="luis-upgrade-img">
+                        <img src="{{image}}" alt="" srcset="" class="{{name}}-upgrade-img">
                     </div>
                     <div class="mid-section">
-                        <h4>luisgamercool23</h4>
+                        <h4>{{name}}</h4>
                         <div class="cost-info">
-                            <p class="cost-text"><span class="luis-cost">10</span></p>
+                            <p class="cost-text"><span class="{{name}}-cost">{{cost}}</span></p>
                             <img src="./assets/schlingus.png" alt="" srcset="" class="schlingus-upgrade-img">
                         </div>
                     </div>
-                    <div class="right-section">Level <span class ="luis-level">0</span></div>
+                    <div class="right-section">Level <span class ="{{name}}-level">0</span></div>
 
                     <div class="next-level-info">
                         <p>      
-                            +<span class="luis-increase">1</span> schlingus('s) <br /> per click<br>
+                            +<span class="{{name}}-increase">{{increase}}</span> schlingus('s) <br /> per click<br>
                         </p>
                     </div>
                 </div>
                 
-                <div class="upgrade" onclick="buyUpgrade('redcliff')">
-                    <div class="left-section">
-                        <img src="./assets/redcliff.png" alt="" srcset="" class="redcliff-upgrade-img">
-                    </div>
-                    <div class="mid-section">
-                        <h4>knight of redcliff</h4>
-                        <div class="cost-info">
-                            <p class="cost-text"><span class="redcliff-cost">150</span></p>
-                            <img src="./assets/schlingus.png" alt="" srcset="" class="schlingus-upgrade-img">
-                        </div>
-                    </div>
-                    <div class="right-section">Level <span class ="redcliff-level">0</span></div>
+            </script>
 
-                    <div class="next-level-info">
-                        <p>      
-                            +<span class="redcliff-increase">10</span> schlingus('s) <br /> per click<br>
-                        </p>
-                    </div>
-                </div>
-
-                <div class="upgrade" onclick="buyUpgrade('mistrake')">
-                    <div class="left-section">
-                        <img src="./assets/mistrake.png" alt="" srcset="" class="mistrake-upgrade-img">
-                    </div>
-                    <div class="mid-section">
-                        <h4 class="mistrake-text">mistrake (pro gambler)</h4>
-                        <div class="cost-info">
-                            <p class="cost-text"><span class="mistrake-cost">750</span></p>
-                            <img src="./assets/schlingus.png" alt="" srcset="" class="schlingus-upgrade-img">
-                        </div>
-                    </div>
-                    <div class="right-section">Level <span class ="mistrake-level">0</span></div>
-
-                    <div class="next-level-info">
-                        <p>
-                            +<span class="mistrake-increase">50</span> schlingus('s) <br /> per second<br>
-                        </p>
-                    </div>
-                </div>
-
-                <div class="upgrade" onclick="buyUpgrade('bungile')">
-                    <div class="left-section">
-                        <img src="./assets/bungile.png" alt="" srcset="" class="bungile-upgrade-img">
-                    </div>
-                    <div class="mid-section">
-                        <h4>bungile</h4>
-                        <div class="cost-info">
-                            <p class="cost-text"><span class="bungile-cost">2500</span></p>
-                            <img src="./assets/schlingus.png" alt="" srcset="" class="schlingus-upgrade-img">
-                        </div>
-                    </div>
-                    <div class="right-section">Level <span class ="bungile-level">0</span></div>
-
-                    <div class="next-level-info">
-                        <p>      
-                            +<span class="bungile-increase">750</span> schlingus('s) <br /> per second<br>
-                        </p>
-                    </div>
-                </div>
-
+            <div class="right" id="upgrades-container">
+                
             </div>
+
         </div>
 
         <div class="statistics">
@@ -112,11 +55,17 @@ permalink: clicker/
                 <p>schlingus per second: <span id="sps-text" class="orange-text">0</span></p>
             </div>
         </div>
+        <div class="util-buttons">
+            <button class="util-button" onclick="save()">
+                save
+            </button>
+            <button class="util-button" onclick="load()">
+                load
+            </button>
+        </div>
     </section>
 
-    <script src="clicker-index.js"></script>
-</body>
-</html>    <script src="clicker-index.js"></script>
+    <script type="module" src="clicker-index.js"></script>
     <script>
     // Utility to get a random integer between min and max, inclusive
     function getRandomMistrakeIncrease() {

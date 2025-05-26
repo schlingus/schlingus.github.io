@@ -1,23 +1,8 @@
+import { defaultValues } from "./constants/defaultValues.js";
+
 let schlingus = document.querySelector(".schlingus-cost");
 let parsedSchlingus = parseFloat(schlingus.innerHTML);
-
-let luisCost = document.querySelector(".luis-cost");
-let parsedLuisCost = parseFloat(luisCost.innerHTML);
-let luisLevel = document.querySelector(".luis-level");
-let luisIncrease = document.querySelector(".luis-increase");
-let parsedLuisIncrease = parseFloat(luisIncrease.innerHTML);
-
-let redcliffCost = document.querySelector(".redcliff-cost");
-let parsedRedcliffCost = parseFloat(redcliffCost.innerHTML);
-let redcliffLevel = document.querySelector(".redcliff-level");
-let redcliffIncrease = document.querySelector(".redcliff-increase");
-let parsedRedcliffIncrease = parseFloat(redcliffIncrease.innerHTML);
-
-let mistrakeCost = document.querySelector(".mistrake-cost");
-let parsedMistrakeCost = parseFloat(mistrakeCost.innerHTML);
-let mistrakeLevel = document.querySelector(".mistrake-level");
-let mistrakeIncrease = document.querySelector(".mistrake-increase");
-let parsedMistrakeIncrease = parseFloat(mistrakeIncrease.innerHTML);
+schlingus.innerHTML = Math.round(parsedSchlingus);
 
 let spcText = document.getElementById("spc-text");
 let spsText = document.getElementById("sps-text");
@@ -25,68 +10,44 @@ let spsText = document.getElementById("sps-text");
 let schlingusImgContainer = document.querySelector(".schlingus-img-container");
 
 let spc = 1;
-
 let sps = 0;
 
-const upgrades = [
-  {
-    name: 'luis',
-    cost: document.querySelector(".luis-cost"),
-    parsedCost: parseFloat(document.querySelector(".luis-cost").innerHTML),
-    increase: document.querySelector(".luis-increase"),
-    parsedIncrease: parseFloat(document.querySelector(".luis-increase").innerHTML),
-    level: document.querySelector(".luis-level"),
-    schlingusMultiplier: 1.03,
-    costMultiplier: 1.18,
-  },
-  {
-    name: 'redcliff',
-    cost: document.querySelector(".redcliff-cost"),
-    parsedCost: parseFloat(document.querySelector(".redcliff-cost").innerHTML),
-    increase: document.querySelector(".redcliff-increase"),
-    parsedIncrease: parseFloat(document.querySelector(".redcliff-increase").innerHTML),
-    level: document.querySelector(".redcliff-level"),
-    schlingusMultiplier: 1.03,
-    costMultiplier: 1.18,
-  },
-  {
-    name: 'mistrake',
-    cost: document.querySelector(".mistrake-cost"),
-    parsedCost: parseFloat(document.querySelector(".mistrake-cost").innerHTML),
-    increase: document.querySelector(".mistrake-increase"),
-    parsedIncrease: parseFloat(document.querySelector(".mistrake-increase").innerHTML),
-    level: document.querySelector(".mistrake-level"),
-    schlingusMultiplier: 1.03,
-    costMultiplier: 1.18,
-  },
-  {
-    name: 'bungile',
-    cost: document.querySelector(".bungile-cost"),
-    parsedCost: parseFloat(document.querySelector(".bungile-cost").innerHTML),
-    increase: document.querySelector(".bungile-increase"),
-    parsedIncrease: parseFloat(document.querySelector(".bungile-increase").innerHTML),
-    level: document.querySelector(".bungile-level"),
-    schlingusMultiplier: 1.03,
-    costMultiplier: 1.18,
-  },
-];
 
-console.log(upgrades[0].name);
+function createUpgrades() {
+  const upgradesContainer = document.getElementById('upgrades-container');
+  const template = document.getElementById('upgrade-template').textContent;
+
+  defaultValues.forEach((value) => {
+    let html = template
+
+  Object.keys(value).forEach((key) => {
+    const regex = new RegExp(`{{${key}}}`, 'g');
+    html = html.replace(regex, value[key]);
+  });
+    
+  upgradesContainer.innerHTML += html
+  })
+}
+
+createUpgrades();
 
 function incrementSchlingus(event) {
-  schlingus.innerHTML = Math.round(parsedSchlingus +=spc);
+  // Always parse the current value from the DOM to keep in sync
+  parsedSchlingus = parseFloat(schlingus.innerHTML);
+  parsedSchlingus += spc;
+  schlingus.innerHTML = Math.round(parsedSchlingus);
 
-  const x = event.offsetX
-  const y = event.offsetY
+  const x = event.offsetX;
+  const y = event.offsetY;
 
-  const div = document.createElement("div")
-  div.innerHTML = `+${Math.round(spc)}`
-  div.style.cssText = `color: white; position: absolute; top: ${y}px; left: ${x}px; font-size: 15px; pointer-events: none;`
-  schlingusImgContainer.appendChild(div)
+  const div = document.createElement("div");
+  div.innerHTML = `+${Math.round(spc)}`;
+  div.style.cssText = `color: white; position: absolute; top: ${y}px; left: ${x}px; font-size: 15px; pointer-events: none;`;
+  schlingusImgContainer.appendChild(div);
 
-  div.classList.add('fade-up')
+  div.classList.add('fade-up');
 
-timeout(div);
+  timeout(div);
 }
 
 const timeout = (div) => {
@@ -120,11 +81,52 @@ function buyUpgrade(upgrade) {
   }
 }
 
+function save() {
+localStorage.clear();
+
+upgrades.map((upgrade) => {
+ 
+const obj = JSON.stringify({
+  parsedLevel: parseFloat(upgrade.level.innerHTML),
+  parsedCost: upgrade.parsedCost,
+  parsedIncrease: upgrade.parsedIncrease,
+})
+
+localStorage.setItem(upgrade.name, obj);
+})
+
+localStorage.setItem('spc', JSON.stringify(spc));
+localStorage.setItem('sps', JSON.stringify(sps));
+localStorage.setItem('schlingus', JSON.stringify(parsedSchlingus));
+
+}
+
+function load() {
+upgrades.map((upgrade) => {
+  const savedvalues = JSON.parse(localStorage.getItem(upgrade.name));
+
+  upgrade.parsedCost = savedvalues.parsedCost;
+  upgrade.parsedIncrease = savedvalues.parsedIncrease;
+  upgrade.level.innerHTML = savedvalues.parsedLevel;
+  upgrade.cost.innerHTML = Math.round(upgrade.parsedCost);
+  upgrade.increase.innerHTML = upgrade.parsedIncrease;
+});
+
+spc = JSON.parse(localStorage.getItem('spc'))
+sps = JSON.parse(localStorage.getItem('sps'))
+parsedSchlingus = JSON.parse(localStorage.getItem('schlingus'));
+
+schlingus.innerHTML = Math.round(parsedSchlingus);
+
+}
    setInterval(() => {
 parsedSchlingus += sps / 100
 schlingus.innerHTML = Math.round(parsedSchlingus);
 spcText.innerHTML = Math.round(spc)
 spsText.innerHTML = Math.round(sps);
    },10)
-
-   
+  
+  window.incrementSchlingus = incrementSchlingus;
+  window.buyUpgrade = buyUpgrade;
+  window.save = save;
+  window.load = load;

@@ -15,10 +15,17 @@ body {
     gap: 200px;
 }
 
-.left h3 {
+.left {
     text-align: center;
     font-size: 30px;
     margin-bottom: 50px;
+}
+
+.right {
+    max-height: 400px;
+    width: 550px;
+    padding: 20px 5px;
+    overflow-y: scroll;
 }
 
 .orange-text{
@@ -65,7 +72,7 @@ body {
     align-items: center;
     justify-content: space-between;
     ;
-    width: 330px;
+    width: 340px;
     height: 60px;
     border: 4px solid black;
     padding: 10px;
@@ -88,7 +95,17 @@ font-size: 20px;
     margin: 0;
 }
 
-.luis-upgrade-img {
+.mid-section-infernus h4 {
+margin: 0;
+margin-bottom: 20px;
+font-size: 10px;
+}
+
+.mid-section-infernus p {
+    margin: 0;
+}
+
+.luisgamercool23-upgrade-img {
     width: 50px;
 }
 
@@ -118,6 +135,10 @@ font-size: 20px;
 
 .bungile-upgrade-img {
     width: 75px;
+}
+
+.infernus-upgrade-img {
+    width: 50px;
 }
 
 .cost-info {
@@ -177,6 +198,29 @@ font-size: 20px;
     font-size: 22px;
     align-items: center;
     height: 100%;
+}
+
+.util-buttons {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    display: flex;
+    gap: 10px;
+}
+
+.util-button {
+    padding: 8px 15px;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: inherit;
+    background-color: #d8d1d1;
+    border-radius: 5px;
+
+}
+
+.util-button:hover {
+    background-color: #c0bcbc;
+    cursor: pointer;
 }
 
 .fade-up {
@@ -240,4 +284,22 @@ font-size: 20px;
         transform: translateY(-70px);
         opacity: 0;
     }
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #d8d1d1;
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
 }
