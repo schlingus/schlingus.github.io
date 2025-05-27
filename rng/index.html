@@ -69,16 +69,16 @@
             100000000: { name: "if you roll this, you need to get a life", img: "./images/get_a_life.png" },
         };
 
-        // Assign weights: higher number = lower weight (rarer)
+        // Assign weights: each number has a 1/number chance
         const possibleNumbers = Object.keys(namedNumbers).map(Number);
-        const weights = possibleNumbers.map(n => 1 / Math.pow(n, 0.7));
+        const weights = possibleNumbers.map(n => 1 / n);
         const totalWeight = weights.reduce((a, b) => a + b, 0);
 
         function weightedRandomNumber() {
             let r = Math.random() * totalWeight;
             for (let i = 0; i < possibleNumbers.length; i++) {
-                if (r < weights[i]) return possibleNumbers[i];
-                r -= weights[i];
+            if (r < weights[i]) return possibleNumbers[i];
+            r -= weights[i];
             }
             return possibleNumbers[possibleNumbers.length - 1];
         }
@@ -111,6 +111,11 @@
             resultDiv.style.opacity = 1;
             resultImg.src = img;
             resultImg.alt = name;
+            // Anti auto clicker: disable roll button for 2 seconds after each roll
+            rollBtn.disabled = true;
+            setTimeout(() => {
+                rollBtn.disabled = false;
+            }, 2000);
             resultImg.style.opacity = 1;
             setTimeout(() => {
                 resultDiv.style.opacity = 0;
