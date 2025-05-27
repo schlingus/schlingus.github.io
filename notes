@@ -1,0 +1,26 @@
+let schlingus = document.querySelector(".schlingus-cost");
+let parsedSchlingus = parseFloat(schlingus.innerHTML);
+
+let luisCost = document.querySelector(".luis-cost");
+let parsedLuisCost = parseFloat(luisCost.innerHTML);
+let luisLevel = document.querySelector(".luis-level");
+let luisIncrease = document.querySelector(".luis-increase");
+let parsedLuisIncrease = parseFloat(luisIncrease.innerHTML);
+
+let redcliffCost = document.querySelector(".redcliff-cost");
+let parsedRedcliffCost = parseFloat(redcliffCost.innerHTML);
+let redcliffLevel = document.querySelector(".redcliff-level");
+let redcliffIncrease = document.querySelector(".redcliff-increase");
+let parsedRedcliffIncrease = parseFloat(redcliffIncrease.innerHTML);
+
+let mistrakeCost = document.querySelector(".mistrake-cost");
+let parsedMistrakeCost = parseFloat(mistrakeCost.innerHTML);
+let mistrakeLevel = document.querySelector(".mistrake-level");
+let mistrakeIncrease = document.querySelector(".mistrake-increase");
+let parsedMistrakeIncrease = parseFloat(mistrakeIncrease.innerHTML);
+
+let infernusCost = document.querySelector(".infernus-cost");
+let parsedInfernusCost = parseFloat(infernusCost.innerHTML);
+let infernusLevel = document.querySelector(".infernus-level");
+let infernusIncrease = document.querySelector(".infernus-increase");
+let parsedInfernusIncrease = parseFloat(infernusIncrease.innerHTML);

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>schlingus rng</title>
+</head>
+<body>
+    <h1>schlingus rng</h1>
+    <div>
+        <button id="rollBtn">roll</button>
+        <button id="inventoryBtn">inventory</button>
+        <button id="allItemsBtn">all items</button>
+        <link rel="stylesheet" href="style.css">
+    </div>
+    <div id="result"></div>
+    <style>
+        #result {
+            transition: opacity 0.5s;
+            font-size: 2em;
+            margin: 1em 0;
+            opacity: 0;
+        }
+        #inventoryModal {
+            display: none;
+            position: fixed;
+            z-index: 10;
+            left: 0; top: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+        }
+        #inventoryContent {
+            background: #222;
+            color: #fff;
+            padding: 2em;
+            border-radius: 8px;
+            min-width: 300px;
+        }
+        #rollBtn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+    <!-- Removed duplicate and conflicting scripts. The main logic is implemented in the script below. -->
+    <div id="inventoryModal">
+        <div id="inventoryContent">
+            <h2>your inventory</h2>
+            <ul id="inventoryList"></ul>
+            <button id="closeInventory">close</button>
+        </div>
+    </div>
+
+    <script>
+        // Map of numbers to names and images
+        const namedNumbers = {
+            1: { name: "oven", img: "./images/oven.png" },
+            2: { name: "microwave", img: "./images/microwave.png" },
+            3: { name: "annoying guy", img: "./images/annoying_guy.png" },
+            7: { name: "mistrake", img: "./images/mistrake.png" },
+            12: { name: "brawl stars (worst game ever)", img: "./images/brawl_stars.png" },
+            18: { name: "bungile", img: "./images/bungile.png" },
+            21: { name: "schlingus", img: "./images/schlingus.png" },
+            25: { name: "purple guy", img: "./images/purple_guy.png" },
+            50: { name: "luisgamercool23", img: "./images/luisgamercool23.png" },
+            1000: { name: "infernus", img: "./images/infernus.png" },
+            1001: { name: "infernus' mom", img: "./images/infernus_mom.png" },
+            10000: { name: "f i s h", img: "./images/fish.png" },
+            15000: { name: "pibble", img: "./images/pibble.png" },
+            100000000: { name: "if you roll this, you need to get a life", img: "./images/get_a_life.png" },
+        };
+
+        // Assign weights: higher number = lower weight (rarer)
+        const possibleNumbers = Object.keys(namedNumbers).map(Number);
+        const weights = possibleNumbers.map(n => 1 / Math.pow(n, 0.7));
+        const totalWeight = weights.reduce((a, b) => a + b, 0);
+
+        function weightedRandomNumber() {
+            let r = Math.random() * totalWeight;
+            for (let i = 0; i < possibleNumbers.length; i++) {
+                if (r < weights[i]) return possibleNumbers[i];
+                r -= weights[i];
+            }
+            return possibleNumbers[possibleNumbers.length - 1];
+        }
+
+        let inventory = [];
+
+        const resultDiv = document.getElementById('result');
+        const rollBtn = document.getElementById('rollBtn');
+        const inventoryBtn = document.getElementById('inventoryBtn');
+        const inventoryModal = document.getElementById('inventoryModal');
+        const inventoryList = document.getElementById('inventoryList');
+        const closeInventory = document.getElementById('closeInventory');
+        inventoryList.style.maxHeight = '300px';
+        inventoryList.style.overflowY = 'auto';
+
+        // Create image element for result
+        let resultImg = document.createElement('img');
+        resultImg.id = 'resultImg';
+        resultImg.style.display = 'block';
+        resultImg.style.margin = '1em auto';
+        resultImg.style.maxHeight = '120px';
+        resultImg.style.maxWidth = '180px';
+        resultImg.style.opacity = 0;
+        resultImg.style.transition = 'opacity 0.5s';
+        resultDiv.insertAdjacentElement('afterend', resultImg);
+
+        function showResult(number) {
+            const { name, img } = namedNumbers[number];
+            resultDiv.textContent = `${number} - ${name}`;
+            resultDiv.style.opacity = 1;
+            resultImg.src = img;
+            resultImg.alt = name;
+            resultImg.style.opacity = 1;
+            setTimeout(() => {
+                resultDiv.style.opacity = 0;
+                resultImg.style.opacity = 0;
+            }, 2000);
+        }
+
+        rollBtn.onclick = function() {
+            const number = weightedRandomNumber();
+            showResult(number);
+            let found = inventory.find(item => item.number === number);
+            if (found) {
+                found.count += 1;
+            } else {
+                inventory.push({ number, count: 1 });
+            }
+            saveInventory();
+        };
+
+        inventoryBtn.onclick = function() {
+            inventoryList.innerHTML = '';
+            if (inventory.length === 0) {
+                inventoryList.innerHTML = '<li>No numbers rolled yet.</li>';
+            } else {
+                inventory
+                    .sort((a, b) => a.number - b.number)
+                    .forEach(item => {
+                        const li = document.createElement('li');
+                        li.style.display = 'flex';
+                        li.style.alignItems = 'center';
+                        li.style.justifyContent = 'space-between';
+                        li.style.gap = '1em';
+                        const text = document.createElement('span');
+                        text.textContent = `${item.number} - ${namedNumbers[item.number].name} (x${item.count})`;
+                        const img = document.createElement('img');
+                        img.src = namedNumbers[item.number].img;
+                        img.alt = namedNumbers[item.number].name;
+                        img.style.height = '40px';
+                        img.style.width = '40px';
+                        img.style.objectFit = 'contain';
+                        li.appendChild(text);
+                        li.appendChild(img);
+                        inventoryList.appendChild(li);
+                    });
+            }
+            inventoryModal.style.display = 'flex';
+        };
+
+        closeInventory.onclick = function() {
+            inventoryModal.style.display = 'none';
+        };
+
+        inventoryModal.onclick = function(e) {
+            if (e.target === inventoryModal) {
+                inventoryModal.style.display = 'none';
+            }
+        };
+
+        const INVENTORY_KEY = 'schlingus_rng_inventory';
+
+        function loadInventory() {
+            const saved = localStorage.getItem(INVENTORY_KEY);
+            if (saved) {
+                try {
+                    const arr = JSON.parse(saved);
+                    if (Array.isArray(arr)) {
+                        inventory = arr;
+                    }
+                } catch (e) {}
+            }
+        }
+
+        function saveInventory() {
+            localStorage.setItem(INVENTORY_KEY, JSON.stringify(inventory));
+        }
+
+        loadInventory();
+
+        const allItemsBtn = document.getElementById('allItemsBtn');
+
+        // Create modal for all items
+        const allItemsModal = document.createElement('div');
+        allItemsModal.id = 'allItemsModal';
+        allItemsModal.style.display = 'none';
+        allItemsModal.style.position = 'fixed';
+        allItemsModal.style.zIndex = '10';
+        allItemsModal.style.left = '0';
+        allItemsModal.style.top = '0';
+        allItemsModal.style.right = '0';
+        allItemsModal.style.bottom = '0';
+        allItemsModal.style.background = 'rgba(0,0,0,0.5)';
+        allItemsModal.style.alignItems = 'center';
+        allItemsModal.style.justifyContent = 'center';
+
+        const allItemsContent = document.createElement('div');
+        allItemsContent.id = 'allItemsContent';
+        allItemsContent.style.background = '#222';
+        allItemsContent.style.color = '#fff';
+        allItemsContent.style.padding = '2em';
+        allItemsContent.style.borderRadius = '8px';
+        allItemsContent.style.minWidth = '300px';
+
+        const allItemsTitle = document.createElement('h2');
+        allItemsTitle.textContent = 'all items';
+
+        const allItemsList = document.createElement('ul');
+        allItemsList.id = 'allItemsList';
+        allItemsList.style.maxHeight = '300px';
+        allItemsList.style.overflowY = 'auto';
+
+        const closeAllItems = document.createElement('button');
+        closeAllItems.id = 'closeAllItems';
+        closeAllItems.textContent = 'close';
+
+        allItemsContent.appendChild(allItemsTitle);
+        allItemsContent.appendChild(allItemsList);
+        allItemsContent.appendChild(closeAllItems);
+        allItemsModal.appendChild(allItemsContent);
+        document.body.appendChild(allItemsModal);
+
+        allItemsBtn.onclick = function() {
+            allItemsList.innerHTML = '';
+            Object.keys(namedNumbers)
+                .map(Number)
+                .sort((a, b) => a - b)
+                .forEach(number => {
+                    const li = document.createElement('li');
+                    li.style.display = 'flex';
+                    li.style.alignItems = 'center';
+                    li.style.justifyContent = 'space-between';
+                    li.style.gap = '1em';
+                    const text = document.createElement('span');
+                    text.textContent = `${number} - ${namedNumbers[number].name}`;
+                    const img = document.createElement('img');
+                    img.src = namedNumbers[number].img;
+                    img.alt = namedNumbers[number].name;
+                    img.style.height = '40px';
+                    img.style.width = '40px';
+                    img.style.objectFit = 'contain';
+                    li.appendChild(text);
+                    li.appendChild(img);
+                    allItemsList.appendChild(li);
+                });
+            allItemsModal.style.display = 'flex';
+        };
+
+        closeAllItems.onclick = function() {
+            allItemsModal.style.display = 'none';
+        };
+
+        allItemsModal.onclick = function(e) {
+            if (e.target === allItemsModal) {
+                allItemsModal.style.display = 'none';
+            }
+        };
+    </script>
+</body>
+</html>

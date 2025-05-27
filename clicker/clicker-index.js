@@ -1,8 +1,10 @@
+import { upgrades } from "./constants/upgrades.js";
 import { defaultValues } from "./constants/defaultValues.js";
 
 let schlingus = document.querySelector(".schlingus-cost");
 let parsedSchlingus = parseFloat(schlingus.innerHTML);
 schlingus.innerHTML = Math.round(parsedSchlingus);
+
 
 let spcText = document.getElementById("spc-text");
 let spsText = document.getElementById("sps-text");
@@ -17,16 +19,20 @@ function createUpgrades() {
   const upgradesContainer = document.getElementById('upgrades-container');
   const template = document.getElementById('upgrade-template').textContent;
 
-  defaultValues.forEach((value) => {
-    let html = template
+  // Use upgrades as the default values if defaultValues is not defined elsewhere
+  const defaultValues = upgrades;
 
-  Object.keys(value).forEach((key) => {
-    const regex = new RegExp(`{{${key}}}`, 'g');
-    html = html.replace(regex, value[key]);
+  defaultValues.forEach((value) => {
+    let html = template;
+
+    // Replace all placeholders in the template with corresponding values from the upgrade object
+    html = html.replace(/{{(.*?)}}/g, (match, key) => {
+      // If the key exists in the value object, replace it; otherwise, use an empty string
+      return value[key.trim()] !== undefined ? value[key.trim()] : '';
+    });
+
+    upgradesContainer.innerHTML += html;
   });
-    
-  upgradesContainer.innerHTML += html
-  })
 }
 
 createUpgrades();
@@ -49,6 +55,8 @@ function incrementSchlingus(event) {
 
   timeout(div);
 }
+
+
 
 const timeout = (div) => {
   setTimeout(() => {
