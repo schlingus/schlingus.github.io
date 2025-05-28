@@ -10,120 +10,17 @@
 <body>
     <h1>schlingus rng</h1>
     
-        <!-- Login/Register Modal -->
-    <div id="authModal" style="display:flex;position:fixed;z-index:100;left:0;top:0;right:0;bottom:0;background:rgba(0,0,0,0.7);align-items:center;justify-content:center;">
-        <div style="background:#222;color:#fff;padding:2em;border-radius:8px;min-width:300px;">
-            <h2 id="authTitle">Login</h2>
-            <input id="usernameInput" placeholder="username" style="display:block;width:100%;margin-bottom:1em;">
-            <input id="passwordInput" type="password" placeholder="password" style="display:block;width:100%;margin-bottom:1em;">
-            <button id="loginBtn">login</button>
-            <button id="registerBtn">register</button>
-            <div id="authError" style="color:#f66;margin-top:1em;"></div>
-        </div>
+     <!-- Add this inside <body>, before your main content -->
+<div id="authModal" style="display:flex;position:fixed;z-index:100;left:0;top:0;right:0;bottom:0;background:rgba(0,0,0,0.7);align-items:center;justify-content:center;">
+    <div style="background:#222;color:#fff;padding:2em;border-radius:8px;min-width:300px;">
+        <h2 id="authTitle">Login or Register</h2>
+        <input id="usernameInput" placeholder="username" style="display:block;width:100%;margin-bottom:1em;">
+        <input id="passwordInput" type="password" placeholder="password" style="display:block;width:100%;margin-bottom:1em;">
+        <button id="loginBtn">login</button>
+        <button id="registerBtn">register</button>
+        <div id="authError" style="color:#f66;margin-top:1em;"></div>
     </div>
-    <div>
-        <button id="rollBtn" disabled>roll</button>
-        <button id="inventoryBtn" disabled>inventory</button>
-        <button id="allItemsBtn">all items</button>
-        <link rel="stylesheet" href="style.css">
-    </div>
-    <div id="result"></div>
-    <!-- ...existing style and modals... -->
-    <script>
-        // ...existing namedNumbers and functions...
-
-        // --- AUTH LOGIC ---
-        let currentUser = null;
-        let currentPass = null;
-
-        const authModal = document.getElementById('authModal');
-        const usernameInput = document.getElementById('usernameInput');
-        const passwordInput = document.getElementById('passwordInput');
-        const loginBtn = document.getElementById('loginBtn');
-        const registerBtn = document.getElementById('registerBtn');
-        const authError = document.getElementById('authError');
-        // const rollBtn = document.getElementById('rollBtn');
-        // const inventoryBtn = document.getElementById('inventoryBtn');
-
-        function setAuthEnabled(enabled) {
-            rollBtn.disabled = !enabled;
-            inventoryBtn.disabled = !enabled;
-        }
-
-        async function loginOrRegister(endpoint) {
-            authError.textContent = '';
-            const username = usernameInput.value.trim();
-            const password = passwordInput.value;
-            if (!username || !password) {
-                authError.textContent = 'Enter username and password';
-                return;
-            }
-            try {
-                const res = await fetch(`https://nodejs-seven-bay.vercel.app/api/auth`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
-                });
-                const data = await res.json();
-                if (res.ok) {
-                    currentUser = username;
-                    currentPass = password;
-                    authModal.style.display = 'none';
-                    setAuthEnabled(true);
-                    await loadInventoryFromServer();
-                } else {
-                    authError.textContent = data.error || 'Error';
-                }
-            } catch (e) {
-                authError.textContent = 'Server error';
-            }
-        }
-
-        loginBtn.onclick = () => loginOrRegister('login');
-        registerBtn.onclick = () => loginOrRegister('register');
-
-        // --- INVENTORY SYNC WITH BACKEND ---
-        async function loadInventoryFromServer() {
-            if (!currentUser || !currentPass) return;
-            try {
-                const res = await fetch('https://nodejs-seven-bay.vercel.app/api/auth', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: currentUser, password: currentPass })
-                });
-                const data = await res.json();
-                if (res.ok && Array.isArray(data.inventory)) {
-                    inventory = data.inventory;
-                } else {
-                    inventory = [];
-                }
-            } catch (e) {
-                inventory = [];
-            }
-        }
-
-        async function saveInventoryToServer() {
-            if (!currentUser || !currentPass) return;
-            await fetch('https://nodejs-seven-bay.vercel.app/api/auth', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username: currentUser, password: currentPass, inventory })
-            });
-        }
-
-        // Override saveInventory to sync with backend
-        function saveInventory() {
-            saveInventoryToServer();
-        }
-
-        // On load, show auth modal and disable buttons
-        setAuthEnabled(false);
-        authModal.style.display = 'flex';
-
-        // ...rest of your code (rollBtn.onclick, inventoryBtn.onclick, etc.)...
-    </script>
-</body>
-<!-- ...existing code... -->
+</div>   
     
     <div>
         <button id="rollBtn">roll</button>
@@ -170,6 +67,146 @@
     </div>
 
     <script>
+        
+        // --- AUTH LOGIC ---
+let currentUser = null;
+let currentPass = null;
+
+const authModal = document.getElementById('authModal');
+const usernameInput = document.getElementById('usernameInput');
+const passwordInput = document.getElementById('passwordInput');
+const loginBtn = document.getElementById('loginBtn');
+const registerBtn = document.getElementById('registerBtn');
+const authError = document.getElementById('authError');
+const rollBtn = document.getElementById('rollBtn');
+const inventoryBtn = document.getElementById('inventoryBtn');
+
+function setAuthEnabled(enabled) {
+    rollBtn.disabled = !enabled;
+    inventoryBtn.disabled = !enabled;
+}
+
+async function loginOrRegister(endpoint) {
+    authError.textContent = '';
+    const username = usernameInput.value.trim();
+    const password = passwordInput.value;
+    if (!username || !password) {
+        authError.textContent = 'Enter username and password';
+        return;
+    }
+    try {
+        const res = await fetch(`https://rng-backend.vercel.app/${endpoint}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            currentUser = username;
+            currentPass = password;
+            authModal.style.display = 'none';
+            setAuthEnabled(true);
+            await loadInventoryFromServer();
+        } else {
+            authError.textContent = data.error || 'Error';
+        }
+    } catch (e) {
+        authError.textContent = 'Server error';
+    }
+}
+
+loginBtn.onclick = async () => {
+    authError.textContent = '';
+    const username = usernameInput.value.trim();
+    const password = passwordInput.value;
+    if (!username || !password) {
+        authError.textContent = 'Enter username and password';
+        return;
+    }
+    try {
+        const res = await fetch('https://rng-backend.vercel.app/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+        if (res.ok && data.ok) {
+            currentUser = username;
+            currentPass = password;
+            authModal.style.display = 'none';
+            setAuthEnabled(true);
+            await loadInventoryFromServer();
+        } else {
+            authError.textContent = data.error || 'Error';
+        }
+    } catch (e) {
+        authError.textContent = 'Server error';
+    }
+};
+registerBtn.onclick = async () => {
+    authError.textContent = '';
+    const username = usernameInput.value.trim();
+    const password = passwordInput.value;
+    if (!username || !password) {
+        authError.textContent = 'Enter username and password';
+        return;
+    }
+    try {
+        const res = await fetch('https://rng-backend.vercel.app/api/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+        if (res.ok && data.ok) {
+            // Registration successful, now log in automatically or show a message
+            loginOrRegister('login');
+        } else {
+            authError.textContent = data.error || 'Error';
+        }
+    } catch (e) {
+        authError.textContent = 'Server error';
+    }
+};
+
+// --- INVENTORY SYNC WITH BACKEND ---
+async function loadInventoryFromServer() {
+    if (!currentUser || !currentPass) return;
+    try {
+        const res = await fetch('https://rng-backend.vercel.app/api/progress', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: currentUser, password: currentPass })
+        });
+        const data = await res.json();
+        if (res.ok && Array.isArray(data.inventory)) {
+            inventory = data.inventory;
+        } else {
+            inventory = [];
+        }
+    } catch (e) {
+        inventory = [];
+    }
+}
+
+async function saveInventoryToServer() {
+    if (!currentUser || !currentPass) return;
+    await fetch('https://rng-backend.vercel.app/api/progress_update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: currentUser, password: currentPass, inventory })
+    });
+}
+
+// Override saveInventory to sync with backend
+function saveInventory() {
+    saveInventoryToServer();
+}
+
+// On load, show auth modal and disable buttons
+setAuthEnabled(false);
+authModal.style.display = 'flex';
+        
         // Map of numbers to names and images
         const namedNumbers = {
             1: { name: "oven", img: "./images/oven.png" },
@@ -209,8 +246,8 @@
         let inventory = [];
 
         const resultDiv = document.getElementById('result');
-        const rollBtn = document.getElementById('rollBtn');
-        const inventoryBtn = document.getElementById('inventoryBtn');
+        // const rollBtn = document.getElementById('rollBtn'); // Removed duplicate declaration
+        // const inventoryBtn = document.getElementById('inventoryBtn'); // Removed duplicate declaration
         const inventoryModal = document.getElementById('inventoryModal');
         const inventoryList = document.getElementById('inventoryList');
         const closeInventory = document.getElementById('closeInventory');
@@ -394,6 +431,20 @@
                 allItemsModal.style.display = 'none';
             }
         };
+
+        async function adminSetInventory(adminpass, username, inventory) {
+    const res = await fetch('https://rng-backend.vercel.app/api/admin_setprogress', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ adminpass, username, inventory })
+    });
+    const data = await res.json();
+    if (res.ok && data.ok) {
+        alert('Inventory updated for ' + username);
+    } else {
+        alert('Error: ' + (data.error || 'Unknown error'));
+    }
+}
     </script>
 </body>
 </html>
