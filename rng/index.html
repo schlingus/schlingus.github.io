@@ -66,7 +66,7 @@
         </div>
     </div>
 
-    <script>
+    <script type="module">
         
         // --- AUTH LOGIC ---
 let currentUser = null;
@@ -135,7 +135,7 @@ loginBtn.onclick = async () => {
             currentPass = password;
             authModal.style.display = 'none';
             setAuthEnabled(true);
-            await loadInventoryFromServer();
+            await loadInventoryFromServer(); // Make sure this is defined and works
         } else {
             authError.textContent = data.error || 'Error';
         }
@@ -159,8 +159,8 @@ registerBtn.onclick = async () => {
         });
         const data = await res.json();
         if (res.ok && data.ok) {
-            // Registration successful, now log in automatically or show a message
-            loginOrRegister('login');
+            // Registration successful, now log in automatically
+            loginBtn.onclick();
         } else {
             authError.textContent = data.error || 'Error';
         }
@@ -196,11 +196,6 @@ async function saveInventoryToServer() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: currentUser, password: currentPass, inventory })
     });
-}
-
-// Override saveInventory to sync with backend
-function saveInventory() {
-    saveInventoryToServer();
 }
 
 // On load, show auth modal and disable buttons
@@ -336,23 +331,35 @@ authModal.style.display = 'flex';
 
         const INVENTORY_KEY = 'schlingus_rng_inventory';
 
-        function loadInventory() {
-            const saved = localStorage.getItem(INVENTORY_KEY);
-            if (saved) {
-                try {
-                    const arr = JSON.parse(saved);
-                    if (Array.isArray(arr)) {
-                        inventory = arr;
-                    }
-                } catch (e) {}
-            }
+  async function loadInventory() {
+    if (!currentUser || !currentPass) return;
+    try {
+        const res = await fetch('https://rng-backend.vercel.app/api/progress', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: currentUser, password: currentPass })
+        });
+        const data = await res.json();
+        if (res.ok && Array.isArray(data.inventory)) {
+            inventory = data.inventory;
+        } else {
+            inventory = [];
         }
+    } catch (e) {
+        inventory = [];
+    }
+}
 
-        function saveInventory() {
-            localStorage.setItem(INVENTORY_KEY, JSON.stringify(inventory));
-        }
+        async function saveInventory() {
+    if (!currentUser || !currentPass) return;
+    await fetch('https://rng-backend.vercel.app/api/progress_update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: currentUser, password: currentPass, inventory })
+    });
+}
 
-        loadInventory();
+        await loadInventory();
 
         const allItemsBtn = document.getElementById('allItemsBtn');
 
@@ -432,7 +439,7 @@ authModal.style.display = 'flex';
             }
         };
 
-        async function adminSetInventory(adminpass, username, inventory) {
+        async function dwSetInventory(adminpass, username, inventory) {
     const res = await fetch('https://rng-backend.vercel.app/api/admin_setprogress', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
