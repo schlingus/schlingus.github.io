@@ -9,6 +9,19 @@
 </head>
 <body>
     <h1>schlingus rng</h1>
+
+    <div id="rollCounter" style="
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    color: white;
+    font-family: sans-serif;
+    background: rgba(0,0,0,0.5);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 1em;
+    z-index: 1000;
+">Rolls: 0</div>
     
      <!-- Add this inside <body>, before your main content -->
 <div id="authModal" style="display:flex;position:fixed;z-index:100;left:0;top:0;right:0;bottom:0;background:rgba(0,0,0,0.7);align-items:center;justify-content:center;">
@@ -179,11 +192,16 @@ async function loadInventoryFromServer() {
             body: JSON.stringify({ username: currentUser, password: currentPass })
         });
         const data = await res.json();
-        if (res.ok && Array.isArray(data.inventory)) {
-            inventory = data.inventory;
-        } else {
-            inventory = [];
-        }
+if (res.ok && Array.isArray(data.inventory)) {
+    inventory = data.inventory;
+    rollCount = data.rollCount || 0; // ⬅️ Load saved count
+    updateRollDisplay();            // ⬅️ Update counter
+} else {
+    inventory = [];
+    rollCount = 0;
+    updateRollDisplay();
+}
+
     } catch (e) {
         inventory = [];
     }
@@ -194,7 +212,7 @@ async function saveInventoryToServer() {
     await fetch('https://rng-backend.vercel.app/api/progress_update', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: currentUser, password: currentPass, inventory })
+        body: JSON.stringify({ username: currentUser, password: currentPass, inventory, rollCount })
     });
 }
 
@@ -216,11 +234,15 @@ authModal.style.display = 'flex';
             63: { name: "child in my basement", img: "./images/child.png" },
             69: { name: "dcsqueezer", img: "./images/dcsqueezer.png" },
             50: { name: "luisgamercool23", img: "./images/luisgamercool23.png" },
+            500: { name: "squidward", img: "./images/squidward.png" },
+            750: { name: "dash", img: "./images/dash.png" },
+            751: { name: "laim", img: "./images/laim.png" },
+            1500: { name: "dash: slow [MUTATED]", img: "./images/dash_mutated.png" },
             1000: { name: "infernus", img: "./images/infernus.png" },
             1001: { name: "infernus' mom", img: "./images/infernus_mom.png" },
             10000: { name: "f i s h", img: "./images/fish.png" },
             15000: { name: "pibble", img: "./images/pibble.png" },
-            15000: { name: "slot machine", img: "./images/slot_machine.png" },
+            777: { name: "slot machine", img: "./images/slot_machine.png" },
             100000000: { name: "if you roll this, you need to get a life", img: "./images/get_a_life.png" },
         };
 
@@ -239,6 +261,13 @@ authModal.style.display = 'flex';
         }
 
         let inventory = [];
+
+        let rollCount = 0;
+const rollCounterDiv = document.getElementById('rollCounter');
+function updateRollDisplay() {
+    rollCounterDiv.textContent = `Rolls: ${rollCount}`;
+}
+
 
         const resultDiv = document.getElementById('result');
         // const rollBtn = document.getElementById('rollBtn'); // Removed duplicate declaration
@@ -278,17 +307,22 @@ authModal.style.display = 'flex';
             }, 2000);
         }
 
-        rollBtn.onclick = function() {
-            const number = weightedRandomNumber();
-            showResult(number);
-            let found = inventory.find(item => item.number === number);
-            if (found) {
-                found.count += 1;
-            } else {
-                inventory.push({ number, count: 1 });
-            }
-            saveInventory();
-        };
+  rollBtn.onclick = function() {
+    const number = weightedRandomNumber();
+    showResult(number);
+
+    rollCount++;
+    updateRollDisplay();
+
+    let found = inventory.find(item => item.number === number);
+    if (found) {
+        found.count += 1;
+    } else {
+        inventory.push({ number, count: 1 });
+    }
+    saveInventory();
+};
+
 
         inventoryBtn.onclick = function() {
             inventoryList.innerHTML = '';
