@@ -21,7 +21,7 @@
     border-radius: 6px;
     font-size: 1em;
     z-index: 1000;
-">Rolls: 0</div>
+">session rolls: 0</div>
     
      <!-- Add this inside <body>, before your main content -->
 <div id="authModal" style="display:flex;position:fixed;z-index:100;left:0;top:0;right:0;bottom:0;background:rgba(0,0,0,0.7);align-items:center;justify-content:center;">
@@ -265,7 +265,7 @@ authModal.style.display = 'flex';
         let rollCount = 0;
 const rollCounterDiv = document.getElementById('rollCounter');
 function updateRollDisplay() {
-    rollCounterDiv.textContent = `Rolls: ${rollCount}`;
+    rollCounterDiv.textContent = `session rolls: ${rollCount}`;
 }
 
 
