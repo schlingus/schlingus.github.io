@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>dodge the falling schlingus</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div id="skinSelector">
+  <label for="skin">Choose Your Skin:</label>
+  <select id="skin">
+    <option value="./assets/player.png">infernus</option>
+    <option value="./assets/bungile.png">bungile</option>
+    <option value="./assets/mistrake.png">mistrake</option>
+    <option value="./assets/luisgamercool23.png">luisgamercool23</option>
+  </select>
+  <button id="startBtn">Start Game</button>
+</div>
+
+  <div id="game">
+    <div id="player"></div>
+    <div id="score">Score: 0</div>
+    <button id="pauseBtn">Pause</button>
+
+    <div id="menuOverlay" class="hidden">
+      <div id="menuBox">
+        <h2 id="menuTitle">paused</h2>
+        <button id="resumeBtn">resume</button>
+        <button id="restartBtn">restart</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="main.js"></script>
+</body>
+</html>
