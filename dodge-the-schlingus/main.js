@@ -35,6 +35,8 @@ let spawnLoopId = null;
 let moveLeft = false;
 let moveRight = false;
 let moveSpeed = 5;
+let spawnInterval = 1000
+
 
 
 // Move player
@@ -94,7 +96,7 @@ function spawnEnemy() {
       scoreDisplay.innerText = "Score: " + score;
 
       // Increase difficulty
-      if (score % 5 === 0 && spawnRate > 300) {
+      if (score % 10 === 0 && spawnRate > 300) {
         spawnRate -= 50;
         fallSpeed += 1;
         enemiesPerSpawn = Math.min(enemiesPerSpawn + 1, 5);
