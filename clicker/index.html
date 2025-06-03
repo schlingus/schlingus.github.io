@@ -21,7 +21,7 @@
             </div> 
             <script id="upgrade-template" type="text/template">
 
-                <div class="upgrade" onclick="buyUpgrade('{{name}}')">
+                <div class="upgrade" onclick="buyUpgrade(this.dataset.name)" data-name="{{name}}">
                     <div class="left-section">
                         <img src="{{image}}" alt="" srcset="" class="'{{name}}'-upgrade-img">
                     </div>
@@ -64,52 +64,71 @@
             </button>
         </div>
     </section>
-
-    <script type="module" src="clicker-index.js"></script>
     <script>
-    // Utility to get a random integer between min and max, inclusive
-    function getRandomMistrakeIncrease() {
-        return Math.floor(Math.random() * (500 - 50 + 1)) + 50;
+function getRandomMistrakeIncrease() {
+    return Math.floor(Math.random() * (500 - 50 + 1)) + 50;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const mistrakeIncreaseSpan = document.querySelector('.mistrake-increase');
+    if (mistrakeIncreaseSpan) {
+        mistrakeIncreaseSpan.textContent = getRandomMistrakeIncrease();
     }
+});
 
-    // Set initial mistrake-increase to a random value on page load
-    document.addEventListener('DOMContentLoaded', function() {
-        const mistrakeIncreaseSpan = document.querySelector('.mistrake-increase');
-        if (mistrakeIncreaseSpan) {
-            mistrakeIncreaseSpan.textContent = getRandomMistrakeIncrease();
-        }
-    });
-
-    // Wait until index.js is loaded and window.buyUpgrade is defined
-    document.addEventListener('DOMContentLoaded', function() {
-        if (typeof window.buyUpgrade === 'function') {
-            const originalBuyUpgrade = window.buyUpgrade;
-            window.buyUpgrade = function(type) {
-                if (type === 'mistrake') {
-                    const mistrakeLevelSpan = document.querySelector('.mistrake-level');
-                    const mistrakeIncreaseSpan = document.querySelector('.mistrake-increase');
-                    if (mistrakeLevelSpan && mistrakeIncreaseSpan) {
-                        const prevLevel = Number(mistrakeLevelSpan.textContent);
-                        if (typeof originalBuyUpgrade === 'function') {
-                            originalBuyUpgrade.apply(this, arguments);
-                        }
-                        const newLevel = Number(mistrakeLevelSpan.textContent);
-                        if (newLevel > prevLevel) {
-                            let newValue, prevValue = Number(mistrakeIncreaseSpan.textContent);
-                            do {
-                                newValue = getRandomMistrakeIncrease();
-                            } while (newValue === prevValue && (500 - 50) > 0);
-                            mistrakeIncreaseSpan.textContent = newValue;
-                        }
-                        return;
-                    }
-                }
-                if (typeof originalBuyUpgrade === 'function') {
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof window.buyUpgrade === 'function') {
+        const originalBuyUpgrade = window.buyUpgrade;
+        window.buyUpgrade = function(type) {
+            if (type === 'mistrake') {
+                const mistrakeLevelSpan = document.querySelector('.mistrake-level');
+                const mistrakeIncreaseSpan = document.querySelector('.mistrake-increase');
+                if (mistrakeLevelSpan && mistrakeIncreaseSpan) {
+                    const prevLevel = Number(mistrakeLevelSpan.textContent);
                     originalBuyUpgrade.apply(this, arguments);
+                    const newLevel = Number(mistrakeLevelSpan.textContent);
+                    if (newLevel > prevLevel) {
+                        mistrakeIncreaseSpan.textContent = getRandomMistrakeIncrease();
+                    }
+                    return;
                 }
-            };
-        }
-    });
+            }
+            originalBuyUpgrade.apply(this, arguments);
+        };
+    }
+});
+
+function save() {
+    const gameState = {
+        schlingusCount: document.querySelector('.schlingus-cost').textContent,
+        upgrades: Array.from(document.querySelectorAll('.upgrade')).map(upgrade => ({
+            name: upgrade.querySelector('h4').textContent,
+            cost: upgrade.querySelector('.cost-text span').textContent,
+            level: upgrade.querySelector('.right-section span').textContent,
+            increase: upgrade.querySelector('.next-level-info span').textContent
+        }))
+    };
+    localStorage.setItem('schlingusGameState', JSON.stringify(gameState));
+    alert('Game saved!');
+}
+
+function load() {
+    const gameState = JSON.parse(localStorage.getItem('schlingusGameState'));
+    if (gameState) {
+        document.querySelector('.schlingus-cost').textContent = gameState.schlingusCount;
+        gameState.upgrades.forEach(upgrade => {
+            const upgradeElement = document.querySelector(`.upgrade:contains('${upgrade.name}')`);
+            if (upgradeElement) {
+                upgradeElement.querySelector('.cost-text span').textContent = upgrade.cost;
+                upgradeElement.querySelector('.right-section span').textContent = upgrade.level;
+                upgradeElement.querySelector('.next-level-info span').textContent = upgrade.increase;
+            }
+        });
+        alert('Game loaded!');
+    } else {
+        alert('No saved game found!');
+    }
+}
     </script>
 </body>
 </html>

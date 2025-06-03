@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>dodge the falling schlingus</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div id="mainMenu">
+  <h1>dodge the schlingus</h1>
+  <h2>select character</h2>
+  <div id="carouselContainer">
+    <div id="carousel">
+      <img src="./bungile.png" data-skin="bungile.png" class="skinPreview selected" />
+      <img src="./luisgamercool23.png" data-skin="luisgamercool23.png" class="skinPreview" />
+      <img src="./infernus.png" data-skin="infernus.png" class="skinPreview" />
+      <img src="./mistrake.png" data-skin="mistrake.png" class="skinPreview" />
+      <!-- Add more skins as needed -->
+    </div>
+  </div>
+  <button id="startGameBtn">start</button>
+</div>
+
+
+
+  <div id="game">
+<div id="mobileControls">
+  <button id="leftBtn">◀</button>
+  <button id="jumpBtn">⬆</button>
+  <button id="pauseBtn">⏸️</button>
+  <button id="dashBtn">💨</button>
+  <button id="rightBtn">▶</button>
+</div>
+
+<div id="dashCooldownBar">
+  <div id="dashCooldownFill"></div>
+</div>
+
+    <div id="player"></div>
+    <div id="score">score: 0</div>
+    <button id="pauseBtn">pause</button>
+
+    <div id="menuOverlay" class="hidden">
+      <div id="menuBox">
+        <h2 id="menuTitle">paused</h2>
+        <button id="resumeBtn">resume</button>
+        <button id="restartBtn">restart</button>
+      </div>
+
+          <div id="menuOverlay" class="hidden">
+      <div id="menuBox">
+        <h2 id="menuTitle">paused</h2>
+        <button id="resumeBtn">resume</button>
+        <button id="restartBtn">restart</button>
+      </div>
+      
+    </div>
+  </div>
+
+  <script src="main.js"></script>
+</body>
+</html>

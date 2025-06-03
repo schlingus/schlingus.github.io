@@ -24,16 +24,7 @@
 ">session rolls: 0</div>
     
      <!-- Add this inside <body>, before your main content -->
-<div id="authModal" style="display:flex;position:fixed;z-index:100;left:0;top:0;right:0;bottom:0;background:rgba(0,0,0,0.7);align-items:center;justify-content:center;">
-    <div style="background:#222;color:#fff;padding:2em;border-radius:8px;min-width:300px;">
-        <h2 id="authTitle">Login or Register</h2>
-        <input id="usernameInput" placeholder="username" style="display:block;width:100%;margin-bottom:1em;">
-        <input id="passwordInput" type="password" placeholder="password" style="display:block;width:100%;margin-bottom:1em;">
-        <button id="loginBtn">login</button>
-        <button id="registerBtn">register</button>
-        <div id="authError" style="color:#f66;margin-top:1em;"></div>
-    </div>
-</div>   
+
     
     <div>
         <button id="rollBtn">roll</button>
@@ -85,12 +76,6 @@
 let currentUser = null;
 let currentPass = null;
 
-const authModal = document.getElementById('authModal');
-const usernameInput = document.getElementById('usernameInput');
-const passwordInput = document.getElementById('passwordInput');
-const loginBtn = document.getElementById('loginBtn');
-const registerBtn = document.getElementById('registerBtn');
-const authError = document.getElementById('authError');
 const rollBtn = document.getElementById('rollBtn');
 const inventoryBtn = document.getElementById('inventoryBtn');
 
@@ -117,8 +102,8 @@ async function loginOrRegister(endpoint) {
         if (res.ok) {
             currentUser = username;
             currentPass = password;
-            authModal.style.display = 'none';
-            setAuthEnabled(true);
+            
+            setAuthEnabled(true); // Enable roll button
             await loadInventoryFromServer();
         } else {
             authError.textContent = data.error || 'Error';
@@ -128,98 +113,7 @@ async function loginOrRegister(endpoint) {
     }
 }
 
-loginBtn.onclick = async () => {
-    authError.textContent = '';
-    const username = usernameInput.value.trim();
-    const password = passwordInput.value;
-    if (!username || !password) {
-        authError.textContent = 'Enter username and password';
-        return;
-    }
-    try {
-        const res = await fetch('https://rng-backend.vercel.app/api/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password })
-        });
-        const data = await res.json();
-        if (res.ok && data.ok) {
-            currentUser = username;
-            currentPass = password;
-            authModal.style.display = 'none';
-            setAuthEnabled(true);
-            await loadInventoryFromServer(); // Make sure this is defined and works
-        } else {
-            authError.textContent = data.error || 'Error';
-        }
-    } catch (e) {
-        authError.textContent = 'Server error';
-    }
-};
-registerBtn.onclick = async () => {
-    authError.textContent = '';
-    const username = usernameInput.value.trim();
-    const password = passwordInput.value;
-    if (!username || !password) {
-        authError.textContent = 'Enter username and password';
-        return;
-    }
-    try {
-        const res = await fetch('https://rng-backend.vercel.app/api/register', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password })
-        });
-        const data = await res.json();
-        if (res.ok && data.ok) {
-            // Registration successful, now log in automatically
-            loginBtn.onclick();
-        } else {
-            authError.textContent = data.error || 'Error';
-        }
-    } catch (e) {
-        authError.textContent = 'Server error';
-    }
-};
 
-// --- INVENTORY SYNC WITH BACKEND ---
-async function loadInventoryFromServer() {
-    if (!currentUser || !currentPass) return;
-    try {
-        const res = await fetch('https://rng-backend.vercel.app/api/progress', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username: currentUser, password: currentPass })
-        });
-        const data = await res.json();
-if (res.ok && Array.isArray(data.inventory)) {
-    inventory = data.inventory;
-    rollCount = data.rollCount || 0; // ⬅️ Load saved count
-    updateRollDisplay();            // ⬅️ Update counter
-} else {
-    inventory = [];
-    rollCount = 0;
-    updateRollDisplay();
-}
-
-    } catch (e) {
-        inventory = [];
-    }
-}
-
-async function saveInventoryToServer() {
-    if (!currentUser || !currentPass) return;
-    await fetch('https://rng-backend.vercel.app/api/progress_update', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: currentUser, password: currentPass, inventory, rollCount })
-    });
-}
-
-// On load, show auth modal and disable buttons
-setAuthEnabled(false);
-authModal.style.display = 'flex';
-        
         // Map of numbers to names and images
         const namedNumbers = {
             1: { name: "oven", img: "./images/oven.png" },
@@ -320,7 +214,7 @@ function updateRollDisplay() {
     } else {
         inventory.push({ number, count: 1 });
     }
-    saveInventory();
+    saveInventoryToLocalStorage(); // Save inventory to local storage
 };
 
 
@@ -365,35 +259,21 @@ function updateRollDisplay() {
 
         const INVENTORY_KEY = 'schlingus_rng_inventory';
 
-  async function loadInventory() {
-    if (!currentUser || !currentPass) return;
-    try {
-        const res = await fetch('https://rng-backend.vercel.app/api/progress', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username: currentUser, password: currentPass })
-        });
-        const data = await res.json();
-        if (res.ok && Array.isArray(data.inventory)) {
-            inventory = data.inventory;
+    function loadInventoryFromLocalStorage() {
+        const storedInventory = localStorage.getItem(INVENTORY_KEY);
+        if (storedInventory) {
+            inventory = JSON.parse(storedInventory);
         } else {
             inventory = [];
         }
-    } catch (e) {
-        inventory = [];
     }
-}
 
-        async function saveInventory() {
-    if (!currentUser || !currentPass) return;
-    await fetch('https://rng-backend.vercel.app/api/progress_update', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: currentUser, password: currentPass, inventory })
-    });
-}
+    function saveInventoryToLocalStorage() {
+        localStorage.setItem(INVENTORY_KEY, JSON.stringify(inventory));
+    }
 
-        await loadInventory();
+        // Load inventory from local storage on page load
+        loadInventoryFromLocalStorage();
 
         const allItemsBtn = document.getElementById('allItemsBtn');
 
