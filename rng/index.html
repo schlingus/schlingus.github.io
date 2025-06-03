@@ -27,11 +27,12 @@
 
     
     <div>
-        <button id="rollBtn">roll</button>
-        <button id="inventoryBtn">inventory</button>
-        <button id="allItemsBtn">all items</button>
-        <link rel="stylesheet" href="style.css">
-    </div>
+    <button id="rollBtn">roll</button>
+    <button id="inventoryBtn">inventory</button>
+    <button id="autorollBtn" disabled>autoroll</button>
+    <button id="allItemsBtn">all items</button>
+    <link rel="stylesheet" href="style.css">
+</div>
     <div id="result"></div>
     <style>
         #result {
@@ -71,17 +72,18 @@
     </div>
 
     <script type="module">
-        
-        // --- AUTH LOGIC ---
-let currentUser = null;
-let currentPass = null;
 
 const rollBtn = document.getElementById('rollBtn');
 const inventoryBtn = document.getElementById('inventoryBtn');
+const autorollBtn = document.getElementById('autorollBtn');
+let autorollEnabled = false;
+let autorollTimeout = null;
+let isRolling = false;
 
 function setAuthEnabled(enabled) {
     rollBtn.disabled = !enabled;
     inventoryBtn.disabled = !enabled;
+    autorollBtn.disabled = !enabled;
 }
 
 async function loginOrRegister(endpoint) {
@@ -191,9 +193,11 @@ function updateRollDisplay() {
             resultImg.src = img;
             resultImg.alt = name;
             // Anti auto clicker: disable roll button for 2 seconds after each roll
+            isRolling = true;
             rollBtn.disabled = true;
             setTimeout(() => {
                 rollBtn.disabled = false;
+                isRolling = false;
             }, 2000);
             resultImg.style.opacity = 1;
             setTimeout(() => {
@@ -202,7 +206,8 @@ function updateRollDisplay() {
             }, 2000);
         }
 
-  rollBtn.onclick = function() {
+  function doRoll() {
+    if (isRolling) return; // Prevent rolling if already rolling
     const number = weightedRandomNumber();
     showResult(number);
 
@@ -215,7 +220,46 @@ function updateRollDisplay() {
     } else {
         inventory.push({ number, count: 1 });
     }
-    saveInventoryToLocalStorage(); // Save inventory to local storage
+    saveInventoryToLocalStorage();
+}
+
+// Disable roll button for 2 seconds after page load
+rollBtn.disabled = true;
+setTimeout(() => {
+    rollBtn.disabled = false;
+}, 2000);
+
+        rollBtn.onclick = function() {
+    doRoll();
+};
+
+// Autoroll logic
+autorollBtn.disabled = false; // Enable autoroll button by default
+
+const autorollStatus = document.getElementById('autorollStatus');
+
+autorollBtn.onclick = function() {
+    if (!autorollEnabled) {
+        autorollEnabled = true;
+        autorollBtn.textContent = "stop autoroll";
+        rollBtn.disabled = true; // Prevent manual rolling during autoroll
+        autorollStatus.style.display = "block";
+        function autorollLoop() {
+            if (!autorollEnabled) return;
+            if (!isRolling) {
+                doRoll();
+            }
+            autorollTimeout = setTimeout(autorollLoop, 50);
+        }
+        autorollLoop();
+    } else {
+        autorollEnabled = false;
+        autorollBtn.textContent = "autoroll";
+        clearTimeout(autorollTimeout);
+        autorollTimeout = null;
+        rollBtn.disabled = false;
+        autorollStatus.style.display = "none";
+    }
 };
 
 
@@ -368,5 +412,74 @@ function updateRollDisplay() {
     }
 }
     </script>
+<canvas id="bg-canvas" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:-1;pointer-events:none;"></canvas>
+<div id="autorollStatus" style="
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #222;
+    color: #fff;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: 1.2em;
+    z-index: 1001;
+    font-family: sans-serif;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+">autoroll enabled</div>
+
+<script>
+// Draw a background of tiled Roblox manfaces
+function robloxManfaceBackground() {
+    const canvas = document.getElementById('bg-canvas');
+    const ctx = canvas.getContext('2d');
+    // Use a public Roblox manface image (or host your own for reliability)
+    const manfaceUrl = "https://static.wikia.nocookie.net/roblox/images/3/35/Manface.png/revision/latest/thumbnail/width/360/height/450?cb=20211031043454";
+    const img = new window.Image();
+    img.crossOrigin = "anonymous";
+    img.src = manfaceUrl;
+
+    function draw() {
+        const w = canvas.width = window.innerWidth;
+        const h = canvas.height = window.innerHeight;
+        const tileSize = 64;
+        // Fill background with white before drawing faces
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(0, 0, w, h);
+        if (img.complete) {
+            for (let y = 0; y < h; y += tileSize) {
+                for (let x = 0; x < w; x += tileSize) {
+                    ctx.drawImage(img, x, y, tileSize, tileSize);
+                }
+            }
+        } else {
+            img.onload = draw;
+        }
+    }
+    window.addEventListener('resize', draw);
+    img.onload = draw;
+    // If already loaded (cache), draw immediately
+    if (img.complete) draw();
+}
+robloxManfaceBackground();
+
+// Set a random small AI generated "schlingus" photo in the bottom left corner
+(function setRandomAIPhoto() {
+    // Use Lexica.art API for random "schlingus" AI images (public CDN, safe for demo)
+    // We'll use a random offset to get a different image each time
+    const img = document.getElementById('aiPhoto');
+    // Array of a few handpicked Lexica "schlingus" images (replace/add more if desired)
+    const schlingusImages = [
+        "https://lexica-serve-encoded-images2.sharif.workers.dev/full_jpg/9b7e0e7e-6e7e-4e7e-8e7e-7e7e7e7e7e7e", // Example placeholder
+        "https://lexica-serve-encoded-images2.sharif.workers.dev/full_jpg/7e7e7e7e-8e7e-9e7e-6e7e-5e7e7e7e7e7e", // Example placeholder
+        "https://lexica-serve-encoded-images2.sharif.workers.dev/full_jpg/1e2e3e4e-5e6e-7e8e-9e0e-1e2e3e4e5e6e", // Example placeholder
+        // Add more URLs of AI-generated "schlingus" images here
+    ];
+    // Pick a random image from the list
+    const idx = Math.floor(Math.random() * schlingusImages.length);
+    img.src = schlingusImages[idx];
+})();
+</script>
 </body>
 </html>
