@@ -14,7 +14,7 @@
     position: fixed;
     top: 10px;
     left: 10px;
-    color: white;
+    color: #fff !important;
     font-family: sans-serif;
     background: rgba(0,0,0,0.5);
     padding: 6px 12px;
@@ -33,35 +33,46 @@
     <button id="allItemsBtn">all items</button>
     <link rel="stylesheet" href="style.css">
 </div>
-    <div id="result"></div>
-    <style>
-        #result {
-            transition: opacity 0.5s;
-            font-size: 2em;
-            margin: 1em 0;
-            opacity: 0;
-        }
-        #inventoryModal {
-            display: none;
-            position: fixed;
-            z-index: 10;
-            left: 0; top: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5);
-            align-items: center;
-            justify-content: center;
-        }
-        #inventoryContent {
-            background: #222;
-            color: #fff;
-            padding: 2em;
-            border-radius: 8px;
-            min-width: 300px;
-        }
-        #rollBtn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-    </style>
+<div id="result"></div>
+<style>
+    body {
+        color: #000;
+    }
+    #result {
+        transition: opacity 0.5s;
+        font-size: 2em;
+        margin: 1em 0;
+        opacity: 0;
+        color: #000;
+    }
+    #inventoryModal {
+        display: none;
+        position: fixed;
+        z-index: 10;
+        left: 0; top: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.5);
+        align-items: center;
+        justify-content: center;
+    }
+    #inventoryContent {
+        background: #222;
+        color: #fff;
+        padding: 2em;
+        border-radius: 8px;
+        min-width: 300px;
+    }
+    #rollBtn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    h1, button, label, input, select, textarea, #autorollStatus {
+        color: #000 !important;
+    }
+    #rollCounter {
+        color: #fff !important;
+        background: rgba(0,0,0,0.5);
+    }
+</style>
     <!-- Removed duplicate and conflicting scripts. The main logic is implemented in the script below. -->
     <div id="inventoryModal">
         <div id="inventoryContent">
@@ -430,14 +441,13 @@ autorollBtn.onclick = function() {
 ">autoroll enabled</div>
 
 <script>
-// Draw a background of tiled Roblox manfaces
+// Draw a background of tiled Roblox manfaces from local assets
 function robloxManfaceBackground() {
     const canvas = document.getElementById('bg-canvas');
     const ctx = canvas.getContext('2d');
-    // Use a public Roblox manface image (or host your own for reliability)
-    const manfaceUrl = "https://static.wikia.nocookie.net/roblox/images/3/35/Manface.png/revision/latest/thumbnail/width/360/height/450?cb=20211031043454";
+    // Use the local manface.png from assets
+    const manfaceUrl = "./images/manface.png";
     const img = new window.Image();
-    img.crossOrigin = "anonymous";
     img.src = manfaceUrl;
 
     function draw() {
@@ -459,7 +469,6 @@ function robloxManfaceBackground() {
     }
     window.addEventListener('resize', draw);
     img.onload = draw;
-    // If already loaded (cache), draw immediately
     if (img.complete) draw();
 }
 robloxManfaceBackground();
