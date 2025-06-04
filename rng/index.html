@@ -1,7 +1,4 @@
 <!DOCTYPE html>
-
-
-
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -31,9 +28,46 @@
     <button id="inventoryBtn">inventory</button>
     <button id="autorollBtn" disabled>autoroll</button>
     <button id="allItemsBtn">all items</button>
+    <button id="potionsBtn">potions</button>
+    <button id="potionsListBtn">potions list</button>
     <link rel="stylesheet" href="style.css">
 </div>
 <div id="result"></div>
+<div id="activePotions" style="
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    color: #fff;
+    font-family: sans-serif;
+    background: rgba(0,0,0,0.5);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 1em;
+    z-index: 1000;
+    display: none;
+"></div>
+<div id="potionsModal" style="
+    display: none;
+    position: fixed;
+    z-index: 10;
+    left: 0; top: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    align-items: center;
+    justify-content: center;
+">
+    <div id="potionsContent" style="
+        background: #222;
+        color: #fff;
+        padding: 2em;
+        border-radius: 8px;
+        min-width: 300px;
+    ">
+        <h2>your potions</h2>
+        <ul id="potionsList"></ul>
+        <button id="closePotions">close</button>
+    </div>
+</div>
+
 <style>
     body {
         color: #000;
@@ -90,6 +124,8 @@
 const rollBtn = document.getElementById('rollBtn');
 const inventoryBtn = document.getElementById('inventoryBtn');
 const autorollBtn = document.getElementById('autorollBtn');
+const potionsBtn = document.getElementById('potionsBtn');
+const potionsListBtn = document.getElementById('potionsListBtn');
 let autorollEnabled = false;
 let autorollTimeout = null;
 let isRolling = false;
@@ -153,6 +189,25 @@ async function loginOrRegister(endpoint) {
             1001: { name: "infernus' mom", img: "./images/infernus_mom.png" },
             10000: { name: "f i s h", img: "./images/fish.png" },
             15000: { name: "pibble", img: "./images/pibble.png" },
+            20000: { name: "meet", img : "./images/meet.jpg" },
+            25000: { name: "skeleton hand", img: "./images/skeleton_hand.png"},
+            30000: { name: "nerd", img: "./images/nerd.jpg" },
+            33000: { name: "flamgo", img: "./images/flamgo.jpg" },
+            4: {name: "a block of cheese", img: "./images/cheese.png" },
+            4000: { name: "giga", img : "./images/giga.png" },
+            76: { name: "cookware", img: "./images/cookware.png" },
+            1432: { name: "crashout", img: "./images/crashout.png" },
+            8506: { name: "a long distance", img: "./images/long_distance.png" },
+            69420: { name: "a6940154@gmail.com", img: "./images/mail.png"},
+            38: { name: "small man", img: "./images/small_man.png"},
+            6996: { name: "mcdonalds ice cream machine", img: "./images/mcdonald.png" },
+            42: { name: "smrt guy", img: "./images/smrt_guy.png" },
+            27: { name: "garden gnome", img: "./images/garden_gnome.png" },
+            1922: { name: "metal slide", img: "./images/metal_slide.png" },
+            1234567890987654321: { name: "small child", img: "./images/small_child.png" },
+            200000: { name: "The 24 oz double wall stainless steel bottle from mainstays", img: "./images/bottle.jpg" },
+            1034: { name: "its yours", img: "./images/its_yours.png" },
+            536: { name: "potato (useless)", img: "./images/potato.png" },
             777: { name: "slot machine", img: "./images/slot_machine.png" },
             100000000: { name: "if you roll this, you need to get a life", img: "./images/get_a_life.png" },
         };
@@ -171,23 +226,16 @@ async function loginOrRegister(endpoint) {
             return possibleNumbers[possibleNumbers.length - 1];
         }
 
-        let inventory = [];
-
-        let rollCount = 0;
-const rollCounterDiv = document.getElementById('rollCounter');
-function updateRollDisplay() {
-    rollCounterDiv.textContent = `session rolls: ${rollCount}`;
-}
-
-
-        const resultDiv = document.getElementById('result');
-        // const rollBtn = document.getElementById('rollBtn'); // Removed duplicate declaration
-        // const inventoryBtn = document.getElementById('inventoryBtn'); // Removed duplicate declaration
-        const inventoryModal = document.getElementById('inventoryModal');
-        const inventoryList = document.getElementById('inventoryList');
-        const closeInventory = document.getElementById('closeInventory');
-        inventoryList.style.maxHeight = '300px';
-        inventoryList.style.overflowY = 'auto';
+const resultDiv = document.getElementById('result');
+// const rollBtn = document.getElementById('rollBtn'); // Removed duplicate declaration
+// const inventoryBtn = document.getElementById('inventoryBtn'); // Removed duplicate declaration
+const inventoryModal = document.getElementById('inventoryModal');
+const inventoryList = document.getElementById('inventoryList');
+const closeInventory = document.getElementById('closeInventory');
+const potionsList = document.getElementById('potionsList');
+const closePotions = document.getElementById('closePotions');
+inventoryList.style.maxHeight = '300px';
+inventoryList.style.overflowY = 'auto';
 
         // Create image element for result
         let resultImg = document.createElement('img');
@@ -206,19 +254,87 @@ function updateRollDisplay() {
             resultDiv.style.opacity = 1;
             resultImg.src = img;
             resultImg.alt = name;
-            // Anti auto clicker: disable roll button for 2 seconds after each roll
-            isRolling = true;
+
+            isRolling = true; // Prevent rolling during result display
             rollBtn.disabled = true;
-            setTimeout(() => {
-                rollBtn.disabled = false;
-                isRolling = false;
-            }, 2000);
+
             resultImg.style.opacity = 1;
             setTimeout(() => {
                 resultDiv.style.opacity = 0;
                 resultImg.style.opacity = 0;
+                rollBtn.disabled = false;
+                isRolling = false;
             }, 2000);
         }
+
+        let inventory = [];
+
+        let rollCount = 0;
+const rollCounterDiv = document.getElementById('rollCounter');
+function updateRollDisplay() {
+    rollCounterDiv.textContent = `session rolls: ${rollCount}`;
+}
+
+        function playUniqueAnimation(number, callback) {
+            const animationDiv = document.createElement('div');
+            animationDiv.style.position = 'fixed';
+            animationDiv.style.top = '0';
+            animationDiv.style.left = '0';
+            animationDiv.style.width = '100vw';
+            animationDiv.style.height = '100vh';
+            animationDiv.style.zIndex = '1001';
+            animationDiv.style.display = 'flex';
+            animationDiv.style.alignItems = 'center';
+            animationDiv.style.justifyContent = 'center';
+            animationDiv.style.background = 'rgba(0, 0, 0, 0.8)';
+            animationDiv.style.color = '#fff';
+            animationDiv.style.fontSize = '3em';
+            animationDiv.style.textAlign = 'center';
+
+            const itemName = namedNumbers[number]?.name || 'Unknown Item';
+            animationDiv.textContent = `Special Animation for ${itemName}!`;
+
+            // Dynamically set animation based on item number
+            const animationKey = `uniqueAnimation${number}`;
+            animationDiv.style.animation = `${animationKey} 3s ease`;
+
+            document.body.appendChild(animationDiv);
+
+            setTimeout(() => {
+                document.body.removeChild(animationDiv);
+                callback();
+            }, 3000);
+        }
+
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes uniqueAnimation1500 {
+                0% { background-color: #ff0000; transform: scale(0.8); opacity: 0; }
+                50% { background-color: #ff8800; transform: scale(1.2); opacity: 1; }
+                100% { background-color: #ff0000; transform: scale(0.8); opacity: 0; }
+            }
+            @keyframes uniqueAnimation10000 {
+                0% { background-color: #0000ff; transform: rotate(0deg); opacity: 0; }
+                50% { background-color: #00ffff; transform: rotate(180deg); opacity: 1; }
+                100% { background-color: #0000ff; transform: rotate(360deg); opacity: 0; }
+            }
+            @keyframes uniqueAnimation15000 {
+                0% { background-color: #00ff00; transform: scale(0.5); opacity: 0; }
+                50% { background-color: #88ff88; transform: scale(1.5); opacity: 1; }
+                100% { background-color: #00ff00; transform: scale(0.5); opacity: 0; }
+            }
+            @keyframes uniqueAnimation20000 {
+                0% { background-color: #ffff00; transform: translateY(-100%); opacity: 0; }
+                50% { background-color: #ffff88; transform: translateY(0); opacity: 1; }
+                100% { background-color: #ffff00; transform: translateY(100%); opacity: 0; }
+            }
+            @keyframes uniqueAnimation100000000 {
+                0% { background-color: #ff00ff; transform: scale(0.8) rotate(0deg); opacity: 0; }
+                50% { background-color: #ff88ff; transform: scale(1.2) rotate(180deg); opacity: 1; }
+                100% { background-color: #ff00ff; transform: scale(0.8) rotate(360deg); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
 
   function doRoll() {
     if (isRolling) return; // Prevent rolling if already rolling
@@ -315,6 +431,46 @@ autorollBtn.onclick = function() {
                 inventoryModal.style.display = 'none';
             }
         };
+
+        potionsBtn.onclick = function() {
+    potionsList.innerHTML = '';
+    if (inventory.length === 0) {
+        potionsList.innerHTML = '<li>No potions available.</li>';
+    } else {
+        inventory
+            .filter(item => namedNumbers[item.number]?.name.toLowerCase().includes('potion'))
+            .sort((a, b) => a.number - b.number)
+            .forEach(item => {
+                const li = document.createElement('li');
+                li.style.display = 'flex';
+                li.style.alignItems = 'center';
+                li.style.justifyContent = 'space-between';
+                li.style.gap = '1em';
+                const text = document.createElement('span');
+                text.textContent = `${item.number} - ${namedNumbers[item.number].name} (x${item.count})`;
+                const img = document.createElement('img');
+                img.src = namedNumbers[item.number].img;
+                img.alt = namedNumbers[item.number].name;
+                img.style.height = '40px';
+                img.style.width = '40px';
+                img.style.objectFit = 'contain';
+                li.appendChild(text);
+                li.appendChild(img);
+                potionsList.appendChild(li);
+            });
+    }
+    potionsModal.style.display = 'flex';
+};
+
+closePotions.onclick = function() {
+    potionsModal.style.display = 'none';
+};
+
+potionsModal.onclick = function(e) {
+    if (e.target === potionsModal) {
+        potionsModal.style.display = 'none';
+    }
+};
 
         const INVENTORY_KEY = 'schlingus_rng_inventory';
 
@@ -475,23 +631,6 @@ function robloxManfaceBackground() {
     if (img.complete) draw();
 }
 robloxManfaceBackground();
-
-// Set a random small AI generated "schlingus" photo in the bottom left corner
-(function setRandomAIPhoto() {
-    // Use Lexica.art API for random "schlingus" AI images (public CDN, safe for demo)
-    // We'll use a random offset to get a different image each time
-    const img = document.getElementById('aiPhoto');
-    // Array of a few handpicked Lexica "schlingus" images (replace/add more if desired)
-    const schlingusImages = [
-        "https://lexica-serve-encoded-images2.sharif.workers.dev/full_jpg/9b7e0e7e-6e7e-4e7e-8e7e-7e7e7e7e7e7e", // Example placeholder
-        "https://lexica-serve-encoded-images2.sharif.workers.dev/full_jpg/7e7e7e7e-8e7e-9e7e-6e7e-5e7e7e7e7e7e", // Example placeholder
-        "https://lexica-serve-encoded-images2.sharif.workers.dev/full_jpg/1e2e3e4e-5e6e-7e8e-9e0e-1e2e3e4e5e6e", // Example placeholder
-        // Add more URLs of AI-generated "schlingus" images here
-    ];
-    // Pick a random image from the list
-    const idx = Math.floor(Math.random() * schlingusImages.length);
-    img.src = schlingusImages[idx];
-})();
 </script>
 </body>
 </html>
