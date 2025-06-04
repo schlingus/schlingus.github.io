@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>schlingus rng</title>
+    <link rel="icon" href="schlingus.png" type="image/jpeg">
 </head>
 <body>
     <h1>schlingus rng</h1>
@@ -18,7 +19,7 @@
     border-radius: 6px;
     font-size: 1em;
     z-index: 1000;
-">session rolls: 0</div>
+">rolls: 0</div>
     
      <!-- Add this inside <body>, before your main content -->
 
@@ -29,7 +30,6 @@
     <button id="autorollBtn" disabled>autoroll</button>
     <button id="allItemsBtn">all items</button>
     <button id="potionsBtn">potions</button>
-    <button id="potionsListBtn">potions list</button>
     <link rel="stylesheet" href="style.css">
 </div>
 <div id="result"></div>
@@ -109,6 +109,9 @@
         color: #fff !important;
         background: rgba(0,0,0,0.5);
     }
+    #autorollStatus {
+        color: #fff !important;
+    }
 </style>
     <!-- Removed duplicate and conflicting scripts. The main logic is implemented in the script below. -->
     <div id="inventoryModal">
@@ -125,7 +128,7 @@ const rollBtn = document.getElementById('rollBtn');
 const inventoryBtn = document.getElementById('inventoryBtn');
 const autorollBtn = document.getElementById('autorollBtn');
 const potionsBtn = document.getElementById('potionsBtn');
-const potionsListBtn = document.getElementById('potionsListBtn');
+const ROLL_COUNT_KEY = 'schlingus_rng_roll_count';
 let autorollEnabled = false;
 let autorollTimeout = null;
 let isRolling = false;
@@ -217,11 +220,14 @@ async function loginOrRegister(endpoint) {
         const weights = possibleNumbers.map(n => 1 / n);
         const totalWeight = weights.reduce((a, b) => a + b, 0);
 
-        function weightedRandomNumber() {
+        function weightedRandomNumber(luckMultiplier = 1) {
+            const weights = possibleNumbers.map(n => (1 / n) * luckMultiplier);
+            const totalWeight = weights.reduce((a, b) => a + b, 0);
+
             let r = Math.random() * totalWeight;
             for (let i = 0; i < possibleNumbers.length; i++) {
-            if (r < weights[i]) return possibleNumbers[i];
-            r -= weights[i];
+                if (r < weights[i]) return possibleNumbers[i];
+                r -= weights[i];
             }
             return possibleNumbers[possibleNumbers.length - 1];
         }
@@ -272,8 +278,22 @@ inventoryList.style.overflowY = 'auto';
         let rollCount = 0;
 const rollCounterDiv = document.getElementById('rollCounter');
 function updateRollDisplay() {
-    rollCounterDiv.textContent = `session rolls: ${rollCount}`;
+    rollCounterDiv.textContent = `rolls: ${rollCount}`;
+    saveRollCountToLocalStorage();
 }
+
+function saveRollCountToLocalStorage() {
+    localStorage.setItem(ROLL_COUNT_KEY, rollCount);
+}
+
+function loadRollCountFromLocalStorage() {
+    const storedRollCount = localStorage.getItem(ROLL_COUNT_KEY);
+    rollCount = storedRollCount ? parseInt(storedRollCount, 10) : 0;
+}
+
+// Load roll count from local storage on page load
+loadRollCountFromLocalStorage();
+updateRollDisplay();
 
         function playUniqueAnimation(number, callback) {
             const animationDiv = document.createElement('div');
@@ -336,9 +356,10 @@ function updateRollDisplay() {
         `;
         document.head.appendChild(style);
 
+let activeLuckMultiplier = 1; // Default luck multiplier
   function doRoll() {
     if (isRolling) return; // Prevent rolling if already rolling
-    const number = weightedRandomNumber();
+    const number = weightedRandomNumber(activeLuckMultiplier);
     showResult(number);
 
     rollCount++;
@@ -351,19 +372,50 @@ function updateRollDisplay() {
         inventory.push({ number, count: 1 });
     }
     saveInventoryToLocalStorage();
+
+    // Grant a random potion every 100 rolls
+    if (rollCount % 100 === 0) {
+        grantRandomPotion();
+    }
 }
 
-// Disable roll button for 2 seconds after page load
+// Updated the grantRandomPotion function to save potions to local storage
+function grantRandomPotion() {
+    const potionNumbers = Object.keys(namedNumbers).filter(number => namedNumbers[number].name.toLowerCase().includes('potion'));
+    if (potionNumbers.length > 0) {
+        const randomPotionNumber = potionNumbers[Math.floor(Math.random() * potionNumbers.length)];
+        const potion = namedNumbers[randomPotionNumber];
+
+        if (potion) {
+            let found = inventory.find(item => item.number === randomPotionNumber);
+            if (found) {
+                found.count += 1;
+            } else {
+                inventory.push({ number: randomPotionNumber, count: 1 });
+            }
+            saveInventoryToLocalStorage();
+            alert(`You received a random potion: ${potion.name}!`);
+        }
+    }
+}
+
+// Ensure potions are saved to local storage
+function saveInventoryToLocalStorage() {
+    localStorage.setItem(INVENTORY_KEY, JSON.stringify(inventory));
+}
+
+        // Disable roll button for 2 seconds after page load
 rollBtn.disabled = true;
 setTimeout(() => {
     rollBtn.disabled = false;
 }, 2000);
 
+        // Ensure roll button is enabled and linked to the doRoll function
+        rollBtn.disabled = false;
         rollBtn.onclick = function() {
-    doRoll();
-};
+            doRoll();
+        };
 
-// Autoroll logic
 autorollBtn.disabled = false; // Enable autoroll button by default
 
 const autorollStatus = document.getElementById('autorollStatus');
@@ -454,8 +506,27 @@ autorollBtn.onclick = function() {
                 img.style.height = '40px';
                 img.style.width = '40px';
                 img.style.objectFit = 'contain';
+
+                const useButton = document.createElement('button');
+                useButton.textContent = 'Use';
+                useButton.onclick = function() {
+                    activatePotionAbility(item.number);
+                    alert(`${namedNumbers[item.number].name} ability activated!`);
+
+                    // Remove the potion from inventory
+                    const potionIndex = inventory.findIndex(invItem => invItem.number === item.number);
+                    if (potionIndex !== -1) {
+                        inventory[potionIndex].count -= 1;
+                        if (inventory[potionIndex].count === 0) {
+                            inventory.splice(potionIndex, 1);
+                        }
+                        saveInventoryToLocalStorage();
+                    }
+                };
+
                 li.appendChild(text);
                 li.appendChild(img);
+                li.appendChild(useButton);
                 potionsList.appendChild(li);
             });
     }
@@ -481,10 +552,6 @@ potionsModal.onclick = function(e) {
         } else {
             inventory = [];
         }
-    }
-
-    function saveInventoryToLocalStorage() {
-        localStorage.setItem(INVENTORY_KEY, JSON.stringify(inventory));
     }
 
         // Load inventory from local storage on page load
@@ -581,6 +648,232 @@ potionsModal.onclick = function(e) {
         alert('Error: ' + (data.error || 'Unknown error'));
     }
 }
+
+// Updated the addPotion function to include abilities
+function addPotion(number, name, img, ability) {
+    namedNumbers[number] = { name, img, ability };
+}
+
+// Example usage:
+addPotion(100, "luck potion 1", "./images/potions/luck1.png", { luckMultiplier: 1.5 });
+addPotion(200, "luck potion 2", "./images/potions/luck2.png", { luckMultiplier: 2 });
+addPotion(300, "luck potion 3", "./images/potions/luck3.png", { luckMultiplier: 3 });
+
+// Example of activating a potion ability
+let activePotions = [];
+const activePotionsDiv = document.getElementById('activePotions');
+
+function updateActivePotionsDisplay() {
+    console.log('Updating active potions display:', activePotions); // Debugging log
+    activePotionsDiv.style.display = 'block'; // Force visibility for debugging
+    activePotionsDiv.innerHTML = '';
+    if (activePotions.length === 0) {
+        activePotionsDiv.style.display = 'none';
+        return;
+    }
+
+    console.log('Active potions:', activePotions); // Debugging log
+    console.log('Active potions div before update:', activePotionsDiv.innerHTML); // Debugging log
+
+    activePotions.forEach(potion => {
+        const potionDiv = document.createElement('div');
+        potionDiv.style.display = 'flex';
+        potionDiv.style.alignItems = 'center';
+        potionDiv.style.gap = '0.5em';
+
+        const img = document.createElement('img');
+        img.src = potion.img;
+        img.alt = potion.name;
+        img.style.height = '40px';
+        img.style.width = '40px';
+        img.style.objectFit = 'contain';
+
+        const timer = document.createElement('span');
+        const remainingTime = Math.max(0, Math.ceil((potion.expiry - Date.now()) / 1000));
+        timer.textContent = `${remainingTime}s left`;
+        timer.style.color = '#fff';
+        timer.style.fontSize = '0.9em';
+
+        potionDiv.appendChild(img);
+        potionDiv.appendChild(timer);
+        activePotionsDiv.appendChild(potionDiv);
+    });
+
+    console.log('Active potions div after update:', activePotionsDiv.innerHTML); // Debugging log
+}
+
+function activatePotionAbility(potionNumber) {
+    const potion = namedNumbers[potionNumber];
+    if (potion && potion.ability && potion.ability.luckMultiplier) {
+        console.log('Activating potion:', potion); // Debugging log
+        activeLuckMultiplier = potion.ability.luckMultiplier;
+        const duration = potionNumber === 100 ? 5 * 60 * 1000 : 
+                        potionNumber === 200 ? 10 * 60 * 1000 : 
+                        potionNumber === 300 ? 20 * 60 * 1000 : 0;
+        if (duration > 0) {
+            const expiry = Date.now() + duration;
+            activePotions.push({ name: potion.name, img: potion.img, expiry, boost: `Luck x${potion.ability.luckMultiplier}` });
+            updateActivePotionsDisplay();
+
+            setTimeout(() => {
+                console.log('Potion expired:', potion); // Debugging log
+                activeLuckMultiplier = 1; // Reset luck multiplier after timer
+                activePotions = activePotions.filter(p => p.expiry > Date.now());
+                updateActivePotionsDisplay();
+                alert(`${potion.name} ability has expired.`);
+            }, duration);
+        }
+    }
+}
+
+// Add periodic updates to ensure the active potions display is refreshed
+setInterval(() => {
+    updateActivePotionsDisplay();
+}, 1000); // Refresh every second
+
+// Additional debugging logs
+console.log('Active potions div initialized:', activePotionsDiv); // Debugging log
+console.log('Initial active potions state:', activePotions); // Debugging log
+
+// Ensure activePotionsDiv is visible by default for testing
+activePotionsDiv.style.display = 'block';
+
+// Add debugging logs to verify DOM element and potion activation
+console.log('Active potions div visibility:', activePotionsDiv.style.display); // Debugging log
+console.log('Active potions array:', activePotions); // Debugging log
+
+// Add a test potion to activePotions for debugging
+activePotions.push({ name: 'Test Potion', img: './images/potions/luck1.png', expiry: Date.now() + 60000, boost: 'Luck x1.5' });
+updateActivePotionsDisplay();
+
+// Add crafting button to the UI
+const craftingBtn = document.createElement('button');
+craftingBtn.id = 'craftingBtn';
+craftingBtn.textContent = 'Crafting';
+craftingBtn.style.margin = '10px';
+document.body.appendChild(craftingBtn);
+
+// Add crafting modal
+const craftingModal = document.createElement('div');
+craftingModal.id = 'craftingModal';
+craftingModal.style.display = 'none';
+craftingModal.style.position = 'fixed';
+craftingModal.style.zIndex = '10';
+craftingModal.style.left = '0';
+craftingModal.style.top = '0';
+craftingModal.style.right = '0';
+craftingModal.style.bottom = '0';
+craftingModal.style.background = 'rgba(0,0,0,0.5)';
+craftingModal.style.alignItems = 'center';
+craftingModal.style.justifyContent = 'center';
+
+const craftingContent = document.createElement('div');
+craftingContent.id = 'craftingContent';
+craftingContent.style.background = '#222';
+craftingContent.style.color = '#fff';
+craftingContent.style.padding = '2em';
+craftingContent.style.borderRadius = '8px';
+craftingContent.style.minWidth = '300px';
+
+const craftingTitle = document.createElement('h2');
+craftingTitle.textContent = 'Crafting';
+
+const craftingList = document.createElement('ul');
+craftingList.id = 'craftingList';
+craftingList.style.maxHeight = '300px';
+craftingList.style.overflowY = 'auto';
+
+const closeCrafting = document.createElement('button');
+closeCrafting.id = 'closeCrafting';
+closeCrafting.textContent = 'Close';
+
+craftingContent.appendChild(craftingTitle);
+craftingContent.appendChild(craftingList);
+craftingContent.appendChild(closeCrafting);
+craftingModal.appendChild(craftingContent);
+document.body.appendChild(craftingModal);
+
+// Define the addRecipe function
+const recipes = [];
+function addRecipe(item1, item2, result) {
+    recipes.push({ item1, item2, result });
+}
+
+// Example usage of addRecipe
+addRecipe("non annoying guy", "annoying guy", "luck potion 1");
+addRecipe("mistrake", "dcsqueezer", "luck potion 2");
+addRecipe("pibble", "meet", "luck potion 3");
+addRecipe("oven", "microwave", "cookware");
+addRecipe("small child", "if you roll this, you need to get a life", "small child")
+
+// Add event listeners for crafting button and modal
+craftingBtn.onclick = function() {
+    craftingList.innerHTML = '';
+    if (recipes.length === 0) {
+        craftingList.innerHTML = '<li>No recipes available.</li>';
+    } else {
+        recipes.forEach(recipe => {
+            const li = document.createElement('li');
+            li.style.display = 'flex';
+            li.style.alignItems = 'center';
+            li.style.justifyContent = 'space-between';
+            li.style.gap = '1em';
+
+            const text = document.createElement('span');
+            text.textContent = `${recipe.item1} + ${recipe.item2} = ${recipe.result}`;
+
+            const craftButton = document.createElement('button');
+            craftButton.textContent = 'Craft';
+            craftButton.onclick = function() {
+                const item1Index = inventory.findIndex(item => namedNumbers[item.number]?.name === recipe.item1);
+                const item2Index = inventory.findIndex(item => namedNumbers[item.number]?.name === recipe.item2);
+
+                if (item1Index !== -1 && item2Index !== -1) {
+                    inventory[item1Index].count -= 1;
+                    inventory[item2Index].count -= 1;
+
+                    if (inventory[item1Index].count === 0) inventory.splice(item1Index, 1);
+                    if (inventory[item2Index].count === 0) inventory.splice(item2Index, 1);
+
+                    const resultItem = Object.keys(namedNumbers).find(number => namedNumbers[number]?.name === recipe.result);
+                    if (resultItem) {
+                        const found = inventory.find(item => item.number === Number(resultItem));
+                        if (found) {
+                            found.count += 1;
+                        } else {
+                            inventory.push({ number: Number(resultItem), count: 1 });
+                        }
+                        saveInventoryToLocalStorage();
+                        alert(`Crafted ${recipe.result}!`);
+                    }
+                } else {
+                    alert('Insufficient items to craft this recipe.');
+                }
+            };
+
+            li.appendChild(text);
+            li.appendChild(craftButton);
+            craftingList.appendChild(li);
+        });
+    }
+    craftingModal.style.display = 'flex';
+};
+
+closeCrafting.onclick = function() {
+    craftingModal.style.display = 'none';
+};
+
+craftingModal.onclick = function(e) {
+    if (e.target === craftingModal) {
+        craftingModal.style.display = 'none';
+    }
+};
+
+// Add crafting recipe functionality
+const craftingRecipes = [];
+
+
+
     </script>
 <canvas id="bg-canvas" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:-1;pointer-events:none;"></canvas>
 <div id="autorollStatus" style="
