@@ -5,8 +5,135 @@
     <title>schlingus</title>
     <link rel="icon" href="schlingus.png" type="image/jpeg">
     <link rel="stylesheet" href="home-style.css">
+    <style>
+        body {
+            background: #181c24;
+            font-family: 'Montserrat', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 700px;
+            margin: 48px auto 32px auto;
+            background: #23283a;
+            border-radius: 32px;
+            box-shadow: 0 12px 48px rgba(0,0,0,0.18);
+            padding: 40px 32px 32px 32px;
+            position: relative;
+            animation: fadeIn 1.2s cubic-bezier(.4,0,.2,1);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0;
+        }
+        .description {
+            background: linear-gradient(90deg, #2b324d 0%, #23283a 100%);
+            color: #fff;
+            border-radius: 22px;
+            padding: 28px 36px 18px 36px;
+            margin-bottom: 0;
+            box-shadow: 0 6px 32px rgba(0,0,0,0.13);
+            width: 100%;
+            max-width: 540px;
+            text-align: center;
+            font-size: 1.22rem;
+            font-weight: 500;
+            letter-spacing: 0.7px;
+            margin-top: 0;
+            position: relative;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .description strong {
+            font-size: 1.7rem;
+            letter-spacing: 1.2px;
+            color: #ffe082;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.10);
+            display: block;
+            margin-bottom: 6px;
+        }
+        .description:hover {
+            transform: scale(1.025) translateY(-2px);
+            box-shadow: 0 12px 40px rgba(24,90,157,0.18);
+            z-index: 2;
+        }
+        .clicker-link {
+            display: inline-block;
+            margin-top: 18px;
+            padding: 14px 40px;
+            background: linear-gradient(90deg, #3e4a7b 0%, #23283a 100%);
+            color: #fff;
+            text-decoration: none;
+            font-size: 1.15rem;
+            border-radius: 40px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            transition: background 0.3s, transform 0.2s, box-shadow 0.2s;
+            font-weight: 700;
+            letter-spacing: 1.1px;
+            border: 2px solid #fff2;
+        }
+        .clicker-link:hover {
+            background: linear-gradient(90deg, #23283a 0%, #3e4a7b 100%);
+            transform: translateY(-3px) scale(1.06);
+            box-shadow: 0 8px 32px rgba(24,90,157,0.22);
+            border: 2px solid #ffe082;
+        }
+        .schlingus-box {
+            display: block;
+            margin: 40px auto 0 auto;
+            padding: 16px 38px;
+            background: linear-gradient(90deg, #5865F2 0%, #3e4a7b 100%);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.18rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.13);
+            transition: background 0.2s, transform 0.2s;
+            letter-spacing: 1.2px;
+        }
+        .schlingus-box:hover {
+            background: linear-gradient(90deg, #3e4a7b 0%, #5865F2 100%);
+            transform: translateY(-2px) scale(1.05);
+        }
+        h1 {
+            text-align: center;
+            color: #ffe082;
+            font-size: 3.2rem;
+            margin-bottom: 38px;
+            margin-top: 0;
+            letter-spacing: 2.5px;
+            text-shadow: 0 2px 12px rgba(0,0,0,0.10);
+            font-weight: 900;
+            background: linear-gradient(90deg, #ffe082 0%, #3e4a7b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 12px 2vw 12px 2vw;
+            }
+            .description {
+                padding: 18px 8px 10px 8px;
+                font-size: 1.05rem;
+            }
+            h1 {
+                font-size: 2.1rem;
+            }
+        }
+    </style>
 </head>
 <body>
+    <h1>schlingus central</h1>
     <div class="container">
         <div class="content">
             <div class="description">
@@ -63,25 +190,5 @@
     <button class="schlingus-box" onclick="window.location.href='https://discord.gg/BUeBkPJs5v'">
         join the discord!
     </button>
-    <style>
-        .schlingus-box {
-            display: block;
-            margin: 32px auto 0 auto;
-            padding: 14px 32px;
-            background-color: #5865F2;
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-            transition: background 0.2s, transform 0.2s;
-        }
-        .schlingus-box:hover {
-            background-color: #4752c4;
-            transform: translateY(-2px) scale(1.03);
-        }
-    </style>
 </body>
 </html>

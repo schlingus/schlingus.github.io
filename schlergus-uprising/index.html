@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schlergus Uprising</title>
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="spectral-mist"></div>
+    <div class="raindrop-container" id="raindropContainer"></div>
+    <div class="title-screen">
+        <h1>Schlergus Uprising</h1>
+        <button class="game-btn" id="playBtn">Play</button>
+        <button class="game-btn" id="exitBtn">Exit</button>
+    </div>
+    <div class="fog">
+        <svg width="100%" height="100%">
+            <filter id="f1" x="0" y="0">
+                <feTurbulence type="fractalNoise" baseFrequency="0.01 0.02" numOctaves="3" result="turb"/>
+                <feDisplacementMap in2="turb" in="SourceGraphic" scale="30" xChannelSelector="R" yChannelSelector="G"/>
+            </filter>
+            <rect width="100%" height="100%" filter="url(#f1)" fill="#fff" fill-opacity="0.07"/>
+        </svg>
+    </div>
+    <div class="candle">
+        <div class="candle-flame"></div>
+    </div>
+    <div class="crt">
+        <div class="crt-scanlines"></div>
+        <div class="crt-vignette"></div>
+        <div class="crt-glow"></div>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>
