@@ -59,8 +59,8 @@ const pathTierEls = [
 ];
 const pathUpgradeBtns = Array.from(document.querySelectorAll(".path-upgrade"));
 
-const BASE_WIDTH = 960;
-const BASE_HEIGHT = 540;
+const BASE_WIDTH = 1200;
+const BASE_HEIGHT = 675;
 const GRID_COLS = 16;
 const GRID_ROWS = 9;
 const TILE = BASE_WIDTH / GRID_COLS;
