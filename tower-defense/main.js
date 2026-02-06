@@ -413,9 +413,9 @@ const TOWER_TYPES = {
       },
     ],
   },
-  luis: {
-    id: "luis",
-    name: "luisgamercool23",
+  infernus: {
+    id: "infernus-knockoff",
+    name: "infernus",
     cost: 320,
     damage: 30,
     range: 175,
@@ -514,8 +514,8 @@ const ENEMY_TYPES = {
   infernus: {
     id: "infernus",
     name: "infernus",
-    hp: 35,
-    speed: 100,
+    hp: 26,
+    speed: 70,
     reward: 4,
     image: "infernus",
     size: 36,
@@ -523,8 +523,8 @@ const ENEMY_TYPES = {
   wannabe: {
     id: "wannabe",
     name: "Turking Wannabe",
-    hp: 48,
-    speed: 85,
+    hp: 36,
+    speed: 52,
     reward: 5,
     image: "wannabe",
     size: 40,
@@ -532,8 +532,8 @@ const ENEMY_TYPES = {
   redcliff: {
     id: "redcliff",
     name: "redcliff",
-    hp: 110,
-    speed: 54,
+    hp: 85,
+    speed: 30,
     reward: 9,
     image: "redcliff",
     size: 46,
@@ -541,8 +541,8 @@ const ENEMY_TYPES = {
   luis: {
     id: "luis",
     name: "Decapitated luisgamercool23",
-    hp: 150,
-    speed: 40,
+    hp: 115,
+    speed: 30,
     reward: 12,
     image: "luisEnemy",
     size: 50,
@@ -550,8 +550,8 @@ const ENEMY_TYPES = {
   schlergus: {
     id: "schlergus",
     name: "Schlergus, Garden Bane",
-    hp: 620,
-    speed: 34,
+    hp: 500,
+    speed: 16,
     reward: 80,
     image: "schlergus",
     size: 70,
@@ -1306,6 +1306,8 @@ class Enemy {
     this.hp = this.maxHp;
     this.speed = type.speed * scale.speed;
     this.reward = Math.max(1, Math.round(type.reward * scale.reward));
+    this.rewardBank = 0;
+    this.paidReward = 0;
     this.distance = 0;
     this.pos = { ...pathPoints[0] };
     this.slowTimer = 0;
@@ -1320,11 +1322,8 @@ class Enemy {
       this.burnTimer = Math.max(0, this.burnTimer - dt);
       const burnDamage = this.burnDps * dt;
       if (burnDamage > 0) {
-        this.hp -= burnDamage;
-        if (this.hp <= 0) {
-          rewardKill(this);
-          return;
-        }
+        applyDamage(this, burnDamage, { silent: true, suppressRewardFloater: true });
+        if (this.dead) return;
       }
     }
     if (this.slowTimer > 0) {
@@ -1466,17 +1465,44 @@ function acquireTarget(tower) {
   return best;
 }
 
+function addMoney(amount, x, y, showFloater = true) {
+  if (amount <= 0) return;
+  state.money += amount;
+  if (showFloater) {
+    floaters.push({ x, y, text: `+$${amount}`, color: "#48e0c5", life: 0.7 });
+  }
+}
+
+function rewardDamage(enemy, amount, options = {}) {
+  if (enemy.dead) return;
+  const payout = (amount / enemy.maxHp) * enemy.reward;
+  enemy.rewardBank += payout;
+  const whole = Math.floor(enemy.rewardBank + 1e-6);
+  if (whole > 0) {
+    addMoney(whole, enemy.pos.x, enemy.pos.y + 8, !options.suppressRewardFloater);
+    enemy.rewardBank -= whole;
+    enemy.paidReward += whole;
+  }
+}
+
 function rewardKill(enemy) {
   if (enemy.dead) return;
   enemy.dead = true;
-  state.money += enemy.reward;
-  floaters.push({ x: enemy.pos.x, y: enemy.pos.y + 8, text: `+$${enemy.reward}`, color: "#48e0c5", life: 0.9 });
+  enemy.rewardBank = 0;
 }
 
-function applyDamage(enemy, amount) {
+function applyDamage(enemy, amount, options = {}) {
   if (enemy.dead) return;
-  enemy.hp -= amount;
-  floaters.push({ x: enemy.pos.x, y: enemy.pos.y - 18, text: `-${amount}`, color: "#ffc857", life: 0.6 });
+  const actual = Math.min(amount, enemy.hp);
+  if (actual <= 0) return;
+  enemy.hp -= actual;
+  if (!options.silent) {
+    const displayDamage = Math.round(actual);
+    if (displayDamage > 0) {
+      floaters.push({ x: enemy.pos.x, y: enemy.pos.y - 18, text: `-${displayDamage}`, color: "#ffc857", life: 0.6 });
+    }
+  }
+  rewardDamage(enemy, actual, options);
   if (enemy.hp <= 0) {
     rewardKill(enemy);
   }
