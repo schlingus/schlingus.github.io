@@ -2248,7 +2248,7 @@ function syncUI() {
   if (state.waveIndex < WAVES.length) {
     waveEl.textContent = `${waveNumber} / ${WAVES.length}`;
     waveCountEl.textContent = `${waveNumber} / ${WAVES.length}`;
-    waveNameEl.textContent = `Wave ${waveNumber}: ${wave.name}`;
+    waveNameEl.textContent = `Wave ${waveNumber}`;
   } else if (!state.freeplay) {
     waveEl.textContent = `${WAVES.length} / ${WAVES.length}`;
     waveCountEl.textContent = `${WAVES.length} / ${WAVES.length}`;
@@ -2257,7 +2257,7 @@ function syncUI() {
     const freeplayIndex = state.waveIndex - WAVES.length + 1;
     waveEl.textContent = `Freeplay ${freeplayIndex}`;
     waveCountEl.textContent = `Freeplay ${freeplayIndex}`;
-    waveNameEl.textContent = `Freeplay ${freeplayIndex}: Endless Garden`;
+    waveNameEl.textContent = `Freeplay ${freeplayIndex}`;
   }
   if (state.inWave && state.spawnEvents.length > 0) {
     const nextEvent = state.spawnEvents[0];
