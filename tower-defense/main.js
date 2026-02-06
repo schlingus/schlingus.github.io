@@ -1088,6 +1088,7 @@ const DEBUG_SEQUENCE = "CAELUM";
 let enemyIdCounter = 1;
 let gameLoading = false;
 let gameLoaded = false;
+const MAX_FRAME_DT = 0.06;
 
 const hover = {
   active: false,
@@ -2232,7 +2233,7 @@ function render() {
 
 function loop(timestamp) {
   if (!lastTime) lastTime = timestamp;
-  const delta = (timestamp - lastTime) / 1000;
+  const delta = Math.min((timestamp - lastTime) / 1000, MAX_FRAME_DT);
   lastTime = timestamp;
   update(delta * state.speed);
   render();
@@ -2606,6 +2607,23 @@ function bindUI() {
   });
 
   window.addEventListener("resize", resize);
+  window.addEventListener("blur", () => {
+    if (!state.started || state.gameOver) return;
+    if (!state.paused) {
+      state.paused = true;
+      hintEl.textContent = "Auto-paused (window inactive).";
+      syncUI();
+    }
+  });
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden && state.started && !state.gameOver) {
+      if (!state.paused) {
+        state.paused = true;
+        hintEl.textContent = "Auto-paused (tab inactive).";
+        syncUI();
+      }
+    }
+  });
   window.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
       state.paused = !state.paused;
