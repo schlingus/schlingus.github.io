@@ -32,6 +32,11 @@ const freeplayNoBtn = document.getElementById("freeplayNo");
 const upgradeTitleEl = document.getElementById("upgradeTitle");
 const upgradeMetaEl = document.getElementById("upgradeMeta");
 const clearSelectionBtn = document.getElementById("clearSelection");
+const sellTowerBtn = document.getElementById("sellTower");
+const debugPanelEl = document.getElementById("debugPanel");
+const debugAddMoneyBtn = document.getElementById("debugAddMoney");
+const debugInfMoneyBtn = document.getElementById("debugInfMoney");
+const debugHitboxesBtn = document.getElementById("debugHitboxes");
 const pathTitleEls = [
   document.getElementById("path0Title"),
   document.getElementById("path1Title"),
@@ -59,6 +64,10 @@ const ASSETS = {
   schlingus: "images/towers/schlingus-body.png",
   turking: "images/towers/turking.png",
   pickleguy: "images/towers/pickleguy.png",
+  tankman48: "images/towers/tankman48.png",
+  oven: "images/towers/oven.png",
+  floppywaffle: "images/towers/floppywaffle.png",
+  caelum: "images/towers/caelum.png",
   luis: "images/towers/luisgamercool23.png",
   ducklord: "images/towers/th_ducklord.png",
   infernus: "images/enemies/infernus.png",
@@ -73,9 +82,9 @@ const TOWER_TYPES = {
     id: "schlingus",
     name: "Schlingus",
     cost: 90,
-    damage: 9,
-    range: 110,
-    rate: 0.82,
+    damage: 8,
+    range: 105,
+    rate: 0.9,
     projectileSpeed: 320,
     color: "#9be06a",
     description: "Low-cost starter with steady shots.",
@@ -84,16 +93,62 @@ const TOWER_TYPES = {
         name: "Thorns",
         desc: "Damage-focused thistle shots.",
         tiers: [
+          { damageAdd: 1 },
           { damageAdd: 2 },
           { damageAdd: 3 },
           { damageAdd: 4 },
-          { damageAdd: 6 },
-          { damageAdd: 8 },
+          { damageAdd: 5 },
         ],
       },
       {
         name: "Canopy",
         desc: "Wider reach over the garden.",
+        tiers: [
+          { rangeAdd: 8 },
+          { rangeAdd: 10 },
+          { rangeAdd: 12 },
+          { rangeAdd: 14 },
+          { rangeAdd: 16 },
+        ],
+      },
+      {
+        name: "Breeze",
+        desc: "Faster firing rhythm.",
+        tiers: [
+          { rateMul: 0.95 },
+          { rateMul: 0.93 },
+          { rateMul: 0.9 },
+          { rateMul: 0.88 },
+          { rateMul: 0.86 },
+        ],
+      },
+    ],
+  },
+  turking: {
+    id: "turking",
+    name: "Turking",
+    cost: 170,
+    damage: 14,
+    range: 125,
+    rate: 0.88,
+    projectileSpeed: 360,
+    color: "#ffb35c",
+    description: "Balanced fire for all-round coverage.",
+    paths: [
+      {
+        name: "Blade",
+        desc: "Sharper hits for elites.",
+        tiers: [
+          { damageAdd: 2 },
+          { damageAdd: 3 },
+          { damageAdd: 4 },
+          { damageAdd: 5 },
+          { damageAdd: 6 },
+        ],
+      },
+      {
+        name: "Sight",
+        desc: "More sightlines around bends.",
         tiers: [
           { rangeAdd: 10 },
           { rangeAdd: 12 },
@@ -103,32 +158,90 @@ const TOWER_TYPES = {
         ],
       },
       {
-        name: "Breeze",
-        desc: "Faster firing rhythm.",
+        name: "Tempo",
+        desc: "Faster release cadence.",
         tiers: [
-          { rateMul: 0.92 },
-          { rateMul: 0.9 },
-          { rateMul: 0.88 },
+          { rateMul: 0.93 },
+          { rateMul: 0.91 },
+          { rateMul: 0.89 },
+          { rateMul: 0.87 },
           { rateMul: 0.85 },
-          { rateMul: 0.82 },
         ],
       },
     ],
   },
-  turking: {
-    id: "turking",
-    name: "Turking",
-    cost: 160,
-    damage: 16,
-    range: 135,
-    rate: 0.78,
-    projectileSpeed: 360,
-    color: "#ffb35c",
-    description: "Balanced fire for all-round coverage.",
+  pickleguy: {
+    id: "pickleguy",
+    name: "Pickleguy",
+    cost: 230,
+    damage: 19,
+    range: 125,
+    rate: 1.3,
+    projectileSpeed: 300,
+    color: "#6ee27b",
+    description: "Heavy hits that punish clusters.",
     paths: [
       {
-        name: "Blade",
-        desc: "Sharper hits for elites.",
+        name: "Smash",
+        desc: "Heavier direct impacts.",
+        tiers: [
+          { damageAdd: 3 },
+          { damageAdd: 4 },
+          { damageAdd: 5 },
+          { damageAdd: 6 },
+          { damageAdd: 7 },
+        ],
+      },
+      {
+        name: "Arc",
+        desc: "Longer throwing arc.",
+        tiers: [
+          { rangeAdd: 8 },
+          { rangeAdd: 10 },
+          { rangeAdd: 12 },
+          { rangeAdd: 14 },
+          { rangeAdd: 16 },
+        ],
+      },
+      {
+        name: "Shrapnel",
+        desc: "Adds splash for clusters.",
+        tiers: [
+          { splashAdd: 14, damageAdd: 1 },
+          { splashAdd: 20, damageAdd: 1 },
+          { splashAdd: 28, damageAdd: 2 },
+          { splashAdd: 38, damageAdd: 2 },
+          { splashAdd: 50, damageAdd: 3 },
+        ],
+      },
+    ],
+  },
+  tankman48: {
+    id: "tankman48",
+    name: "tankman48",
+    cost: 260,
+    damage: 18,
+    range: 130,
+    rate: 1.6,
+    projectileSpeed: 260,
+    splash: 90,
+    color: "#ff7b7b",
+    description: "Bomb cannon with heavy splash.",
+    paths: [
+      {
+        name: "Blast",
+        desc: "Bigger explosions.",
+        tiers: [
+          { splashAdd: 18, damageAdd: 2 },
+          { splashAdd: 24, damageAdd: 2 },
+          { splashAdd: 32, damageAdd: 3 },
+          { splashAdd: 42, damageAdd: 4 },
+          { splashAdd: 56, damageAdd: 5 },
+        ],
+      },
+      {
+        name: "Payload",
+        desc: "Harder hitting shells.",
         tiers: [
           { damageAdd: 3 },
           { damageAdd: 4 },
@@ -138,43 +251,177 @@ const TOWER_TYPES = {
         ],
       },
       {
-        name: "Sight",
-        desc: "More sightlines around bends.",
+        name: "Reload",
+        desc: "Faster reload cycle.",
         tiers: [
-          { rangeAdd: 12 },
-          { rangeAdd: 14 },
-          { rangeAdd: 16 },
-          { rangeAdd: 18 },
-          { rangeAdd: 20 },
-        ],
-      },
-      {
-        name: "Tempo",
-        desc: "Faster release cadence.",
-        tiers: [
+          { rateMul: 0.94 },
+          { rateMul: 0.92 },
           { rateMul: 0.9 },
           { rateMul: 0.88 },
           { rateMul: 0.86 },
-          { rateMul: 0.84 },
-          { rateMul: 0.82 },
         ],
       },
     ],
   },
-  pickleguy: {
-    id: "pickleguy",
-    name: "Pickleguy",
-    cost: 220,
-    damage: 24,
-    range: 140,
-    rate: 1.1,
+  oven: {
+    id: "oven",
+    name: "oven",
+    cost: 180,
+    damage: 6,
+    range: 115,
+    rate: 1.0,
     projectileSpeed: 300,
-    color: "#6ee27b",
-    description: "Heavy hits that punish clusters.",
+    burnDamage: 2,
+    burnDuration: 4,
+    color: "#ff9f68",
+    description: "Weak hits that burn over time.",
     paths: [
       {
-        name: "Smash",
-        desc: "Heavier direct impacts.",
+        name: "Embers",
+        desc: "Stronger burn over time.",
+        tiers: [
+          { burnDamageAdd: 0.5, burnDurationAdd: 0.6 },
+          { burnDamageAdd: 0.6, burnDurationAdd: 0.8 },
+          { burnDamageAdd: 0.8, burnDurationAdd: 1.0 },
+          { burnDamageAdd: 1.0, burnDurationAdd: 1.2 },
+          { burnDamageAdd: 1.2, burnDurationAdd: 1.4 },
+        ],
+      },
+      {
+        name: "Draft",
+        desc: "Reach farther and faster.",
+        tiers: [
+          { rangeAdd: 8, rateMul: 0.95 },
+          { rangeAdd: 10, rateMul: 0.93 },
+          { rangeAdd: 12, rateMul: 0.91 },
+          { rangeAdd: 14, rateMul: 0.89 },
+          { rangeAdd: 16, rateMul: 0.87 },
+        ],
+      },
+      {
+        name: "Soot",
+        desc: "Adds a mild slow.",
+        tiers: [
+          { slowAdd: 0.3, damageAdd: 1 },
+          { slowAdd: 0.4, damageAdd: 1 },
+          { slowAdd: 0.5, damageAdd: 1 },
+          { slowAdd: 0.6, damageAdd: 2 },
+          { slowAdd: 0.7, damageAdd: 2 },
+        ],
+      },
+    ],
+  },
+  floppywaffle: {
+    id: "floppywaffle",
+    name: "floppywaffle",
+    cost: 210,
+    damage: 5,
+    range: 120,
+    rate: 1.05,
+    projectileSpeed: 320,
+    slow: 2.6,
+    color: "#7ac8ff",
+    description: "Slows enemies with gentle hits.",
+    paths: [
+      {
+        name: "Chill",
+        desc: "Longer slow duration.",
+        tiers: [
+          { slowAdd: 0.6 },
+          { slowAdd: 0.8 },
+          { slowAdd: 1.0 },
+          { slowAdd: 1.2 },
+          { slowAdd: 1.4 },
+        ],
+      },
+      {
+        name: "Reach",
+        desc: "Cover more garden paths.",
+        tiers: [
+          { rangeAdd: 8 },
+          { rangeAdd: 10 },
+          { rangeAdd: 12 },
+          { rangeAdd: 14 },
+          { rangeAdd: 16 },
+        ],
+      },
+      {
+        name: "Tempo",
+        desc: "Quicker chilled shots.",
+        tiers: [
+          { rateMul: 0.94, damageAdd: 1 },
+          { rateMul: 0.92, damageAdd: 1 },
+          { rateMul: 0.9, damageAdd: 2 },
+          { rateMul: 0.88, damageAdd: 2 },
+          { rateMul: 0.86, damageAdd: 3 },
+        ],
+      },
+    ],
+  },
+  caelum: {
+    id: "caelum",
+    name: "caelum",
+    cost: 250,
+    damage: 0,
+    range: 150,
+    rate: 2.6,
+    projectileSpeed: 0,
+    cloverDamage: 6,
+    cloverRadius: 22,
+    cloverCount: 4,
+    color: "#6fe27c",
+    description: "Plants four clovers on the track that damage enemies.",
+    role: "clover",
+    paths: [
+      {
+        name: "Fortune",
+        desc: "Stronger clover strikes.",
+        tiers: [
+          { cloverDamageAdd: 2 },
+          { cloverDamageAdd: 3 },
+          { cloverDamageAdd: 4, cloverDamageMul: 1.12 },
+          { cloverDamageAdd: 6, cloverDamageMul: 1.2 },
+          { cloverDamageAdd: 8, cloverDamageMul: 1.3 },
+        ],
+      },
+      {
+        name: "Growth",
+        desc: "Wider clover coverage.",
+        tiers: [
+          { cloverRadiusAdd: 4, rangeAdd: 10 },
+          { cloverRadiusAdd: 6, rangeAdd: 12 },
+          { cloverRadiusAdd: 8, rangeAdd: 14 },
+          { cloverRadiusAdd: 10, rangeAdd: 16 },
+          { cloverRadiusAdd: 12, rangeAdd: 18 },
+        ],
+      },
+      {
+        name: "Blessing",
+        desc: "Lucky clovers hit harder.",
+        tiers: [
+          { cloverDamageMul: 1.1 },
+          { cloverDamageMul: 1.2 },
+          { cloverDamageMul: 1.35 },
+          { cloverDamageMul: 1.55 },
+          { cloverDamageMul: 1.8 },
+        ],
+      },
+    ],
+  },
+  luis: {
+    id: "luis",
+    name: "luisgamercool23",
+    cost: 320,
+    damage: 30,
+    range: 175,
+    rate: 1.8,
+    projectileSpeed: 420,
+    color: "#ffd166",
+    description: "Long-range strikes for priority targets.",
+    paths: [
+      {
+        name: "Overwatch",
+        desc: "Harder hitting precision shots.",
         tiers: [
           { damageAdd: 4 },
           { damageAdd: 5 },
@@ -184,71 +431,25 @@ const TOWER_TYPES = {
         ],
       },
       {
-        name: "Arc",
-        desc: "Longer throwing arc.",
+        name: "Scope",
+        desc: "Extreme range coverage.",
         tiers: [
-          { rangeAdd: 10 },
           { rangeAdd: 12 },
           { rangeAdd: 14 },
           { rangeAdd: 16 },
           { rangeAdd: 18 },
-        ],
-      },
-      {
-        name: "Shrapnel",
-        desc: "Adds splash for clusters.",
-        tiers: [
-          { splashAdd: 18, damageAdd: 1 },
-          { splashAdd: 26, damageAdd: 1 },
-          { splashAdd: 36, damageAdd: 2 },
-          { splashAdd: 48, damageAdd: 2 },
-          { splashAdd: 62, damageAdd: 3 },
-        ],
-      },
-    ],
-  },
-  luis: {
-    id: "luis",
-    name: "luisgamercool23",
-    cost: 280,
-    damage: 36,
-    range: 185,
-    rate: 1.55,
-    projectileSpeed: 420,
-    color: "#ffd166",
-    description: "Long-range strikes for priority targets.",
-    paths: [
-      {
-        name: "Overwatch",
-        desc: "Harder hitting precision shots.",
-        tiers: [
-          { damageAdd: 5 },
-          { damageAdd: 7 },
-          { damageAdd: 9 },
-          { damageAdd: 12 },
-          { damageAdd: 15 },
-        ],
-      },
-      {
-        name: "Scope",
-        desc: "Extreme range coverage.",
-        tiers: [
-          { rangeAdd: 15 },
-          { rangeAdd: 18 },
-          { rangeAdd: 22 },
-          { rangeAdd: 26 },
-          { rangeAdd: 30 },
+          { rangeAdd: 20 },
         ],
       },
       {
         name: "Focus",
         desc: "Lower shot cooldown.",
         tiers: [
+          { rateMul: 0.94 },
           { rateMul: 0.92 },
           { rateMul: 0.9 },
           { rateMul: 0.88 },
-          { rateMul: 0.85 },
-          { rateMul: 0.82 },
+          { rateMul: 0.86 },
         ],
       },
     ],
@@ -256,47 +457,48 @@ const TOWER_TYPES = {
   ducklord: {
     id: "ducklord",
     name: "th_ducklord",
-    cost: 340,
-    damage: 21,
-    range: 160,
-    rate: 1.25,
-    projectileSpeed: 300,
-    splash: 80,
-    slow: 1.2,
+    cost: 520,
+    damage: 0,
+    range: 0,
+    rate: 4.2,
+    projectileSpeed: 0,
+    income: 35,
+    incomeInterval: 4.2,
     color: "#6ac7ff",
-    description: "Splash damage with a slowing mist.",
+    description: "Duck farm. Click ducks to collect.",
+    role: "farm",
     paths: [
       {
-        name: "Bloom",
-        desc: "Bigger splash radius.",
+        name: "Orchard",
+        desc: "Bigger payouts each cycle.",
         tiers: [
-          { splashAdd: 12, slowAdd: 0.05 },
-          { splashAdd: 16, slowAdd: 0.05 },
-          { splashAdd: 20, slowAdd: 0.05 },
-          { splashAdd: 26, slowAdd: 0.05 },
-          { splashAdd: 34, slowAdd: 0.05 },
+          { incomeAdd: 6 },
+          { incomeAdd: 8 },
+          { incomeAdd: 10 },
+          { incomeAdd: 12 },
+          { incomeAdd: 15 },
         ],
       },
       {
-        name: "Frost",
-        desc: "Heavier slow and reach.",
+        name: "Trade",
+        desc: "Boost overall earnings.",
         tiers: [
-          { slowAdd: 0.08, rangeAdd: 6 },
-          { slowAdd: 0.1, rangeAdd: 8 },
-          { slowAdd: 0.12, rangeAdd: 10 },
-          { slowAdd: 0.14, rangeAdd: 12 },
-          { slowAdd: 0.16, rangeAdd: 14 },
+          { incomeMul: 1.08 },
+          { incomeMul: 1.12 },
+          { incomeMul: 1.18 },
+          { incomeMul: 1.25 },
+          { incomeMul: 1.35 },
         ],
       },
       {
-        name: "Surge",
-        desc: "Faster fire with more sting.",
+        name: "Automation",
+        desc: "Faster payout cycles.",
         tiers: [
-          { rateMul: 0.93, damageAdd: 2 },
-          { rateMul: 0.9, damageAdd: 3 },
-          { rateMul: 0.88, damageAdd: 4 },
-          { rateMul: 0.85, damageAdd: 5 },
-          { rateMul: 0.82, damageAdd: 6 },
+          { incomeIntervalMul: 0.92 },
+          { incomeIntervalMul: 0.88 },
+          { incomeIntervalMul: 0.84 },
+          { incomeIntervalMul: 0.8 },
+          { incomeIntervalMul: 0.76 },
         ],
       },
     ],
@@ -307,45 +509,45 @@ const ENEMY_TYPES = {
   infernus: {
     id: "infernus",
     name: "infernus",
-    hp: 70,
+    hp: 35,
     speed: 100,
-    reward: 9,
+    reward: 4,
     image: "infernus",
     size: 36,
   },
   wannabe: {
     id: "wannabe",
     name: "Turking Wannabe",
-    hp: 95,
+    hp: 48,
     speed: 85,
-    reward: 12,
+    reward: 5,
     image: "wannabe",
     size: 40,
   },
   redcliff: {
     id: "redcliff",
     name: "redcliff",
-    hp: 200,
+    hp: 110,
     speed: 54,
-    reward: 20,
+    reward: 9,
     image: "redcliff",
     size: 46,
   },
   luis: {
     id: "luis",
     name: "Decapitated luisgamercool23",
-    hp: 300,
+    hp: 150,
     speed: 40,
-    reward: 24,
+    reward: 12,
     image: "luisEnemy",
     size: 50,
   },
   schlergus: {
     id: "schlergus",
     name: "Schlergus, Garden Bane",
-    hp: 1200,
+    hp: 620,
     speed: 34,
-    reward: 150,
+    reward: 80,
     image: "schlergus",
     size: 70,
   },
@@ -602,6 +804,56 @@ function buildGardenDecor() {
 
 const gardenDecor = buildGardenDecor();
 
+function buildPathDecor() {
+  const stones = [];
+  pathTiles.forEach((tile, index) => {
+    const seed = index * 53 + tile.c * 13 + tile.r * 7;
+    const count = 2 + Math.floor(pseudoRandom(seed) * 3);
+    for (let i = 0; i < count; i += 1) {
+      const jitterX = (pseudoRandom(seed + i * 3) - 0.5) * TILE * 0.6;
+      const jitterY = (pseudoRandom(seed + i * 5) - 0.5) * TILE * 0.6;
+      stones.push({
+        x: tile.c * TILE + TILE / 2 + jitterX,
+        y: tile.r * TILE + TILE / 2 + jitterY,
+        r: 2 + pseudoRandom(seed + i * 11) * 3,
+      });
+    }
+  });
+  return stones;
+}
+
+const pathDecor = buildPathDecor();
+
+let grassPattern = null;
+
+function getGrassPattern() {
+  if (grassPattern) return grassPattern;
+  const patternCanvas = document.createElement("canvas");
+  patternCanvas.width = 90;
+  patternCanvas.height = 90;
+  const pctx = patternCanvas.getContext("2d");
+  pctx.fillStyle = "#144628";
+  pctx.fillRect(0, 0, patternCanvas.width, patternCanvas.height);
+  for (let i = 0; i < 240; i += 1) {
+    const x = pseudoRandom(i * 7) * patternCanvas.width;
+    const y = pseudoRandom(i * 11) * patternCanvas.height;
+    const w = 1 + pseudoRandom(i * 13) * 2;
+    const h = 6 + pseudoRandom(i * 17) * 10;
+    pctx.fillStyle = `rgba(20, ${70 + Math.floor(pseudoRandom(i * 19) * 80)}, 40, 0.35)`;
+    pctx.fillRect(x, y, w, h);
+  }
+  for (let i = 0; i < 120; i += 1) {
+    const x = pseudoRandom(i * 23) * patternCanvas.width;
+    const y = pseudoRandom(i * 29) * patternCanvas.height;
+    pctx.fillStyle = "rgba(255,255,255,0.03)";
+    pctx.beginPath();
+    pctx.arc(x, y, 0.8 + pseudoRandom(i * 31) * 1.4, 0, Math.PI * 2);
+    pctx.fill();
+  }
+  grassPattern = ctx.createPattern(patternCanvas, "repeat");
+  return grassPattern;
+}
+
 const view = {
   width: canvas.width,
   height: canvas.height,
@@ -623,6 +875,11 @@ const state = {
   freeplay: false,
   awaitingFreeplayChoice: false,
   autoStart: false,
+  debug: {
+    unlocked: false,
+    infMoney: false,
+    showHitboxes: false,
+  },
   speed: 1,
   paused: false,
   selectedTowerId: "schlingus",
@@ -632,21 +889,30 @@ const state = {
 const DEFAULT_SCALE = { hp: 1, speed: 1, reward: 1 };
 const MAX_PATH_TIERS = 5;
 const PATH_COST_MULTS = [0.8, 1.2, 1.8, 2.6, 3.5];
+const SELL_RATIO = 0.7;
+const TOWER_RADIUS = 26;
+const DUCK_DROP_LIFETIME = 5;
+const DUCK_DROP_RADIUS = 14;
 
 let images = {};
 let towers = [];
 let enemies = [];
 let projectiles = [];
 let floaters = [];
+let duckDrops = [];
+let clovers = [];
 let lastTime = 0;
 let selectedPlacedTower = null;
 let autoStartTimer = null;
+let debugBuffer = "";
+const DEBUG_SEQUENCE = "CAELUM";
+let enemyIdCounter = 1;
 
 const hover = {
   active: false,
-  tile: null,
   x: 0,
   y: 0,
+  tower: null,
   valid: false,
 };
 
@@ -726,6 +992,13 @@ function computeTowerStats(type, upgrades) {
     projectileSpeed: type.projectileSpeed,
     splash: type.splash || 0,
     slow: type.slow || 0,
+    burnDamage: type.burnDamage || 0,
+    burnDuration: type.burnDuration || 0,
+    income: type.income || 0,
+    incomeInterval: type.incomeInterval || 0,
+    cloverDamage: type.cloverDamage || 0,
+    cloverRadius: type.cloverRadius || 0,
+    cloverCount: type.cloverCount || 0,
     color: type.color,
   };
 
@@ -741,15 +1014,39 @@ function computeTowerStats(type, upgrades) {
       if (effect.rateMul) stats.rate *= effect.rateMul;
       if (effect.splashAdd) stats.splash += effect.splashAdd;
       if (effect.slowAdd) stats.slow += effect.slowAdd;
+      if (effect.burnDamageAdd) stats.burnDamage += effect.burnDamageAdd;
+      if (effect.burnDurationAdd) stats.burnDuration += effect.burnDurationAdd;
+      if (effect.incomeAdd) stats.income += effect.incomeAdd;
+      if (effect.incomeMul) stats.income *= effect.incomeMul;
+      if (effect.incomeIntervalMul) stats.incomeInterval *= effect.incomeIntervalMul;
+      if (effect.incomeIntervalAdd) stats.incomeInterval += effect.incomeIntervalAdd;
+      if (effect.cloverDamageAdd) stats.cloverDamage += effect.cloverDamageAdd;
+      if (effect.cloverDamageMul) stats.cloverDamage *= effect.cloverDamageMul;
+      if (effect.cloverRadiusAdd) stats.cloverRadius += effect.cloverRadiusAdd;
+      if (effect.cloverCountAdd) stats.cloverCount += effect.cloverCountAdd;
       if (effect.projectileSpeedAdd) stats.projectileSpeed += effect.projectileSpeedAdd;
     }
   });
 
-  stats.damage = Math.max(1, Math.round(stats.damage));
-  stats.range = Math.max(40, Math.round(stats.range));
+  const minDamage = type.damage === 0 ? 0 : 1;
+  const minRange = type.range === 0 ? 0 : 40;
+  stats.damage = Math.max(minDamage, Math.round(stats.damage));
+  stats.range = Math.max(minRange, Math.round(stats.range));
   stats.rate = Math.max(type.rate * 0.5, Number(stats.rate.toFixed(2)));
   stats.splash = Math.max(0, Math.round(stats.splash));
   stats.slow = Math.max(0, Number(stats.slow.toFixed(2)));
+  stats.burnDamage = Math.max(0, Number(stats.burnDamage.toFixed(2)));
+  stats.burnDuration = Math.max(0, Number(stats.burnDuration.toFixed(2)));
+  stats.income = Math.max(0, Math.round(stats.income));
+  stats.incomeInterval = stats.incomeInterval > 0 ? Math.max(0.8, Number(stats.incomeInterval.toFixed(2))) : 0;
+  stats.cloverDamage = Math.max(0, Number(stats.cloverDamage.toFixed(2)));
+  stats.cloverRadius = Math.max(0, Number(stats.cloverRadius.toFixed(2)));
+  stats.cloverCount = Math.max(0, Math.round(stats.cloverCount));
+  if (type.role === "farm") {
+    stats.damage = 0;
+    stats.range = 0;
+    stats.rate = stats.incomeInterval || stats.rate;
+  }
   return stats;
 }
 
@@ -765,6 +1062,84 @@ function getPathUpgradeCost(tower, pathIndex) {
   return Math.round(tower.type.cost * mult);
 }
 
+function getTowerTotalSpent(tower) {
+  if (!tower) return 0;
+  let total = tower.type.cost;
+  tower.upgrades.forEach((level) => {
+    for (let i = 0; i < level; i += 1) {
+      const mult = PATH_COST_MULTS[i] || PATH_COST_MULTS[PATH_COST_MULTS.length - 1];
+      total += tower.type.cost * mult;
+    }
+  });
+  return Math.round(total);
+}
+
+function getTowerSellValue(tower) {
+  return Math.round(getTowerTotalSpent(tower) * SELL_RATIO);
+}
+
+function spawnDuckDrop(tower, value) {
+  const angle = Math.random() * Math.PI * 2;
+  const radius = 10 + Math.random() * 16;
+  duckDrops.push({
+    x: tower.x + Math.cos(angle) * radius,
+    y: tower.y + Math.sin(angle) * radius,
+    value,
+    life: DUCK_DROP_LIFETIME,
+    maxLife: DUCK_DROP_LIFETIME,
+  });
+}
+
+function getRandomPathPointInRange(tower) {
+  const candidates = [];
+  for (const tile of pathTiles) {
+    const pt = tileCenter(tile.c, tile.r);
+    if (Math.hypot(pt.x - tower.x, pt.y - tower.y) <= tower.stats.range) {
+      candidates.push(pt);
+    }
+  }
+  if (!candidates.length) return null;
+  return candidates[Math.floor(Math.random() * candidates.length)];
+}
+
+function spawnClover(tower) {
+  const point = getRandomPathPointInRange(tower);
+  if (!point) return;
+  clovers.push({
+    x: point.x,
+    y: point.y,
+    tower,
+  });
+}
+
+function canAfford(cost) {
+  if (state.debug && state.debug.infMoney) return true;
+  return state.money >= cost;
+}
+
+function spend(cost) {
+  if (state.debug && state.debug.infMoney) return;
+  state.money -= cost;
+}
+
+function unlockDebugMode() {
+  if (state.debug.unlocked) return;
+  state.debug.unlocked = true;
+  if (debugPanelEl) debugPanelEl.hidden = false;
+  hintEl.textContent = "Debug mode unlocked.";
+}
+
+function handleDebugSequence(key) {
+  if (key.length !== 1) return;
+  const upper = key.toUpperCase();
+  if (upper < "A" || upper > "Z") return;
+  debugBuffer = `${debugBuffer}${upper}`.slice(-DEBUG_SEQUENCE.length);
+  if (debugBuffer === DEBUG_SEQUENCE) {
+    unlockDebugMode();
+    debugBuffer = "";
+  }
+}
+
 function canUpgradePath(tower, pathIndex) {
   if (!tower) return false;
   const level = tower.upgrades[pathIndex];
@@ -778,6 +1153,7 @@ function canUpgradePath(tower, pathIndex) {
 class Enemy {
   constructor(type, scale = DEFAULT_SCALE) {
     this.type = type;
+    this.id = enemyIdCounter++;
     this.scale = scale;
     this.maxHp = Math.round(type.hp * scale.hp);
     this.hp = this.maxHp;
@@ -786,11 +1162,24 @@ class Enemy {
     this.distance = 0;
     this.pos = { ...pathPoints[0] };
     this.slowTimer = 0;
+    this.burnTimer = 0;
+    this.burnDps = 0;
     this.dead = false;
   }
 
   update(dt) {
     if (this.dead) return;
+    if (this.burnTimer > 0) {
+      this.burnTimer = Math.max(0, this.burnTimer - dt);
+      const burnDamage = this.burnDps * dt;
+      if (burnDamage > 0) {
+        this.hp -= burnDamage;
+        if (this.hp <= 0) {
+          rewardKill(this);
+          return;
+        }
+      }
+    }
     if (this.slowTimer > 0) {
       this.slowTimer = Math.max(0, this.slowTimer - dt);
     }
@@ -810,19 +1199,42 @@ class Enemy {
 }
 
 class Tower {
-  constructor(type, c, r) {
+  constructor(type, x, y) {
     this.type = type;
-    this.c = c;
-    this.r = r;
     this.upgrades = [0, 0, 0];
     this.stats = computeTowerStats(type, this.upgrades);
-    const center = tileCenter(c, r);
-    this.x = center.x;
-    this.y = center.y;
+    this.x = x;
+    this.y = y;
     this.cooldown = 0;
+    this.incomeCooldown = this.stats.incomeInterval || 0;
+    this.cloverCooldown = this.stats.rate;
   }
 
   update(dt) {
+    if (this.stats.income > 0 && this.stats.incomeInterval > 0) {
+      this.incomeCooldown -= dt;
+      if (this.incomeCooldown <= 0) {
+        const payouts = Math.floor(Math.abs(this.incomeCooldown) / this.stats.incomeInterval) + 1;
+        this.incomeCooldown += this.stats.incomeInterval * payouts;
+        for (let i = 0; i < payouts; i += 1) {
+          spawnDuckDrop(this, this.stats.income);
+        }
+      }
+    }
+    if (this.type.role === "farm") return;
+    if (this.type.role === "clover") {
+      if (!state.inWave) return;
+      this.cloverCooldown -= dt;
+      if (this.cloverCooldown <= 0) {
+        const maxClover = this.stats.cloverCount || 0;
+        const currentClover = clovers.filter((clover) => clover.tower === this).length;
+        if (currentClover < maxClover) {
+          spawnClover(this);
+        }
+        this.cloverCooldown = Math.max(0.4, this.stats.rate);
+      }
+      return;
+    }
     if (this.cooldown > 0) {
       this.cooldown -= dt;
       return;
@@ -845,6 +1257,8 @@ class Projectile {
     this.color = tower.stats.color;
     this.splash = tower.stats.splash || 0;
     this.slow = tower.stats.slow || 0;
+    this.burnDamage = tower.stats.burnDamage || 0;
+    this.burnDuration = tower.stats.burnDuration || 0;
     this.dead = false;
   }
 
@@ -866,18 +1280,26 @@ class Projectile {
   }
 
   hit() {
+    const applyEffects = (enemy) => {
+      if (this.slow > 0) enemy.slowTimer = Math.max(enemy.slowTimer, this.slow);
+      if (this.burnDamage > 0 && this.burnDuration > 0) {
+        enemy.burnTimer = Math.max(enemy.burnTimer, this.burnDuration);
+        enemy.burnDps = Math.max(enemy.burnDps, this.burnDamage);
+      }
+    };
+
     if (this.splash > 0) {
       enemies.forEach((enemy) => {
         if (enemy.dead) return;
         const d = Math.hypot(enemy.pos.x - this.target.pos.x, enemy.pos.y - this.target.pos.y);
         if (d <= this.splash) {
           applyDamage(enemy, this.damage);
-          if (this.slow > 0) enemy.slowTimer = Math.max(enemy.slowTimer, this.slow);
+          applyEffects(enemy);
         }
       });
     } else {
       applyDamage(this.target, this.damage);
-      if (this.slow > 0) this.target.slowTimer = Math.max(this.target.slowTimer, this.slow);
+      applyEffects(this.target);
     }
     this.dead = true;
   }
@@ -897,14 +1319,19 @@ function acquireTarget(tower) {
   return best;
 }
 
+function rewardKill(enemy) {
+  if (enemy.dead) return;
+  enemy.dead = true;
+  state.money += enemy.reward;
+  floaters.push({ x: enemy.pos.x, y: enemy.pos.y + 8, text: `+$${enemy.reward}`, color: "#48e0c5", life: 0.9 });
+}
+
 function applyDamage(enemy, amount) {
   if (enemy.dead) return;
   enemy.hp -= amount;
   floaters.push({ x: enemy.pos.x, y: enemy.pos.y - 18, text: `-${amount}`, color: "#ffc857", life: 0.6 });
   if (enemy.hp <= 0) {
-    enemy.dead = true;
-    state.money += enemy.reward;
-    floaters.push({ x: enemy.pos.x, y: enemy.pos.y + 8, text: `+$${enemy.reward}`, color: "#48e0c5", life: 0.9 });
+    rewardKill(enemy);
   }
 }
 
@@ -955,13 +1382,25 @@ function upgradePath(pathIndex) {
     hintEl.textContent = "That path is already maxed.";
     return;
   }
-  if (state.money < cost) {
+  if (!canAfford(cost)) {
     hintEl.textContent = "Not enough credits for that upgrade.";
     return;
   }
   selectedPlacedTower.upgrades[pathIndex] += 1;
   selectedPlacedTower.stats = computeTowerStats(selectedPlacedTower.type, selectedPlacedTower.upgrades);
-  state.money -= cost;
+  if (selectedPlacedTower.stats.incomeInterval > 0) {
+    selectedPlacedTower.incomeCooldown = Math.min(
+      selectedPlacedTower.incomeCooldown,
+      selectedPlacedTower.stats.incomeInterval
+    );
+  }
+  if (selectedPlacedTower.type.role === "clover") {
+    selectedPlacedTower.cloverCooldown = Math.min(
+      selectedPlacedTower.cloverCooldown,
+      Math.max(0.4, selectedPlacedTower.stats.rate)
+    );
+  }
+  spend(cost);
   const totalTiers = selectedPlacedTower.upgrades.reduce((sum, lvl) => sum + lvl, 0);
   floaters.push({
     x: selectedPlacedTower.x,
@@ -971,6 +1410,24 @@ function upgradePath(pathIndex) {
     life: 1.2,
   });
   hintEl.textContent = `${selectedPlacedTower.type.name} upgraded.`;
+  syncUI();
+}
+
+function sellSelectedTower() {
+  if (!selectedPlacedTower || state.gameOver) return;
+  const sellValue = getTowerSellValue(selectedPlacedTower);
+  state.money += sellValue;
+  towers = towers.filter((tower) => tower !== selectedPlacedTower);
+  clovers = clovers.filter((clover) => clover.tower !== selectedPlacedTower);
+  floaters.push({
+    x: selectedPlacedTower.x,
+    y: selectedPlacedTower.y - 10,
+    text: `+$${sellValue}`,
+    color: "#48e0c5",
+    life: 1.0,
+  });
+  hintEl.textContent = `${selectedPlacedTower.type.name} sold.`;
+  selectedPlacedTower = null;
   syncUI();
 }
 
@@ -1022,7 +1479,12 @@ function buildSpawnEvents(wave) {
 function spawnEnemy(typeId) {
   const type = ENEMY_TYPES[typeId];
   if (!type) return;
-  const scale = state.activeWaveScale || DEFAULT_SCALE;
+  const baseScale = state.activeWaveScale || DEFAULT_SCALE;
+  const gradualHpScale = 1 + state.waveIndex * 0.005;
+  const scale = {
+    ...baseScale,
+    hp: baseScale.hp * gradualHpScale,
+  };
   enemies.push(new Enemy(type, scale));
 }
 
@@ -1076,6 +1538,8 @@ function resetGame() {
   enemies = [];
   projectiles = [];
   floaters = [];
+  duckDrops = [];
+  clovers = [];
   state.money = 180;
   state.lives = 100;
   state.waveIndex = 0;
@@ -1114,6 +1578,32 @@ function update(dt) {
   }
 
   enemies.forEach((enemy) => enemy.update(dt));
+
+  if (clovers.length) {
+    const remainingClovers = [];
+    clovers.forEach((clover) => {
+      const damage = clover.tower.stats.cloverDamage;
+      const radius = clover.tower.stats.cloverRadius;
+      if (damage <= 0 || radius <= 0) {
+        remainingClovers.push(clover);
+        return;
+      }
+      let consumed = false;
+      for (const enemy of enemies) {
+        if (enemy.dead) continue;
+        const dx = enemy.pos.x - clover.x;
+        const dy = enemy.pos.y - clover.y;
+        if (dx * dx + dy * dy <= radius * radius) {
+          applyDamage(enemy, damage);
+          consumed = true;
+          break;
+        }
+      }
+      if (!consumed) remainingClovers.push(clover);
+    });
+    clovers = remainingClovers;
+  }
+
   towers.forEach((tower) => tower.update(dt));
   projectiles.forEach((proj) => proj.update(dt));
 
@@ -1121,6 +1611,12 @@ function update(dt) {
     floater.life -= dt;
     floater.y -= 24 * dt;
   });
+
+  duckDrops.forEach((drop) => {
+    drop.life -= dt;
+  });
+
+  duckDrops = duckDrops.filter((drop) => drop.life > 0);
 
   enemies = enemies.filter((enemy) => !enemy.dead);
   projectiles = projectiles.filter((proj) => !proj.dead);
@@ -1133,83 +1629,103 @@ function update(dt) {
 
 function drawBackground() {
   const gradient = ctx.createLinearGradient(0, 0, 0, BASE_HEIGHT);
-  gradient.addColorStop(0, "#1f4f2d");
-  gradient.addColorStop(1, "#0f2b1a");
+  gradient.addColorStop(0, "#204f2a");
+  gradient.addColorStop(0.55, "#12341e");
+  gradient.addColorStop(1, "#0c2116");
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, BASE_WIDTH, BASE_HEIGHT);
 
-  ctx.save();
-  ctx.globalAlpha = 0.08;
-  ctx.fillStyle = "#1b3f27";
-  for (let i = 0; i < GRID_ROWS; i += 1) {
-    if (i % 2 === 0) {
-      ctx.fillRect(0, i * TILE, BASE_WIDTH, TILE);
-    }
+  const pattern = getGrassPattern();
+  if (pattern) {
+    ctx.save();
+    ctx.globalAlpha = 0.45;
+    ctx.fillStyle = pattern;
+    ctx.fillRect(0, 0, BASE_WIDTH, BASE_HEIGHT);
+    ctx.restore();
   }
+
+  // Removed grid-like striping overlay.
+
+  ctx.save();
+  ctx.globalAlpha = 0.2;
+  const light = ctx.createRadialGradient(BASE_WIDTH * 0.25, BASE_HEIGHT * 0.2, 50, BASE_WIDTH * 0.25, BASE_HEIGHT * 0.2, 420);
+  light.addColorStop(0, "rgba(255, 226, 170, 0.45)");
+  light.addColorStop(1, "rgba(255, 226, 170, 0)");
+  ctx.fillStyle = light;
+  ctx.fillRect(0, 0, BASE_WIDTH, BASE_HEIGHT);
   ctx.restore();
 
-  gardenDecor.forEach((item) => {
-    if (item.type === "flower") {
-      ctx.save();
-      ctx.fillStyle = item.color;
-      ctx.beginPath();
-      ctx.arc(item.x, item.y, 3, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = "rgba(255,255,255,0.6)";
-      ctx.beginPath();
-      ctx.arc(item.x + 2, item.y - 1, 1.6, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-    } else {
-      ctx.save();
-      ctx.fillStyle = "#1b6b2f";
-      ctx.beginPath();
-      ctx.arc(item.x, item.y, item.size, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-    }
-  });
+  // Removed colorful garden dots per request.
+
+  ctx.save();
+  const vignette = ctx.createRadialGradient(
+    BASE_WIDTH / 2,
+    BASE_HEIGHT / 2,
+    BASE_HEIGHT * 0.1,
+    BASE_WIDTH / 2,
+    BASE_HEIGHT / 2,
+    BASE_HEIGHT * 0.85
+  );
+  vignette.addColorStop(0, "rgba(0,0,0,0)");
+  vignette.addColorStop(1, "rgba(0,0,0,0.45)");
+  ctx.fillStyle = vignette;
+  ctx.fillRect(0, 0, BASE_WIDTH, BASE_HEIGHT);
+  ctx.restore();
 }
 
 function drawGrid() {
-  ctx.strokeStyle = "rgba(255, 255, 255, 0.04)";
-  ctx.lineWidth = 1;
-  for (let c = 0; c <= GRID_COLS; c += 1) {
-    const x = c * TILE;
-    ctx.beginPath();
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, BASE_HEIGHT);
-    ctx.stroke();
-  }
-  for (let r = 0; r <= GRID_ROWS; r += 1) {
-    const y = r * TILE;
-    ctx.beginPath();
-    ctx.moveTo(0, y);
-    ctx.lineTo(BASE_WIDTH, y);
-    ctx.stroke();
-  }
+  // Grid removed per request.
 }
 
 function drawPath() {
-  ctx.fillStyle = "#b38b5d";
-  pathTiles.forEach((tile) => {
-    ctx.fillRect(tile.c * TILE, tile.r * TILE, TILE, TILE);
+  ctx.save();
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.shadowColor = "rgba(0,0,0,0.35)";
+  ctx.shadowBlur = 14;
+  ctx.strokeStyle = "#9e7546";
+  ctx.lineWidth = TILE * 0.86;
+  ctx.beginPath();
+  pathPoints.forEach((pt, index) => {
+    if (index === 0) ctx.moveTo(pt.x, pt.y);
+    else ctx.lineTo(pt.x, pt.y);
   });
+  ctx.stroke();
+  ctx.restore();
 
-  ctx.strokeStyle = "#8d6a44";
-  ctx.lineWidth = 2;
-  pathTiles.forEach((tile) => {
-    ctx.strokeRect(tile.c * TILE + 3, tile.r * TILE + 3, TILE - 6, TILE - 6);
+  ctx.save();
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.strokeStyle = "#c79b63";
+  ctx.lineWidth = TILE * 0.62;
+  ctx.beginPath();
+  pathPoints.forEach((pt, index) => {
+    if (index === 0) ctx.moveTo(pt.x, pt.y);
+    else ctx.lineTo(pt.x, pt.y);
   });
+  ctx.stroke();
+  ctx.restore();
+
+  ctx.save();
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.strokeStyle = "rgba(70, 45, 20, 0.35)";
+  ctx.lineWidth = 2;
+  ctx.setLineDash([14, 12]);
+  ctx.beginPath();
+  pathPoints.forEach((pt, index) => {
+    if (index === 0) ctx.moveTo(pt.x, pt.y);
+    else ctx.lineTo(pt.x, pt.y);
+  });
+  ctx.stroke();
+  ctx.restore();
 
   ctx.save();
   ctx.fillStyle = "rgba(255, 255, 255, 0.35)";
-  pathPoints.forEach((pt, index) => {
-    if (index % 2 === 0) {
-      ctx.beginPath();
-      ctx.arc(pt.x, pt.y, 6, 0, Math.PI * 2);
-      ctx.fill();
-    }
+  pathDecor.forEach((stone) => {
+    ctx.beginPath();
+    ctx.arc(stone.x, stone.y, stone.r, 0, Math.PI * 2);
+    ctx.fill();
   });
   ctx.restore();
 }
@@ -1217,7 +1733,7 @@ function drawPath() {
 function drawTowers() {
   towers.forEach((tower) => {
     ctx.save();
-    ctx.fillStyle = "rgba(0,0,0,0.3)";
+    ctx.fillStyle = "rgba(0,0,0,0.45)";
     ctx.beginPath();
     ctx.ellipse(tower.x, tower.y + 8, 26, 10, 0, 0, Math.PI * 2);
     ctx.fill();
@@ -1231,6 +1747,8 @@ function drawTowers() {
     const img = images[tower.type.id];
     if (img) {
       const size = 52;
+      ctx.shadowColor = "rgba(0,0,0,0.35)";
+      ctx.shadowBlur = 10;
       ctx.drawImage(img, tower.x - size / 2, tower.y - size / 2 - 6, size, size);
     } else {
       ctx.fillStyle = tower.stats.color;
@@ -1264,12 +1782,14 @@ function drawEnemies() {
   enemies.forEach((enemy) => {
     const img = images[enemy.type.image];
     ctx.save();
-    ctx.fillStyle = "rgba(0,0,0,0.35)";
+    ctx.fillStyle = "rgba(0,0,0,0.5)";
     ctx.beginPath();
     ctx.ellipse(enemy.pos.x, enemy.pos.y + 10, enemy.type.size * 0.5, enemy.type.size * 0.25, 0, 0, Math.PI * 2);
     ctx.fill();
 
     if (img) {
+      ctx.shadowColor = "rgba(0,0,0,0.35)";
+      ctx.shadowBlur = 8;
       ctx.drawImage(img, enemy.pos.x - enemy.type.size / 2, enemy.pos.y - enemy.type.size / 2, enemy.type.size, enemy.type.size);
     } else {
       ctx.fillStyle = "#ff8a3d";
@@ -1293,10 +1813,61 @@ function drawProjectiles() {
   projectiles.forEach((proj) => {
     ctx.save();
     ctx.fillStyle = proj.color;
-    ctx.shadowColor = proj.color;
-    ctx.shadowBlur = 10;
+    ctx.shadowColor = "rgba(0,0,0,0.35)";
+    ctx.shadowBlur = 6;
     ctx.beginPath();
     ctx.arc(proj.x, proj.y, 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  });
+}
+
+function drawClovers() {
+  clovers.forEach((clover) => {
+    const size = Math.max(6, Math.min(12, clover.tower.stats.cloverRadius * 0.3));
+    ctx.save();
+    ctx.fillStyle = "#5ad66a";
+    ctx.shadowColor = "rgba(0,0,0,0.25)";
+    ctx.shadowBlur = 6;
+    ctx.beginPath();
+    ctx.arc(clover.x - size * 0.4, clover.y - size * 0.4, size * 0.45, 0, Math.PI * 2);
+    ctx.arc(clover.x + size * 0.4, clover.y - size * 0.4, size * 0.45, 0, Math.PI * 2);
+    ctx.arc(clover.x - size * 0.4, clover.y + size * 0.4, size * 0.45, 0, Math.PI * 2);
+    ctx.arc(clover.x + size * 0.4, clover.y + size * 0.4, size * 0.45, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = "#2f7d32";
+    ctx.fillRect(clover.x - 1.2, clover.y + size * 0.35, 2.4, size * 0.9);
+    ctx.restore();
+  });
+}
+
+function drawDuckDrops() {
+  duckDrops.forEach((drop) => {
+    const alpha = Math.max(0, drop.life / drop.maxLife);
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+    ctx.beginPath();
+    ctx.ellipse(drop.x, drop.y + 6, 10, 4, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = "#ffd166";
+    ctx.beginPath();
+    ctx.arc(drop.x, drop.y, 8, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = "#ff9f1c";
+    ctx.beginPath();
+    ctx.moveTo(drop.x + 6, drop.y + 1);
+    ctx.lineTo(drop.x + 11, drop.y + 3);
+    ctx.lineTo(drop.x + 6, drop.y + 5);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.fillStyle = "#2b1d0f";
+    ctx.beginPath();
+    ctx.arc(drop.x - 2, drop.y - 3, 1.4, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
   });
@@ -1314,10 +1885,21 @@ function drawFloaters() {
 }
 
 function drawHover() {
-  if (!hover.active || !hover.tile) return;
+  if (!hover.active) return;
+  if (hover.tower) {
+    ctx.save();
+    ctx.globalAlpha = 0.25;
+    ctx.strokeStyle = "#48e0c5";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(hover.tower.x, hover.tower.y, hover.tower.stats.range, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+    return;
+  }
   const tower = TOWER_TYPES[state.selectedTowerId];
   if (!tower) return;
-  const center = tileCenter(hover.tile.c, hover.tile.r);
+  const center = { x: hover.x, y: hover.y };
   ctx.save();
   ctx.globalAlpha = 0.25;
   ctx.strokeStyle = hover.valid ? "#48e0c5" : "#ff5f56";
@@ -1329,8 +1911,35 @@ function drawHover() {
   ctx.restore();
 
   ctx.save();
-  ctx.fillStyle = hover.valid ? "rgba(72, 224, 197, 0.2)" : "rgba(255, 95, 86, 0.18)";
-  ctx.fillRect(hover.tile.c * TILE + 2, hover.tile.r * TILE + 2, TILE - 4, TILE - 4);
+  ctx.fillStyle = hover.valid ? "rgba(72, 224, 197, 0.18)" : "rgba(255, 95, 86, 0.18)";
+  ctx.beginPath();
+  ctx.arc(center.x, center.y, TOWER_RADIUS, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawDebug() {
+  if (!state.debug || !state.debug.showHitboxes) return;
+  ctx.save();
+  ctx.strokeStyle = "rgba(255, 120, 90, 0.4)";
+  ctx.lineWidth = 1.5;
+  pathTiles.forEach((tile) => {
+    ctx.strokeRect(tile.c * TILE, tile.r * TILE, TILE, TILE);
+  });
+
+  ctx.strokeStyle = "rgba(72, 224, 197, 0.35)";
+  towers.forEach((tower) => {
+    ctx.beginPath();
+    ctx.arc(tower.x, tower.y, TOWER_RADIUS, 0, Math.PI * 2);
+    ctx.stroke();
+  });
+
+  ctx.strokeStyle = "rgba(255, 255, 255, 0.35)";
+  enemies.forEach((enemy) => {
+    ctx.beginPath();
+    ctx.arc(enemy.pos.x, enemy.pos.y, enemy.type.size * 0.5, 0, Math.PI * 2);
+    ctx.stroke();
+  });
   ctx.restore();
 }
 
@@ -1343,11 +1952,14 @@ function render() {
 
   drawBackground();
   drawPath();
-  drawGrid();
+  // drawGrid removed per request.
+  drawClovers();
   drawHover();
   drawTowers();
   drawProjectiles();
+  drawDuckDrops();
   drawEnemies();
+  drawDebug();
   drawFloaters();
 
   ctx.restore();
@@ -1364,7 +1976,7 @@ function loop(timestamp) {
 }
 
 function syncUI() {
-  moneyEl.textContent = `$${state.money}`;
+  moneyEl.textContent = state.debug && state.debug.infMoney ? "∞" : `$${state.money}`;
   livesEl.textContent = state.lives;
   const waveNumber = state.waveIndex + 1;
   const wave = getWave(state.waveIndex);
@@ -1415,7 +2027,8 @@ function syncUI() {
     selectedDescEl.textContent = selected.description;
     selectedCostEl.textContent = `$${selected.cost}`;
     const baseStats = getBaseStats(selected);
-    selectedDamageEl.textContent = `${baseStats.damage}`;
+    const damageDisplay = baseStats.damage > 0 ? baseStats.damage : baseStats.cloverDamage;
+    selectedDamageEl.textContent = `${damageDisplay}`;
     selectedRangeEl.textContent = `${baseStats.range}`;
     selectedRateEl.textContent = `${(1 / baseStats.rate).toFixed(2)} /s`;
   }
@@ -1429,6 +2042,8 @@ function syncUI() {
     upgradeTitleEl.textContent = "No tower selected";
     upgradeMetaEl.textContent = "Click a placed tower to upgrade it.";
     clearSelectionBtn.disabled = true;
+    sellTowerBtn.disabled = true;
+    sellTowerBtn.textContent = "Sell Tower";
     pathTitleEls.forEach((el) => {
       el.textContent = "Path";
     });
@@ -1450,6 +2065,8 @@ function syncUI() {
     upgradeTitleEl.textContent = placed.type.name;
     upgradeMetaEl.textContent = "Only two paths can go past tier 2.";
     clearSelectionBtn.disabled = false;
+    sellTowerBtn.disabled = false;
+    sellTowerBtn.textContent = `Sell ($${getTowerSellValue(placed)})`;
 
     placed.type.paths.forEach((path, index) => {
       const level = placed.upgrades[index];
@@ -1475,9 +2092,17 @@ function syncUI() {
         button.disabled = true;
       } else {
         button.textContent = `Upgrade Tier ${level + 1} ($${cost})`;
-        button.disabled = state.money < cost || state.gameOver;
+        button.disabled = !canAfford(cost) || state.gameOver;
       }
     });
+  }
+
+  if (debugPanelEl) {
+    debugPanelEl.hidden = !state.debug.unlocked;
+    if (state.debug.unlocked) {
+      debugInfMoneyBtn.textContent = state.debug.infMoney ? "Infinite Money: On" : "Infinite Money: Off";
+      debugHitboxesBtn.textContent = state.debug.showHitboxes ? "Hitboxes: On" : "Hitboxes: Off";
+    }
   }
 }
 
@@ -1500,23 +2125,60 @@ function toGameCoords(clientX, clientY) {
   return { x, y };
 }
 
-function getTileFromCoords(x, y) {
-  const c = Math.floor(x / TILE);
-  const r = Math.floor(y / TILE);
-  if (c < 0 || c >= GRID_COLS || r < 0 || r >= GRID_ROWS) return null;
-  return { c, r };
+function isInsideBounds(x, y, radius = TOWER_RADIUS) {
+  return x >= radius && x <= BASE_WIDTH - radius && y >= radius && y <= BASE_HEIGHT - radius;
 }
 
-function isBuildable(tile) {
-  if (!tile) return false;
-  if (pathSet.has(`${tile.c},${tile.r}`)) return false;
-  if (towers.some((tower) => tower.c === tile.c && tower.r === tile.r)) return false;
+function circleIntersectsRect(cx, cy, radius, rx, ry, rw, rh) {
+  const closestX = Math.max(rx, Math.min(cx, rx + rw));
+  const closestY = Math.max(ry, Math.min(cy, ry + rh));
+  const dx = cx - closestX;
+  const dy = cy - closestY;
+  return dx * dx + dy * dy <= radius * radius;
+}
+
+function isOnPath(x, y, radius = TOWER_RADIUS) {
+  for (const tile of pathTiles) {
+    const rx = tile.c * TILE;
+    const ry = tile.r * TILE;
+    if (circleIntersectsRect(x, y, radius, rx, ry, TILE, TILE)) return true;
+  }
+  return false;
+}
+
+function isOverlappingTower(x, y, radius = TOWER_RADIUS) {
+  for (const tower of towers) {
+    const dx = x - tower.x;
+    const dy = y - tower.y;
+    const minDist = radius + TOWER_RADIUS - 2;
+    if (dx * dx + dy * dy <= minDist * minDist) return true;
+  }
+  return false;
+}
+
+function canPlaceAt(x, y) {
+  if (!isInsideBounds(x, y)) return false;
+  if (isOnPath(x, y)) return false;
+  if (isOverlappingTower(x, y)) return false;
   return true;
 }
 
-function getTowerAt(tile) {
-  if (!tile) return null;
-  return towers.find((tower) => tower.c === tile.c && tower.r === tile.r) || null;
+function getTowerAtPoint(x, y) {
+  for (const tower of towers) {
+    const dx = x - tower.x;
+    const dy = y - tower.y;
+    if (dx * dx + dy * dy <= TOWER_RADIUS * TOWER_RADIUS) return tower;
+  }
+  return null;
+}
+
+function getDuckDropAtPoint(x, y) {
+  for (const drop of duckDrops) {
+    const dx = x - drop.x;
+    const dy = y - drop.y;
+    if (dx * dx + dy * dy <= DUCK_DROP_RADIUS * DUCK_DROP_RADIUS) return drop;
+  }
+  return null;
 }
 
 function handleCanvasMove(event) {
@@ -1524,21 +2186,31 @@ function handleCanvasMove(event) {
   hover.active = true;
   hover.x = coords.x;
   hover.y = coords.y;
-  hover.tile = getTileFromCoords(coords.x, coords.y);
-  hover.valid = isBuildable(hover.tile);
+  hover.tower = getTowerAtPoint(coords.x, coords.y);
+  if (hover.tower) {
+    hover.valid = false;
+  } else {
+    hover.valid = canPlaceAt(coords.x, coords.y);
+  }
 }
 
 function handleCanvasLeave() {
   hover.active = false;
-  hover.tile = null;
+  hover.tower = null;
 }
 
 function handleCanvasClick(event) {
   if (state.gameOver) return;
   const coords = toGameCoords(event.clientX, event.clientY);
-  const tile = getTileFromCoords(coords.x, coords.y);
-  if (!tile) return;
-  const existingTower = getTowerAt(tile);
+  const drop = getDuckDropAtPoint(coords.x, coords.y);
+  if (drop) {
+    state.money += drop.value;
+    duckDrops = duckDrops.filter((item) => item !== drop);
+    floaters.push({ x: drop.x, y: drop.y - 10, text: `+$${drop.value}`, color: "#48e0c5", life: 0.9 });
+    syncUI();
+    return;
+  }
+  const existingTower = getTowerAtPoint(coords.x, coords.y);
   if (existingTower) {
     selectPlacedTower(existingTower);
     syncUI();
@@ -1546,18 +2218,18 @@ function handleCanvasClick(event) {
   }
   const towerType = TOWER_TYPES[state.selectedTowerId];
   if (!towerType) return;
-  if (!isBuildable(tile)) {
-    hintEl.textContent = "That tile is blocked. Try another spot.";
+  if (!canPlaceAt(coords.x, coords.y)) {
+    hintEl.textContent = "That spot is blocked. Try another place.";
     return;
   }
-  if (state.money < towerType.cost) {
+  if (!canAfford(towerType.cost)) {
     hintEl.textContent = "Not enough credits for that tower.";
     return;
   }
-  const newTower = new Tower(towerType, tile.c, tile.r);
+  const newTower = new Tower(towerType, coords.x, coords.y);
   towers.push(newTower);
   selectPlacedTower(newTower);
-  state.money -= towerType.cost;
+  spend(towerType.cost);
   hintEl.textContent = "Tower deployed. Lock down the bends.";
   syncUI();
 }
@@ -1607,6 +2279,32 @@ function bindUI() {
     });
   });
 
+  sellTowerBtn.addEventListener("click", () => {
+    sellSelectedTower();
+  });
+
+  if (debugAddMoneyBtn) {
+    debugAddMoneyBtn.addEventListener("click", () => {
+      state.money += 1000;
+      floaters.push({ x: BASE_WIDTH / 2, y: 40, text: "+$1000", color: "#48e0c5", life: 1.0 });
+      syncUI();
+    });
+  }
+
+  if (debugInfMoneyBtn) {
+    debugInfMoneyBtn.addEventListener("click", () => {
+      state.debug.infMoney = !state.debug.infMoney;
+      syncUI();
+    });
+  }
+
+  if (debugHitboxesBtn) {
+    debugHitboxesBtn.addEventListener("click", () => {
+      state.debug.showHitboxes = !state.debug.showHitboxes;
+      syncUI();
+    });
+  }
+
   freeplayYesBtn.addEventListener("click", () => {
     state.freeplay = true;
     hideFreeplayPrompt();
@@ -1639,6 +2337,9 @@ function bindUI() {
     if (event.key === "Escape") {
       state.paused = !state.paused;
       syncUI();
+    }
+    if (!event.ctrlKey && !event.metaKey && !event.altKey) {
+      handleDebugSequence(event.key);
     }
   });
 }
