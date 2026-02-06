@@ -77,6 +77,7 @@ const ASSETS = {
   luis: "images/towers/luisgamercool23.png",
   ducklord: "images/towers/th_ducklord.png",
   infernus: "images/enemies/infernus.png",
+  smoothie: "images/enemies/smoothie.png",
   "infernus-knockoff": "images/towers/infernus-knockoff.png",
   luisEnemy: "images/enemies/luisgamercool23-head.png",
   redcliff: "images/enemies/redcliff.png",
@@ -569,6 +570,15 @@ const ENEMY_TYPES = {
     image: "infernus",
     size: 36,
   },
+  smoothie: {
+    id: "smoothie",
+    name: "smoothie",
+    hp: 22,
+    speed: 140,
+    reward: 4,
+    image: "smoothie",
+    size: 34,
+  },
   wannabe: {
     id: "wannabe",
     name: "Turking Wannabe",
@@ -627,6 +637,7 @@ const BASE_WAVES = [
     groups: [
       { type: "wannabe", count: 6, interval: 0.8 },
       { type: "infernus", count: 5, interval: 0.85 },
+      { type: "smoothie", count: 3, interval: 0.6 },
     ],
   },
   {
@@ -650,6 +661,7 @@ const BASE_WAVES = [
     reward: 75,
     groups: [
       { type: "infernus", count: 10, interval: 0.7 },
+      { type: "smoothie", count: 5, interval: 0.6 },
       { type: "redcliff", count: 3, interval: 1.2 },
     ],
   },
@@ -693,6 +705,7 @@ const BASE_WAVES = [
     reward: 135,
     groups: [
       { type: "infernus", count: 12, interval: 0.6 },
+      { type: "smoothie", count: 8, interval: 0.5 },
       { type: "wannabe", count: 8, interval: 0.6 },
       { type: "redcliff", count: 4, interval: 1.0 },
     ],
@@ -1739,6 +1752,7 @@ function buildFreeplayWave(stage) {
 
   const groups = [
     { type: "infernus", count: base, interval: fastInterval },
+    { type: "smoothie", count: Math.max(6, Math.floor(base * 0.6)), interval: Math.max(0.25, fastInterval - 0.08) },
     { type: "wannabe", count: base, interval: Math.max(0.35, fastInterval - 0.02) },
     { type: "redcliff", count: Math.max(4, Math.floor(base * 0.45)), interval: heavyInterval },
     { type: "luis", count: Math.max(2, Math.floor(base * 0.25)), interval: Math.max(0.85, heavyInterval + 0.1) },
