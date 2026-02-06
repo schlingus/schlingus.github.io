@@ -76,6 +76,7 @@ const ASSETS = {
   luis: "images/towers/luisgamercool23.png",
   ducklord: "images/towers/th_ducklord.png",
   infernus: "images/enemies/infernus.png",
+  "infernus-knockoff": "images/towers/infernus-knockoff.png",
   luisEnemy: "images/enemies/luisgamercool23-head.png",
   redcliff: "images/enemies/redcliff.png",
   wannabe: "images/enemies/turking-wannabe.png",
@@ -228,8 +229,9 @@ const TOWER_TYPES = {
     damage: 18,
     range: 130,
     rate: 1.6,
-    projectileSpeed: 260,
+    projectileSpeed: 240,
     splash: 90,
+    moneyMult: 0.15,
     color: "#ff7b7b",
     description: "Bomb cannon with heavy splash.",
     paths: [
@@ -413,7 +415,7 @@ const TOWER_TYPES = {
       },
     ],
   },
-  infernus: {
+  "infernus-knockoff": {
     id: "infernus-knockoff",
     name: "infernus",
     cost: 320,
@@ -1146,6 +1148,7 @@ function computeTowerStats(type, upgrades) {
     cloverDamage: type.cloverDamage || 0,
     cloverRadius: type.cloverRadius || 0,
     cloverCount: type.cloverCount || 0,
+    moneyMult: type.moneyMult ?? 1,
     color: type.color,
   };
 
@@ -1313,6 +1316,7 @@ class Enemy {
     this.slowTimer = 0;
     this.burnTimer = 0;
     this.burnDps = 0;
+    this.burnMoneyMult = 1;
     this.dead = false;
   }
 
@@ -1322,7 +1326,11 @@ class Enemy {
       this.burnTimer = Math.max(0, this.burnTimer - dt);
       const burnDamage = this.burnDps * dt;
       if (burnDamage > 0) {
-        applyDamage(this, burnDamage, { silent: true, suppressRewardFloater: true });
+        applyDamage(this, burnDamage, {
+          silent: true,
+          suppressRewardFloater: true,
+          moneyMult: this.burnMoneyMult || 1,
+        });
         if (this.dead) return;
       }
     }
@@ -1405,6 +1413,7 @@ class Projectile {
     this.slow = tower.stats.slow || 0;
     this.burnDamage = tower.stats.burnDamage || 0;
     this.burnDuration = tower.stats.burnDuration || 0;
+    this.moneyMult = tower.stats.moneyMult || 1;
     this.dead = false;
   }
 
@@ -1431,6 +1440,7 @@ class Projectile {
       if (this.burnDamage > 0 && this.burnDuration > 0) {
         enemy.burnTimer = Math.max(enemy.burnTimer, this.burnDuration);
         enemy.burnDps = Math.max(enemy.burnDps, this.burnDamage);
+        enemy.burnMoneyMult = Math.max(enemy.burnMoneyMult || 1, this.moneyMult);
       }
     };
 
@@ -1439,12 +1449,12 @@ class Projectile {
         if (enemy.dead) return;
         const d = Math.hypot(enemy.pos.x - this.target.pos.x, enemy.pos.y - this.target.pos.y);
         if (d <= this.splash) {
-          applyDamage(enemy, this.damage);
+          applyDamage(enemy, this.damage, { moneyMult: this.moneyMult });
           applyEffects(enemy);
         }
       });
     } else {
-      applyDamage(this.target, this.damage);
+      applyDamage(this.target, this.damage, { moneyMult: this.moneyMult });
       applyEffects(this.target);
     }
     this.dead = true;
@@ -1475,7 +1485,8 @@ function addMoney(amount, x, y, showFloater = true) {
 
 function rewardDamage(enemy, amount, options = {}) {
   if (enemy.dead) return;
-  const payout = (amount / enemy.maxHp) * enemy.reward;
+  const mult = options.moneyMult ?? 1;
+  const payout = (amount / enemy.maxHp) * enemy.reward * mult;
   enemy.rewardBank += payout;
   const whole = Math.floor(enemy.rewardBank + 1e-6);
   if (whole > 0) {
@@ -1772,7 +1783,7 @@ function update(dt) {
         const dx = enemy.pos.x - clover.x;
         const dy = enemy.pos.y - clover.y;
         if (dx * dx + dy * dy <= radius * radius) {
-          applyDamage(enemy, damage);
+          applyDamage(enemy, damage, { moneyMult: clover.tower.stats.moneyMult || 1 });
           consumed = true;
           break;
         }
