@@ -556,6 +556,126 @@ canvas {
   box-shadow: 0 20px 40px var(--shadow);
 }
 
+.title-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: radial-gradient(circle at 20% 20%, rgba(72, 224, 197, 0.18), transparent 45%),
+    radial-gradient(circle at 80% 70%, rgba(255, 200, 87, 0.14), transparent 50%),
+    linear-gradient(160deg, #0a131b, #0b1c22 55%, #0a1418);
+}
+
+.title-card {
+  max-width: 460px;
+}
+
+.title-active .page {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+
+.page {
+  transition: opacity 0.35s ease;
+}
+
+.title-card h2 {
+  font-size: 1.6rem;
+}
+
+.title-card p {
+  font-size: 0.95rem;
+}
+
+.map-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  background: radial-gradient(circle at 20% 20%, rgba(72, 224, 197, 0.14), transparent 45%),
+    radial-gradient(circle at 80% 70%, rgba(255, 200, 87, 0.12), transparent 50%),
+    linear-gradient(160deg, #0a1218, #0b1b21 55%, #0a1317);
+}
+
+.map-card {
+  max-width: 640px;
+  width: min(640px, 90vw);
+}
+
+.map-list {
+  display: grid;
+  gap: 12px;
+  margin: 16px 0 18px;
+}
+
+.map-option {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 16px;
+  align-items: center;
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  text-transform: none;
+  letter-spacing: 0.02em;
+  color: var(--text);
+}
+
+.map-option:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+}
+
+.map-thumb {
+  height: 78px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(72, 224, 197, 0.2), rgba(255, 200, 87, 0.2));
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  position: relative;
+  overflow: hidden;
+}
+
+.map-thumb::after {
+  content: "";
+  position: absolute;
+  inset: 12px 10px;
+  border-radius: 999px;
+  border: 3px solid rgba(255, 255, 255, 0.45);
+  transform: rotate(-8deg);
+}
+
+.map-garden {
+  background: linear-gradient(135deg, rgba(64, 165, 90, 0.35), rgba(23, 67, 41, 0.8));
+}
+
+.map-orchard {
+  background: linear-gradient(135deg, rgba(182, 130, 70, 0.35), rgba(62, 40, 18, 0.8));
+}
+
+.map-moonlit {
+  background: linear-gradient(135deg, rgba(90, 120, 165, 0.35), rgba(16, 26, 44, 0.85));
+}
+
+.map-info {
+  text-align: left;
+}
+
+.map-name {
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.map-desc {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.map-select-active .page {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+
 .overlay-card h2 {
   font-family: var(--font-title);
   letter-spacing: 0.18em;

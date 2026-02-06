@@ -12,7 +12,7 @@
     />
     <link rel="stylesheet" href="style.css" />
   </head>
-  <body>
+  <body class="title-active">
     <div class="page">
       <header class="hero">
         <div class="brand">
@@ -249,6 +249,45 @@
           </div>
         </aside>
       </main>
+    </div>
+
+    <div class="overlay active title-overlay" id="titleOverlay">
+      <div class="overlay-card title-card">
+        <h2>Schlingus Tower Defense</h2>
+        <p>Build the line. Hold the garden. Don't let the swarm breach the gates.</p>
+        <button id="startGame">Start Game</button>
+      </div>
+    </div>
+
+    <div class="overlay map-overlay" id="mapOverlay">
+      <div class="overlay-card map-card">
+        <h2>Select Map</h2>
+        <p>Choose the battlefield before the swarm arrives.</p>
+        <div class="map-list">
+          <button class="map-option" data-map="garden">
+            <div class="map-thumb map-garden"></div>
+            <div class="map-info">
+              <div class="map-name">Garden Gate</div>
+              <div class="map-desc">Classic winding path.</div>
+            </div>
+          </button>
+          <button class="map-option" data-map="orchard">
+            <div class="map-thumb map-orchard"></div>
+            <div class="map-info">
+              <div class="map-name">Orchard Loop</div>
+              <div class="map-desc">Long loop with heavy corners.</div>
+            </div>
+          </button>
+          <button class="map-option" data-map="moonlit">
+            <div class="map-thumb map-moonlit"></div>
+            <div class="map-info">
+              <div class="map-name">Moonlit Hedge</div>
+              <div class="map-desc">Fast lanes and deep bends.</div>
+            </div>
+          </button>
+        </div>
+        <button id="backToTitle" class="ghost">Back</button>
+      </div>
     </div>
 
     <script src="main.js" defer></script>

@@ -24,6 +24,11 @@ const overlayEl = document.getElementById("overlay");
 const overlayTitleEl = document.getElementById("overlayTitle");
 const overlayTextEl = document.getElementById("overlayText");
 const restartBtn = document.getElementById("restart");
+const titleOverlayEl = document.getElementById("titleOverlay");
+const startGameBtn = document.getElementById("startGame");
+const mapOverlayEl = document.getElementById("mapOverlay");
+const mapOptionEls = Array.from(document.querySelectorAll(".map-option"));
+const backToTitleBtn = document.getElementById("backToTitle");
 const loadingEl = document.getElementById("loading");
 const hintEl = document.getElementById("hint");
 const freeplayOverlayEl = document.getElementById("freeplayOverlay");
@@ -740,35 +745,159 @@ const WAVES = BASE_WAVES.map((wave, index) => {
   };
 });
 
-const pathTiles = [
-  { c: 0, r: 4 },
-  { c: 1, r: 4 },
-  { c: 2, r: 4 },
-  { c: 3, r: 4 },
-  { c: 3, r: 3 },
-  { c: 3, r: 2 },
-  { c: 4, r: 2 },
-  { c: 5, r: 2 },
-  { c: 6, r: 2 },
-  { c: 7, r: 2 },
-  { c: 7, r: 3 },
-  { c: 7, r: 4 },
-  { c: 7, r: 5 },
-  { c: 8, r: 5 },
-  { c: 9, r: 5 },
-  { c: 10, r: 5 },
-  { c: 10, r: 4 },
-  { c: 10, r: 3 },
-  { c: 10, r: 2 },
-  { c: 10, r: 1 },
-  { c: 11, r: 1 },
-  { c: 12, r: 1 },
-  { c: 13, r: 1 },
-  { c: 14, r: 1 },
-  { c: 15, r: 1 },
+const MAPS = [
+  {
+    id: "garden",
+    name: "Garden Gate",
+    description: "Classic winding path.",
+    theme: {
+      grassTop: "#204f2a",
+      grassMid: "#12341e",
+      grassBottom: "#0c2116",
+      pathOuter: "#9e7546",
+      pathInner: "#c79b63",
+      pathDash: "rgba(70, 45, 20, 0.35)",
+      light: "rgba(255, 226, 170, 0.45)",
+      vignette: "rgba(0,0,0,0.45)",
+      stone: "rgba(255, 255, 255, 0.35)",
+      patternBase: "#144628",
+      patternMin: 70,
+      patternMax: 150,
+    },
+    pathTiles: [
+      { c: 0, r: 4 },
+      { c: 1, r: 4 },
+      { c: 2, r: 4 },
+      { c: 3, r: 4 },
+      { c: 3, r: 3 },
+      { c: 3, r: 2 },
+      { c: 4, r: 2 },
+      { c: 5, r: 2 },
+      { c: 6, r: 2 },
+      { c: 7, r: 2 },
+      { c: 7, r: 3 },
+      { c: 7, r: 4 },
+      { c: 7, r: 5 },
+      { c: 8, r: 5 },
+      { c: 9, r: 5 },
+      { c: 10, r: 5 },
+      { c: 10, r: 4 },
+      { c: 10, r: 3 },
+      { c: 10, r: 2 },
+      { c: 10, r: 1 },
+      { c: 11, r: 1 },
+      { c: 12, r: 1 },
+      { c: 13, r: 1 },
+      { c: 14, r: 1 },
+      { c: 15, r: 1 },
+    ],
+  },
+  {
+    id: "orchard",
+    name: "Orchard Loop",
+    description: "Long loop with heavy corners.",
+    theme: {
+      grassTop: "#3b3a20",
+      grassMid: "#292513",
+      grassBottom: "#181408",
+      pathOuter: "#8b5a2b",
+      pathInner: "#b57b45",
+      pathDash: "rgba(85, 50, 20, 0.35)",
+      light: "rgba(255, 200, 140, 0.35)",
+      vignette: "rgba(0,0,0,0.5)",
+      stone: "rgba(255, 242, 220, 0.28)",
+      patternBase: "#2e3a1b",
+      patternMin: 60,
+      patternMax: 140,
+    },
+    pathTiles: [
+      { c: 0, r: 2 },
+      { c: 1, r: 2 },
+      { c: 2, r: 2 },
+      { c: 3, r: 2 },
+      { c: 4, r: 2 },
+      { c: 5, r: 2 },
+      { c: 5, r: 3 },
+      { c: 5, r: 4 },
+      { c: 5, r: 5 },
+      { c: 5, r: 6 },
+      { c: 6, r: 6 },
+      { c: 7, r: 6 },
+      { c: 8, r: 6 },
+      { c: 9, r: 6 },
+      { c: 10, r: 6 },
+      { c: 11, r: 6 },
+      { c: 11, r: 5 },
+      { c: 11, r: 4 },
+      { c: 11, r: 3 },
+      { c: 12, r: 3 },
+      { c: 13, r: 3 },
+      { c: 14, r: 3 },
+      { c: 15, r: 3 },
+    ],
+  },
+  {
+    id: "moonlit",
+    name: "Moonlit Hedge",
+    description: "Fast lanes and deep bends.",
+    theme: {
+      grassTop: "#1a3b4c",
+      grassMid: "#112733",
+      grassBottom: "#0a1820",
+      pathOuter: "#6b6f7a",
+      pathInner: "#8f949c",
+      pathDash: "rgba(40, 50, 70, 0.35)",
+      light: "rgba(120, 180, 255, 0.25)",
+      vignette: "rgba(0,0,0,0.55)",
+      stone: "rgba(220, 235, 255, 0.25)",
+      patternBase: "#142c3a",
+      patternMin: 55,
+      patternMax: 130,
+    },
+    pathTiles: [
+      { c: 0, r: 5 },
+      { c: 1, r: 5 },
+      { c: 2, r: 5 },
+      { c: 3, r: 5 },
+      { c: 3, r: 4 },
+      { c: 3, r: 3 },
+      { c: 3, r: 2 },
+      { c: 3, r: 1 },
+      { c: 4, r: 1 },
+      { c: 5, r: 1 },
+      { c: 6, r: 1 },
+      { c: 7, r: 1 },
+      { c: 8, r: 1 },
+      { c: 9, r: 1 },
+      { c: 10, r: 1 },
+      { c: 11, r: 1 },
+      { c: 12, r: 1 },
+      { c: 12, r: 2 },
+      { c: 12, r: 3 },
+      { c: 12, r: 4 },
+      { c: 12, r: 5 },
+      { c: 12, r: 6 },
+      { c: 12, r: 7 },
+      { c: 13, r: 7 },
+      { c: 14, r: 7 },
+      { c: 15, r: 7 },
+    ],
+  },
 ];
 
-const pathSet = new Set(pathTiles.map((tile) => `${tile.c},${tile.r}`));
+let currentMap = MAPS[0];
+let selectedMapId = MAPS[0].id;
+let pathTiles = [];
+let pathSet = new Set();
+let gardenDecor = [];
+let pathDecor = [];
+let pathPoints = [];
+let pathSegments = [];
+let pathLength = 0;
+
+function getTheme() {
+  return currentMap && currentMap.theme ? currentMap.theme : {};
+}
 
 function pseudoRandom(seed) {
   const x = Math.sin(seed) * 10000;
@@ -802,8 +931,6 @@ function buildGardenDecor() {
   return decor;
 }
 
-const gardenDecor = buildGardenDecor();
-
 function buildPathDecor() {
   const stones = [];
   pathTiles.forEach((tile, index) => {
@@ -822,24 +949,26 @@ function buildPathDecor() {
   return stones;
 }
 
-const pathDecor = buildPathDecor();
-
 let grassPattern = null;
 
 function getGrassPattern() {
   if (grassPattern) return grassPattern;
+  const theme = getTheme();
   const patternCanvas = document.createElement("canvas");
   patternCanvas.width = 90;
   patternCanvas.height = 90;
   const pctx = patternCanvas.getContext("2d");
-  pctx.fillStyle = "#144628";
+  pctx.fillStyle = theme.patternBase || "#144628";
   pctx.fillRect(0, 0, patternCanvas.width, patternCanvas.height);
+  const minG = theme.patternMin ?? 70;
+  const maxG = theme.patternMax ?? 150;
   for (let i = 0; i < 240; i += 1) {
     const x = pseudoRandom(i * 7) * patternCanvas.width;
     const y = pseudoRandom(i * 11) * patternCanvas.height;
     const w = 1 + pseudoRandom(i * 13) * 2;
     const h = 6 + pseudoRandom(i * 17) * 10;
-    pctx.fillStyle = `rgba(20, ${70 + Math.floor(pseudoRandom(i * 19) * 80)}, 40, 0.35)`;
+    const g = minG + Math.floor(pseudoRandom(i * 19) * (maxG - minG));
+    pctx.fillStyle = `rgba(20, ${g}, 40, 0.35)`;
     pctx.fillRect(x, y, w, h);
   }
   for (let i = 0; i < 120; i += 1) {
@@ -881,7 +1010,8 @@ const state = {
     showHitboxes: false,
   },
   speed: 1,
-  paused: false,
+  paused: true,
+  started: false,
   selectedTowerId: "schlingus",
   gameOver: false,
 };
@@ -907,6 +1037,8 @@ let autoStartTimer = null;
 let debugBuffer = "";
 const DEBUG_SEQUENCE = "CAELUM";
 let enemyIdCounter = 1;
+let gameLoading = false;
+let gameLoaded = false;
 
 const hover = {
   active: false,
@@ -954,18 +1086,33 @@ function buildPathPoints() {
   return points;
 }
 
-const pathPoints = buildPathPoints();
-const pathSegments = [];
-let pathLength = 0;
+function buildPathSegments(points) {
+  const segments = [];
+  let total = 0;
+  for (let i = 0; i < points.length - 1; i += 1) {
+    const a = points[i];
+    const b = points[i + 1];
+    const dx = b.x - a.x;
+    const dy = b.y - a.y;
+    const len = Math.hypot(dx, dy);
+    segments.push({ a, b, len });
+    total += len;
+  }
+  return { segments, length: total };
+}
 
-for (let i = 0; i < pathPoints.length - 1; i += 1) {
-  const a = pathPoints[i];
-  const b = pathPoints[i + 1];
-  const dx = b.x - a.x;
-  const dy = b.y - a.y;
-  const len = Math.hypot(dx, dy);
-  pathSegments.push({ a, b, len });
-  pathLength += len;
+function applyMap(mapId) {
+  const map = MAPS.find((item) => item.id === mapId) || MAPS[0];
+  currentMap = map;
+  pathTiles = map.pathTiles;
+  pathSet = new Set(pathTiles.map((tile) => `${tile.c},${tile.r}`));
+  pathPoints = buildPathPoints();
+  const built = buildPathSegments(pathPoints);
+  pathSegments = built.segments;
+  pathLength = built.length;
+  gardenDecor = buildGardenDecor();
+  pathDecor = buildPathDecor();
+  grassPattern = null;
 }
 
 function getPathPosition(distance) {
@@ -1455,8 +1602,9 @@ function buildFreeplayWave(stage) {
     { type: "luis", count: Math.max(2, Math.floor(base * 0.25)), interval: Math.max(0.85, heavyInterval + 0.1) },
   ];
 
-  if (stage % 5 === 0) {
-    groups.push({ type: "schlergus", count: 1, interval: 1.2 });
+  if (stage >= 1) {
+    const bossCount = stage % 10 === 0 ? 2 : 1;
+    groups.push({ type: "schlergus", count: bossCount, interval: 1.2 });
   }
 
   return { name: `Freeplay ${stage}`, reward, groups, scale };
@@ -1489,6 +1637,7 @@ function spawnEnemy(typeId) {
 }
 
 function startWave() {
+  if (!state.started) return;
   if (state.inWave || state.gameOver) return;
   if (state.waveIndex >= WAVES.length && !state.freeplay) {
     showFreeplayPrompt();
@@ -1552,7 +1701,7 @@ function resetGame() {
   state.awaitingFreeplayChoice = false;
   state.autoStart = false;
   state.speed = 1;
-  state.paused = false;
+  state.paused = !state.started;
   state.selectedTowerId = "schlingus";
   state.gameOver = false;
   selectedPlacedTower = null;
@@ -1562,6 +1711,9 @@ function resetGame() {
   }
   hideFreeplayPrompt();
   overlayEl.classList.remove("active");
+  if (!state.started && titleOverlayEl) {
+    titleOverlayEl.classList.add("active");
+  }
   hintEl.textContent = "Click a tower, then click a tile to deploy.";
   syncUI();
 }
@@ -1628,10 +1780,11 @@ function update(dt) {
 }
 
 function drawBackground() {
+  const theme = getTheme();
   const gradient = ctx.createLinearGradient(0, 0, 0, BASE_HEIGHT);
-  gradient.addColorStop(0, "#204f2a");
-  gradient.addColorStop(0.55, "#12341e");
-  gradient.addColorStop(1, "#0c2116");
+  gradient.addColorStop(0, theme.grassTop || "#204f2a");
+  gradient.addColorStop(0.55, theme.grassMid || "#12341e");
+  gradient.addColorStop(1, theme.grassBottom || "#0c2116");
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, BASE_WIDTH, BASE_HEIGHT);
 
@@ -1649,7 +1802,7 @@ function drawBackground() {
   ctx.save();
   ctx.globalAlpha = 0.2;
   const light = ctx.createRadialGradient(BASE_WIDTH * 0.25, BASE_HEIGHT * 0.2, 50, BASE_WIDTH * 0.25, BASE_HEIGHT * 0.2, 420);
-  light.addColorStop(0, "rgba(255, 226, 170, 0.45)");
+  light.addColorStop(0, theme.light || "rgba(255, 226, 170, 0.45)");
   light.addColorStop(1, "rgba(255, 226, 170, 0)");
   ctx.fillStyle = light;
   ctx.fillRect(0, 0, BASE_WIDTH, BASE_HEIGHT);
@@ -1667,7 +1820,7 @@ function drawBackground() {
     BASE_HEIGHT * 0.85
   );
   vignette.addColorStop(0, "rgba(0,0,0,0)");
-  vignette.addColorStop(1, "rgba(0,0,0,0.45)");
+  vignette.addColorStop(1, theme.vignette || "rgba(0,0,0,0.45)");
   ctx.fillStyle = vignette;
   ctx.fillRect(0, 0, BASE_WIDTH, BASE_HEIGHT);
   ctx.restore();
@@ -1678,12 +1831,13 @@ function drawGrid() {
 }
 
 function drawPath() {
+  const theme = getTheme();
   ctx.save();
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
   ctx.shadowColor = "rgba(0,0,0,0.35)";
   ctx.shadowBlur = 14;
-  ctx.strokeStyle = "#9e7546";
+  ctx.strokeStyle = theme.pathOuter || "#9e7546";
   ctx.lineWidth = TILE * 0.86;
   ctx.beginPath();
   pathPoints.forEach((pt, index) => {
@@ -1696,7 +1850,7 @@ function drawPath() {
   ctx.save();
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
-  ctx.strokeStyle = "#c79b63";
+  ctx.strokeStyle = theme.pathInner || "#c79b63";
   ctx.lineWidth = TILE * 0.62;
   ctx.beginPath();
   pathPoints.forEach((pt, index) => {
@@ -1709,7 +1863,7 @@ function drawPath() {
   ctx.save();
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
-  ctx.strokeStyle = "rgba(70, 45, 20, 0.35)";
+  ctx.strokeStyle = theme.pathDash || "rgba(70, 45, 20, 0.35)";
   ctx.lineWidth = 2;
   ctx.setLineDash([14, 12]);
   ctx.beginPath();
@@ -1721,7 +1875,7 @@ function drawPath() {
   ctx.restore();
 
   ctx.save();
-  ctx.fillStyle = "rgba(255, 255, 255, 0.35)";
+  ctx.fillStyle = theme.stone || "rgba(255, 255, 255, 0.35)";
   pathDecor.forEach((stone) => {
     ctx.beginPath();
     ctx.arc(stone.x, stone.y, stone.r, 0, Math.PI * 2);
@@ -2008,7 +2162,8 @@ function syncUI() {
     }
   }
 
-  startWaveBtn.disabled = state.inWave || state.gameOver;
+  const controlsLocked = !state.started || state.gameOver;
+  startWaveBtn.disabled = controlsLocked || state.inWave;
   if (state.inWave) {
     startWaveBtn.textContent = "Wave in progress";
   } else if (state.waveIndex >= WAVES.length && !state.freeplay) {
@@ -2019,6 +2174,12 @@ function syncUI() {
   toggleSpeedBtn.textContent = state.speed === 1 ? "2x Speed" : "1x Speed";
   togglePauseBtn.textContent = state.paused ? "Resume" : "Pause";
   toggleAutostartBtn.textContent = state.autoStart ? "Autostart: On" : "Autostart: Off";
+  toggleSpeedBtn.disabled = !state.started;
+  togglePauseBtn.disabled = !state.started;
+  toggleAutostartBtn.disabled = !state.started;
+  if (!state.started) {
+    togglePauseBtn.textContent = "Pause";
+  }
 
   const selected = TOWER_TYPES[state.selectedTowerId];
   if (selected) {
@@ -2200,6 +2361,7 @@ function handleCanvasLeave() {
 }
 
 function handleCanvasClick(event) {
+  if (!state.started) return;
   if (state.gameOver) return;
   const coords = toGameCoords(event.clientX, event.clientY);
   const drop = getDuckDropAtPoint(coords.x, coords.y);
@@ -2351,4 +2513,60 @@ function init() {
   requestAnimationFrame(loop);
 }
 
-loadImages().then(init);
+function beginGame() {
+  if (gameLoading || gameLoaded) return;
+  applyMap(selectedMapId || MAPS[0].id);
+  gameLoading = true;
+  if (startGameBtn) {
+    startGameBtn.disabled = true;
+    startGameBtn.textContent = "Loading...";
+  }
+  loadImages().then(() => {
+    state.started = true;
+    state.paused = false;
+    init();
+    gameLoading = false;
+    gameLoaded = true;
+    if (titleOverlayEl) titleOverlayEl.classList.remove("active");
+    document.body.classList.remove("title-active");
+    if (mapOverlayEl) mapOverlayEl.classList.remove("active");
+    document.body.classList.remove("map-select-active");
+    if (startGameBtn) {
+      startGameBtn.disabled = false;
+      startGameBtn.textContent = "Start Game";
+    }
+    hintEl.textContent = "Click a tower, then click a tile to deploy.";
+    syncUI();
+  });
+}
+
+if (startGameBtn) {
+  startGameBtn.addEventListener("click", () => {
+    if (titleOverlayEl) titleOverlayEl.classList.remove("active");
+    document.body.classList.remove("title-active");
+    if (mapOverlayEl) mapOverlayEl.classList.add("active");
+    document.body.classList.add("map-select-active");
+  });
+}
+
+if (backToTitleBtn) {
+  backToTitleBtn.addEventListener("click", () => {
+    if (mapOverlayEl) mapOverlayEl.classList.remove("active");
+    document.body.classList.remove("map-select-active");
+    if (titleOverlayEl) titleOverlayEl.classList.add("active");
+    document.body.classList.add("title-active");
+  });
+}
+
+if (mapOptionEls.length) {
+  mapOptionEls.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const mapId = btn.dataset.map;
+      if (mapId) {
+        selectedMapId = mapId;
+        applyMap(mapId);
+      }
+      beginGame();
+    });
+  });
+}
