@@ -39,7 +39,7 @@
       </header>
 
       <main class="game-wrap">
-        <aside class="panel">
+        <aside class="panel left-panel">
           <div class="panel-section">
             <h2>Build</h2>
             <div class="tower-list" id="towerList">
@@ -108,6 +108,58 @@
             </div>
           </div>
 
+          <div class="panel-section tips">
+            <h2>How to play</h2>
+            <ul>
+              <li>Pick a tower, then click an empty tile to place it.</li>
+              <li>Hold the path and focus fire near the bends.</li>
+              <li>Click a placed tower to upgrade it.</li>
+              <li>Start each wave when you feel ready.</li>
+            </ul>
+          </div>
+        </aside>
+
+        <section class="stage-wrap">
+          <div class="stage">
+            <canvas id="game" width="960" height="540"></canvas>
+            <div class="hint" id="hint">Click a tower, then click a tile to deploy.</div>
+            <div class="overlay" id="overlay">
+              <div class="overlay-card">
+                <h2 id="overlayTitle">Game Over</h2>
+                <p id="overlayText">The garden has fallen.</p>
+                <button id="restart">Restart Run</button>
+              </div>
+            </div>
+            <div class="overlay" id="freeplayOverlay">
+              <div class="overlay-card">
+                <h2>Freeplay</h2>
+                <p>Do you want to enter freeplay? It gets harder forever.</p>
+                <div class="overlay-actions">
+                  <button id="freeplayYes">Start Freeplay</button>
+                  <button id="freeplayNo">Not Yet</button>
+                </div>
+              </div>
+            </div>
+            <div class="loading" id="loading">Loading assets...</div>
+          </div>
+          <div class="control-bar">
+            <div class="wave-info">
+              <div class="wave-name" id="waveName">Wave 1: Garden Wake</div>
+              <div class="wave-meta">
+                <span id="waveCount">0 / 0</span>
+                <span id="nextSpawn">Awaiting orders</span>
+              </div>
+            </div>
+            <div class="controls">
+              <button id="startWave">Start Wave</button>
+              <button id="toggleSpeed">2x Speed</button>
+              <button id="togglePause">Pause</button>
+              <button id="toggleAutostart">Autostart: Off</button>
+            </div>
+          </div>
+        </section>
+
+        <aside class="panel right-panel">
           <div class="panel-section">
             <h2>Upgrades</h2>
             <div class="upgrade-info">
@@ -158,57 +210,7 @@
               </div>
             </div>
           </div>
-
-          <div class="panel-section">
-            <h2>Waves</h2>
-            <div class="wave-info">
-              <div class="wave-name" id="waveName">Wave 1: Garden Wake</div>
-              <div class="wave-meta">
-                <span id="waveCount">0 / 0</span>
-                <span id="nextSpawn">Awaiting orders</span>
-              </div>
-            </div>
-            <div class="controls">
-              <button id="startWave">Start Wave</button>
-              <button id="toggleSpeed">2x Speed</button>
-              <button id="togglePause">Pause</button>
-              <button id="toggleAutostart">Autostart: Off</button>
-            </div>
-          </div>
-
-          <div class="panel-section tips">
-            <h2>How to play</h2>
-            <ul>
-              <li>Pick a tower, then click an empty tile to place it.</li>
-              <li>Hold the path and focus fire near the bends.</li>
-              <li>Click a placed tower to upgrade it.</li>
-              <li>Start each wave when you feel ready.</li>
-            </ul>
-          </div>
         </aside>
-
-        <section class="stage">
-          <canvas id="game" width="960" height="540"></canvas>
-          <div class="hint" id="hint">Click a tower, then click a tile to deploy.</div>
-          <div class="overlay" id="overlay">
-            <div class="overlay-card">
-              <h2 id="overlayTitle">Game Over</h2>
-              <p id="overlayText">The garden has fallen.</p>
-              <button id="restart">Restart Run</button>
-            </div>
-          </div>
-          <div class="overlay" id="freeplayOverlay">
-            <div class="overlay-card">
-              <h2>Freeplay</h2>
-              <p>Do you want to enter freeplay? It gets harder forever.</p>
-              <div class="overlay-actions">
-                <button id="freeplayYes">Start Freeplay</button>
-                <button id="freeplayNo">Not Yet</button>
-              </div>
-            </div>
-          </div>
-          <div class="loading" id="loading">Loading assets...</div>
-        </section>
       </main>
     </div>
 

@@ -133,7 +133,7 @@ body::before {
 
 .game-wrap {
   display: grid;
-  grid-template-columns: minmax(240px, 320px) minmax(0, 1fr);
+  grid-template-columns: minmax(220px, 300px) minmax(0, 1fr) minmax(240px, 320px);
   gap: 24px;
   align-items: start;
 }
@@ -142,6 +142,11 @@ body::before {
   display: flex;
   flex-direction: column;
   gap: 20px;
+}
+
+.stage-wrap {
+  display: grid;
+  gap: 14px;
 }
 
 .panel-section {
@@ -415,6 +420,29 @@ button:disabled {
   overflow: hidden;
 }
 
+.control-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 20px;
+  background: var(--panel-strong);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 16px 30px var(--shadow);
+}
+
+.control-bar .wave-info {
+  margin-bottom: 0;
+}
+
+.control-bar .controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 canvas {
   width: 100%;
   height: auto;
@@ -530,6 +558,11 @@ canvas {
 
   .game-wrap {
     grid-template-columns: 1fr;
+  }
+
+  .control-bar {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
 
