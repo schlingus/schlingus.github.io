@@ -111,27 +111,51 @@
           <div class="panel-section">
             <h2>Upgrades</h2>
             <div class="upgrade-info">
-              <div class="upgrade-title" id="upgradeTitle">No tower selected</div>
-              <div class="upgrade-meta" id="upgradeMeta">Click a placed tower to upgrade it.</div>
-              <div class="upgrade-stats">
+              <div class="upgrade-header">
                 <div>
-                  <span>Level</span>
-                  <strong id="upgradeLevel">-</strong>
+                  <div class="upgrade-title" id="upgradeTitle">No tower selected</div>
+                  <div class="upgrade-meta" id="upgradeMeta">Click a placed tower to upgrade it.</div>
                 </div>
-                <div>
-                  <span>Damage</span>
-                  <strong id="upgradeDamage">-</strong>
+                <button id="clearSelection" class="ghost" disabled>Clear Selection</button>
+              </div>
+              <div class="upgrade-grid">
+                <div class="upgrade-path" data-path="0">
+                  <div class="path-title" id="path0Title">Path 1</div>
+                  <div class="path-desc" id="path0Desc">-</div>
+                  <div class="path-tiers" id="path0Tiers">
+                    <span class="tier"></span>
+                    <span class="tier"></span>
+                    <span class="tier"></span>
+                    <span class="tier"></span>
+                    <span class="tier"></span>
+                  </div>
+                  <button class="path-upgrade" data-path="0" disabled>Upgrade</button>
                 </div>
-                <div>
-                  <span>Range</span>
-                  <strong id="upgradeRange">-</strong>
+                <div class="upgrade-path" data-path="1">
+                  <div class="path-title" id="path1Title">Path 2</div>
+                  <div class="path-desc" id="path1Desc">-</div>
+                  <div class="path-tiers" id="path1Tiers">
+                    <span class="tier"></span>
+                    <span class="tier"></span>
+                    <span class="tier"></span>
+                    <span class="tier"></span>
+                    <span class="tier"></span>
+                  </div>
+                  <button class="path-upgrade" data-path="1" disabled>Upgrade</button>
                 </div>
-                <div>
-                  <span>Rate</span>
-                  <strong id="upgradeRate">-</strong>
+                <div class="upgrade-path" data-path="2">
+                  <div class="path-title" id="path2Title">Path 3</div>
+                  <div class="path-desc" id="path2Desc">-</div>
+                  <div class="path-tiers" id="path2Tiers">
+                    <span class="tier"></span>
+                    <span class="tier"></span>
+                    <span class="tier"></span>
+                    <span class="tier"></span>
+                    <span class="tier"></span>
+                  </div>
+                  <button class="path-upgrade" data-path="2" disabled>Upgrade</button>
                 </div>
               </div>
-              <button id="upgradeBtn" disabled>Upgrade</button>
             </div>
           </div>
 
@@ -148,6 +172,7 @@
               <button id="startWave">Start Wave</button>
               <button id="toggleSpeed">2x Speed</button>
               <button id="togglePause">Pause</button>
+              <button id="toggleAutostart">Autostart: Off</button>
             </div>
           </div>
 
@@ -170,6 +195,16 @@
               <h2 id="overlayTitle">Game Over</h2>
               <p id="overlayText">The garden has fallen.</p>
               <button id="restart">Restart Run</button>
+            </div>
+          </div>
+          <div class="overlay" id="freeplayOverlay">
+            <div class="overlay-card">
+              <h2>Freeplay</h2>
+              <p>Do you want to enter freeplay? It gets harder forever.</p>
+              <div class="overlay-actions">
+                <button id="freeplayYes">Start Freeplay</button>
+                <button id="freeplayNo">Not Yet</button>
+              </div>
             </div>
           </div>
           <div class="loading" id="loading">Loading assets...</div>
