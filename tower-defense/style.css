@@ -253,6 +253,39 @@ body::before {
   letter-spacing: 0.12em;
 }
 
+.upgrade-info {
+  background: rgba(12, 21, 29, 0.7);
+  border-radius: 16px;
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: grid;
+  gap: 10px;
+}
+
+.upgrade-title {
+  font-weight: 600;
+}
+
+.upgrade-meta {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.upgrade-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  font-size: 0.85rem;
+}
+
+.upgrade-stats span {
+  display: block;
+  color: var(--muted);
+  text-transform: uppercase;
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+}
+
 .wave-info {
   display: flex;
   flex-direction: column;

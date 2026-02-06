@@ -47,35 +47,35 @@
                 <img src="images/towers/schlingus-body.png" alt="Schlingus" />
                 <div>
                   <div class="tower-name">Schlingus</div>
-                  <div class="tower-meta">$60 · Cheap starter</div>
+                  <div class="tower-meta">$90 · Cheap starter</div>
                 </div>
               </button>
               <button class="tower-card" data-tower="turking">
                 <img src="images/towers/turking.png" alt="Turking" />
                 <div>
                   <div class="tower-name">Turking</div>
-                  <div class="tower-meta">$110 · Balanced shots</div>
+                  <div class="tower-meta">$160 · Balanced shots</div>
                 </div>
               </button>
               <button class="tower-card" data-tower="pickleguy">
                 <img src="images/towers/pickleguy.png" alt="Pickleguy" />
                 <div>
-                  <div class="tower-name">pickleguy</div>
-                  <div class="tower-meta">$150 · Heavy hits</div>
+                  <div class="tower-name">Pickleguy</div>
+                  <div class="tower-meta">$220 · Heavy hits</div>
                 </div>
               </button>
               <button class="tower-card" data-tower="luis">
                 <img src="images/towers/luisgamercool23.png" alt="luisgamercool23" />
                 <div>
                   <div class="tower-name">luisgamercool23</div>
-                  <div class="tower-meta">$190 · Long range</div>
+                  <div class="tower-meta">$280 · Long range</div>
                 </div>
               </button>
               <button class="tower-card" data-tower="ducklord">
                 <img src="images/towers/th_ducklord.png" alt="th_ducklord" />
                 <div>
                   <div class="tower-name">th_ducklord</div>
-                  <div class="tower-meta">$240 · Splash + slow</div>
+                  <div class="tower-meta">$340 · Splash + slow</div>
                 </div>
               </button>
             </div>
@@ -84,7 +84,7 @@
                 <img id="selectedImage" src="images/towers/schlingus-body.png" alt="" />
                 <div>
                   <div class="selected-name" id="selectedName">Schlingus</div>
-                  <div class="selected-desc" id="selectedDesc">Cheap starter with steady shots.</div>
+                  <div class="selected-desc" id="selectedDesc">Low-cost starter with steady shots.</div>
                 </div>
               </div>
               <div class="selected-stats">
@@ -109,6 +109,33 @@
           </div>
 
           <div class="panel-section">
+            <h2>Upgrades</h2>
+            <div class="upgrade-info">
+              <div class="upgrade-title" id="upgradeTitle">No tower selected</div>
+              <div class="upgrade-meta" id="upgradeMeta">Click a placed tower to upgrade it.</div>
+              <div class="upgrade-stats">
+                <div>
+                  <span>Level</span>
+                  <strong id="upgradeLevel">-</strong>
+                </div>
+                <div>
+                  <span>Damage</span>
+                  <strong id="upgradeDamage">-</strong>
+                </div>
+                <div>
+                  <span>Range</span>
+                  <strong id="upgradeRange">-</strong>
+                </div>
+                <div>
+                  <span>Rate</span>
+                  <strong id="upgradeRate">-</strong>
+                </div>
+              </div>
+              <button id="upgradeBtn" disabled>Upgrade</button>
+            </div>
+          </div>
+
+          <div class="panel-section">
             <h2>Waves</h2>
             <div class="wave-info">
               <div class="wave-name" id="waveName">Wave 1: Garden Wake</div>
@@ -129,6 +156,7 @@
             <ul>
               <li>Pick a tower, then click an empty tile to place it.</li>
               <li>Hold the path and focus fire near the bends.</li>
+              <li>Click a placed tower to upgrade it.</li>
               <li>Start each wave when you feel ready.</li>
             </ul>
           </div>

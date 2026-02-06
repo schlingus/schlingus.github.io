@@ -25,6 +25,13 @@ const overlayTextEl = document.getElementById("overlayText");
 const restartBtn = document.getElementById("restart");
 const loadingEl = document.getElementById("loading");
 const hintEl = document.getElementById("hint");
+const upgradeTitleEl = document.getElementById("upgradeTitle");
+const upgradeMetaEl = document.getElementById("upgradeMeta");
+const upgradeLevelEl = document.getElementById("upgradeLevel");
+const upgradeDamageEl = document.getElementById("upgradeDamage");
+const upgradeRangeEl = document.getElementById("upgradeRange");
+const upgradeRateEl = document.getElementById("upgradeRate");
+const upgradeBtn = document.getElementById("upgradeBtn");
 
 const BASE_WIDTH = 960;
 const BASE_HEIGHT = 540;
@@ -48,33 +55,33 @@ const ASSETS = {
 const TOWER_TYPES = {
   schlingus: {
     id: "schlingus",
-    name: "schlingus",
-    cost: 60,
-    damage: 9,
-    range: 110,
-    rate: 0.75,
+    name: "Schlingus",
+    cost: 90,
+    damage: 7,
+    range: 100,
+    rate: 0.9,
     projectileSpeed: 320,
     color: "#9be06a",
-    description: "Cheap starter with steady shots.",
+    description: "Low-cost starter with steady shots.",
   },
   turking: {
     id: "turking",
     name: "Turking",
-    cost: 110,
-    damage: 16,
-    range: 135,
-    rate: 0.7,
+    cost: 160,
+    damage: 13,
+    range: 125,
+    rate: 0.85,
     projectileSpeed: 360,
     color: "#ffb35c",
     description: "Balanced fire for all-round coverage.",
   },
   pickleguy: {
     id: "pickleguy",
-    name: "pickleguy",
-    cost: 150,
-    damage: 26,
-    range: 140,
-    rate: 1.05,
+    name: "Pickleguy",
+    cost: 220,
+    damage: 21,
+    range: 130,
+    rate: 1.25,
     projectileSpeed: 300,
     color: "#6ee27b",
     description: "Heavy hits that punish clusters.",
@@ -82,10 +89,10 @@ const TOWER_TYPES = {
   luis: {
     id: "luis",
     name: "luisgamercool23",
-    cost: 190,
-    damage: 40,
-    range: 190,
-    rate: 1.5,
+    cost: 280,
+    damage: 32,
+    range: 175,
+    rate: 1.75,
     projectileSpeed: 420,
     color: "#ffd166",
     description: "Long-range strikes for priority targets.",
@@ -93,13 +100,13 @@ const TOWER_TYPES = {
   ducklord: {
     id: "ducklord",
     name: "th_ducklord",
-    cost: 240,
-    damage: 22,
-    range: 165,
-    rate: 1.2,
+    cost: 340,
+    damage: 18,
+    range: 150,
+    rate: 1.45,
     projectileSpeed: 300,
-    splash: 85,
-    slow: 1.4,
+    splash: 70,
+    slow: 1.1,
     color: "#6ac7ff",
     description: "Splash damage with a slowing mist.",
   },
@@ -109,51 +116,51 @@ const ENEMY_TYPES = {
   infernus: {
     id: "infernus",
     name: "infernus",
-    hp: 55,
-    speed: 90,
-    reward: 10,
+    hp: 70,
+    speed: 100,
+    reward: 9,
     image: "infernus",
     size: 36,
   },
   wannabe: {
     id: "wannabe",
     name: "Turking Wannabe",
-    hp: 75,
-    speed: 75,
-    reward: 14,
+    hp: 95,
+    speed: 85,
+    reward: 12,
     image: "wannabe",
     size: 40,
   },
   redcliff: {
     id: "redcliff",
     name: "redcliff",
-    hp: 160,
-    speed: 48,
-    reward: 22,
+    hp: 200,
+    speed: 54,
+    reward: 20,
     image: "redcliff",
     size: 46,
   },
   luis: {
     id: "luis",
     name: "Decapitated luisgamercool23",
-    hp: 240,
-    speed: 36,
-    reward: 30,
+    hp: 300,
+    speed: 40,
+    reward: 24,
     image: "luisEnemy",
     size: 50,
   },
   schlergus: {
     id: "schlergus",
     name: "Schlergus, Garden Bane",
-    hp: 900,
-    speed: 30,
-    reward: 180,
+    hp: 1200,
+    speed: 34,
+    reward: 150,
     image: "schlergus",
     size: 70,
   },
 };
 
-const WAVES = [
+const BASE_WAVES = [
   {
     name: "Garden Wake",
     reward: 25,
@@ -326,6 +333,20 @@ const WAVES = [
   },
 ];
 
+const WAVES = BASE_WAVES.map((wave, index) => {
+  const countScale = index === 0 ? 1.15 : index < 3 ? 1.3 : 1.45;
+  const intervalScale = index === 0 ? 0.95 : index < 3 ? 0.9 : 0.8;
+  return {
+    ...wave,
+    reward: Math.max(15, Math.round(wave.reward * 0.75)),
+    groups: wave.groups.map((group) => ({
+      ...group,
+      count: Math.max(1, Math.round(group.count * countScale)),
+      interval: Math.max(0.4, group.interval * intervalScale),
+    })),
+  };
+});
+
 const pathTiles = [
   { c: 0, r: 4 },
   { c: 1, r: 4 },
@@ -401,7 +422,7 @@ const view = {
 
 const state = {
   money: 180,
-  lives: 18,
+  lives: 100,
   waveIndex: 0,
   inWave: false,
   waveTimer: 0,
@@ -416,6 +437,14 @@ const state = {
 };
 
 const DEFAULT_SCALE = { hp: 1, speed: 1, reward: 1 };
+const UPGRADE_CONFIG = {
+  maxLevel: 4,
+  costBase: 1.4,
+  costGrowth: 0.9,
+  damageBoost: 0.14,
+  rangeBoost: 0.05,
+  rateBoost: 0.08,
+};
 
 let images = {};
 let towers = [];
@@ -423,6 +452,7 @@ let enemies = [];
 let projectiles = [];
 let floaters = [];
 let lastTime = 0;
+let selectedPlacedTower = null;
 
 const hover = {
   active: false,
@@ -500,6 +530,30 @@ function getPathPosition(distance) {
   return { x: last.b.x, y: last.b.y };
 }
 
+function getTowerStats(type, level) {
+  const steps = Math.max(0, level - 1);
+  const damage = Math.round(type.damage * Math.pow(1 + UPGRADE_CONFIG.damageBoost, steps));
+  const range = Math.round(type.range * Math.pow(1 + UPGRADE_CONFIG.rangeBoost, steps));
+  const rate = Math.max(type.rate * Math.pow(1 - UPGRADE_CONFIG.rateBoost, steps), type.rate * 0.55);
+  const splash = type.splash ? Math.round(type.splash * Math.pow(1 + UPGRADE_CONFIG.rangeBoost, steps)) : 0;
+  const slow = type.slow ? Number((type.slow * Math.pow(1 + UPGRADE_CONFIG.rangeBoost, steps)).toFixed(2)) : 0;
+  return {
+    damage,
+    range,
+    rate,
+    projectileSpeed: type.projectileSpeed,
+    splash,
+    slow,
+    color: type.color,
+  };
+}
+
+function getUpgradeCost(tower) {
+  if (!tower || tower.level >= UPGRADE_CONFIG.maxLevel) return null;
+  const base = tower.type.cost;
+  return Math.round(base * (UPGRADE_CONFIG.costBase + UPGRADE_CONFIG.costGrowth * (tower.level - 1)));
+}
+
 class Enemy {
   constructor(type, scale = DEFAULT_SCALE) {
     this.type = type;
@@ -539,6 +593,8 @@ class Tower {
     this.type = type;
     this.c = c;
     this.r = r;
+    this.level = 1;
+    this.stats = getTowerStats(type, this.level);
     const center = tileCenter(c, r);
     this.x = center.x;
     this.y = center.y;
@@ -552,7 +608,7 @@ class Tower {
     }
     const target = acquireTarget(this);
     if (!target) return;
-    this.cooldown = this.type.rate;
+    this.cooldown = this.stats.rate;
     projectiles.push(new Projectile(this, target));
   }
 }
@@ -563,11 +619,11 @@ class Projectile {
     this.target = target;
     this.x = tower.x;
     this.y = tower.y;
-    this.speed = tower.type.projectileSpeed;
-    this.damage = tower.type.damage;
-    this.color = tower.type.color;
-    this.splash = tower.type.splash || 0;
-    this.slow = tower.type.slow || 0;
+    this.speed = tower.stats.projectileSpeed;
+    this.damage = tower.stats.damage;
+    this.color = tower.stats.color;
+    this.splash = tower.stats.splash || 0;
+    this.slow = tower.stats.slow || 0;
     this.dead = false;
   }
 
@@ -612,7 +668,7 @@ function acquireTarget(tower) {
   for (const enemy of enemies) {
     if (enemy.dead) continue;
     const d = Math.hypot(enemy.pos.x - tower.x, enemy.pos.y - tower.y);
-    if (d <= tower.type.range && enemy.distance > bestDistance) {
+    if (d <= tower.stats.range && enemy.distance > bestDistance) {
       bestDistance = enemy.distance;
       best = enemy;
     }
@@ -631,21 +687,53 @@ function applyDamage(enemy, amount) {
   }
 }
 
+function selectPlacedTower(tower) {
+  selectedPlacedTower = tower;
+  if (tower) {
+    hintEl.textContent = `${tower.type.name} selected. Upgrade it or place more towers.`;
+  }
+}
+
+function upgradeSelectedTower() {
+  if (!selectedPlacedTower || state.gameOver) return;
+  const cost = getUpgradeCost(selectedPlacedTower);
+  if (!cost) {
+    hintEl.textContent = "Tower is already max level.";
+    return;
+  }
+  if (state.money < cost) {
+    hintEl.textContent = "Not enough credits for that upgrade.";
+    return;
+  }
+  state.money -= cost;
+  selectedPlacedTower.level += 1;
+  selectedPlacedTower.stats = getTowerStats(selectedPlacedTower.type, selectedPlacedTower.level);
+  floaters.push({
+    x: selectedPlacedTower.x,
+    y: selectedPlacedTower.y - 10,
+    text: `Level ${selectedPlacedTower.level}!`,
+    color: "#48e0c5",
+    life: 1.2,
+  });
+  hintEl.textContent = `${selectedPlacedTower.type.name} upgraded to level ${selectedPlacedTower.level}.`;
+  syncUI();
+}
+
 function getWave(index) {
   if (index < WAVES.length) return WAVES[index];
   return buildFreeplayWave(index - WAVES.length + 1);
 }
 
 function buildFreeplayWave(stage) {
-  const growth = Math.min(stage, 60);
-  const base = 10 + Math.floor(growth * 1.8);
-  const fastInterval = Math.max(0.35, 0.6 - growth * 0.008);
-  const heavyInterval = Math.max(0.7, 1.15 - growth * 0.01);
-  const reward = 180 + growth * 25;
+  const growth = Math.min(stage, 80);
+  const base = 14 + Math.floor(growth * 2.4);
+  const fastInterval = Math.max(0.3, 0.55 - growth * 0.01);
+  const heavyInterval = Math.max(0.65, 1.05 - growth * 0.012);
+  const reward = 140 + growth * 18;
   const scale = {
-    hp: 1 + growth * 0.08,
-    speed: 1 + growth * 0.015,
-    reward: 1 + growth * 0.06,
+    hp: 1 + growth * 0.12,
+    speed: 1 + growth * 0.025,
+    reward: 1 + growth * 0.04,
   };
 
   const groups = [
@@ -729,7 +817,7 @@ function resetGame() {
   projectiles = [];
   floaters = [];
   state.money = 180;
-  state.lives = 18;
+  state.lives = 100;
   state.waveIndex = 0;
   state.inWave = false;
   state.waveTimer = 0;
@@ -741,6 +829,7 @@ function resetGame() {
   state.paused = false;
   state.selectedTowerId = "schlingus";
   state.gameOver = false;
+  selectedPlacedTower = null;
   overlayEl.classList.remove("active");
   hintEl.textContent = "Click a tower, then click a tile to deploy.";
   syncUI();
@@ -877,11 +966,29 @@ function drawTowers() {
       const size = 52;
       ctx.drawImage(img, tower.x - size / 2, tower.y - size / 2 - 6, size, size);
     } else {
-      ctx.fillStyle = tower.type.color;
+      ctx.fillStyle = tower.stats.color;
       ctx.beginPath();
       ctx.arc(tower.x, tower.y, 18, 0, Math.PI * 2);
       ctx.fill();
     }
+
+    if (tower === selectedPlacedTower) {
+      ctx.strokeStyle = "#48e0c5";
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.arc(tower.x, tower.y + 4, 28, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    ctx.fillStyle = "rgba(0,0,0,0.55)";
+    ctx.beginPath();
+    ctx.arc(tower.x + 18, tower.y - 18, 10, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "600 12px 'Space Grotesk', sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(`${tower.level}`, tower.x + 18, tower.y - 18);
     ctx.restore();
   });
 }
@@ -1034,6 +1141,32 @@ function syncUI() {
     card.classList.toggle("active", isActive);
   });
 
+  if (!selectedPlacedTower) {
+    upgradeTitleEl.textContent = "No tower selected";
+    upgradeMetaEl.textContent = "Click a placed tower to upgrade it.";
+    upgradeLevelEl.textContent = "-";
+    upgradeDamageEl.textContent = "-";
+    upgradeRangeEl.textContent = "-";
+    upgradeRateEl.textContent = "-";
+    upgradeBtn.textContent = "Upgrade";
+    upgradeBtn.disabled = true;
+  } else {
+    const placed = selectedPlacedTower;
+    const cost = getUpgradeCost(placed);
+    upgradeTitleEl.textContent = placed.type.name;
+    upgradeMetaEl.textContent = `Level ${placed.level} of ${UPGRADE_CONFIG.maxLevel}`;
+    upgradeLevelEl.textContent = `${placed.level}`;
+    upgradeDamageEl.textContent = `${placed.stats.damage}`;
+    upgradeRangeEl.textContent = `${placed.stats.range}`;
+    upgradeRateEl.textContent = `${(1 / placed.stats.rate).toFixed(2)} /s`;
+    if (!cost) {
+      upgradeBtn.textContent = "Max level";
+      upgradeBtn.disabled = true;
+    } else {
+      upgradeBtn.textContent = `Upgrade ($${cost})`;
+      upgradeBtn.disabled = state.money < cost || state.gameOver;
+    }
+  }
 }
 
 function resize() {
@@ -1069,6 +1202,11 @@ function isBuildable(tile) {
   return true;
 }
 
+function getTowerAt(tile) {
+  if (!tile) return null;
+  return towers.find((tower) => tower.c === tile.c && tower.r === tile.r) || null;
+}
+
 function handleCanvasMove(event) {
   const coords = toGameCoords(event.clientX, event.clientY);
   hover.active = true;
@@ -1088,6 +1226,12 @@ function handleCanvasClick(event) {
   const coords = toGameCoords(event.clientX, event.clientY);
   const tile = getTileFromCoords(coords.x, coords.y);
   if (!tile) return;
+  const existingTower = getTowerAt(tile);
+  if (existingTower) {
+    selectPlacedTower(existingTower);
+    syncUI();
+    return;
+  }
   const towerType = TOWER_TYPES[state.selectedTowerId];
   if (!towerType) return;
   if (!isBuildable(tile)) {
@@ -1098,7 +1242,9 @@ function handleCanvasClick(event) {
     hintEl.textContent = "Not enough credits for that tower.";
     return;
   }
-  towers.push(new Tower(towerType, tile.c, tile.r));
+  const newTower = new Tower(towerType, tile.c, tile.r);
+  towers.push(newTower);
+  selectPlacedTower(newTower);
   state.money -= towerType.cost;
   hintEl.textContent = "Tower deployed. Lock down the bends.";
   syncUI();
@@ -1125,6 +1271,10 @@ function bindUI() {
   togglePauseBtn.addEventListener("click", () => {
     state.paused = !state.paused;
     syncUI();
+  });
+
+  upgradeBtn.addEventListener("click", () => {
+    upgradeSelectedTower();
   });
 
   restartBtn.addEventListener("click", () => {
