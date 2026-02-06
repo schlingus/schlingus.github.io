@@ -67,6 +67,7 @@ const TILE = BASE_WIDTH / GRID_COLS;
 
 const ASSETS = {
   schlingus: "images/towers/schlingus-body.png",
+  superschlingus: "images/towers/superschlingus.png",
   turking: "images/towers/turking.png",
   pickleguy: "images/towers/pickleguy.png",
   tankman48: "images/towers/tankman48.png",
@@ -126,6 +127,52 @@ const TOWER_TYPES = {
           { rateMul: 0.9 },
           { rateMul: 0.88 },
           { rateMul: 0.86 },
+        ],
+      },
+    ],
+  },
+  superschlingus: {
+    id: "superschlingus",
+    name: "superschlingus",
+    cost: 600,
+    damage: 7,
+    range: 125,
+    rate: 0.45,
+    projectileSpeed: 420,
+    color: "#9bc3ff",
+    description: "Extremely fast shots with lower damage.",
+    paths: [
+      {
+        name: "Overdrive",
+        desc: "Even faster firing.",
+        tiers: [
+          { rateMul: 0.92 },
+          { rateMul: 0.9 },
+          { rateMul: 0.88 },
+          { rateMul: 0.86 },
+          { rateMul: 0.84 },
+        ],
+      },
+      {
+        name: "Power",
+        desc: "Boosts shot damage.",
+        tiers: [
+          { damageAdd: 2 },
+          { damageAdd: 3 },
+          { damageAdd: 4 },
+          { damageAdd: 5 },
+          { damageAdd: 6 },
+        ],
+      },
+      {
+        name: "Scope",
+        desc: "Wider engagement range.",
+        tiers: [
+          { rangeAdd: 8 },
+          { rangeAdd: 10 },
+          { rangeAdd: 12 },
+          { rangeAdd: 14 },
+          { rangeAdd: 16 },
         ],
       },
     ],
@@ -1050,6 +1097,30 @@ const hover = {
   valid: false,
 };
 
+function removeImageBackground(img, tolerance = 24) {
+  const canvas = document.createElement("canvas");
+  canvas.width = img.width;
+  canvas.height = img.height;
+  const c = canvas.getContext("2d");
+  c.drawImage(img, 0, 0);
+  const imageData = c.getImageData(0, 0, canvas.width, canvas.height);
+  const data = imageData.data;
+  const bgR = data[0];
+  const bgG = data[1];
+  const bgB = data[2];
+  const tolSq = tolerance * tolerance;
+  for (let i = 0; i < data.length; i += 4) {
+    const dr = data[i] - bgR;
+    const dg = data[i + 1] - bgG;
+    const db = data[i + 2] - bgB;
+    if (dr * dr + dg * dg + db * db <= tolSq) {
+      data[i + 3] = 0;
+    }
+  }
+  c.putImageData(imageData, 0, 0);
+  return canvas;
+}
+
 function loadImages() {
   loadingEl.classList.add("active");
   const entries = Object.entries(ASSETS);
@@ -1068,6 +1139,9 @@ function loadImages() {
       acc[key] = img;
       return acc;
     }, {});
+    if (images.superschlingus) {
+      images.superschlingus = removeImageBackground(images.superschlingus, 26);
+    }
     loadingEl.classList.remove("active");
   });
 }
