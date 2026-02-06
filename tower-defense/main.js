@@ -1058,6 +1058,7 @@ const state = {
     infMoney: false,
     showHitboxes: false,
   },
+  furMode: false,
   speed: 1,
   paused: true,
   started: false,
@@ -1085,6 +1086,8 @@ let selectedPlacedTower = null;
 let autoStartTimer = null;
 let debugBuffer = "";
 const DEBUG_SEQUENCE = "CAELUM";
+let furBuffer = "";
+const FUR_SEQUENCE = "FUR";
 let enemyIdCounter = 1;
 let gameLoading = false;
 let gameLoaded = false;
@@ -1362,6 +1365,33 @@ function handleDebugSequence(key) {
   if (debugBuffer === DEBUG_SEQUENCE) {
     unlockDebugMode();
     debugBuffer = "";
+  }
+}
+
+function unlockFurMode() {
+  if (state.furMode) return;
+  state.furMode = true;
+  if (ENEMY_TYPES.infernus) {
+    ENEMY_TYPES.infernus.name = "infurrynus";
+  }
+  if (TOWER_TYPES["infernus-knockoff"]) {
+    TOWER_TYPES["infernus-knockoff"].name = "infurrynus";
+    TOWER_TYPES["infernus-knockoff"].description = "Long-range strikes for priority targets.";
+    const card = document.querySelector('.tower-card[data-tower="infernus-knockoff"] .tower-name');
+    if (card) card.textContent = "infurrynus";
+  }
+  hintEl.textContent = "FUR mode activated.";
+  syncUI();
+}
+
+function handleFurSequence(key) {
+  if (key.length !== 1) return;
+  const upper = key.toUpperCase();
+  if (upper < "A" || upper > "Z") return;
+  furBuffer = `${furBuffer}${upper}`.slice(-FUR_SEQUENCE.length);
+  if (furBuffer === FUR_SEQUENCE) {
+    unlockFurMode();
+    furBuffer = "";
   }
 }
 
@@ -2631,6 +2661,7 @@ function bindUI() {
     }
     if (!event.ctrlKey && !event.metaKey && !event.altKey) {
       handleDebugSequence(event.key);
+      handleFurSequence(event.key);
     }
   });
 }
