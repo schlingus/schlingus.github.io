@@ -38,6 +38,9 @@ const upgradeTitleEl = document.getElementById("upgradeTitle");
 const upgradeMetaEl = document.getElementById("upgradeMeta");
 const clearSelectionBtn = document.getElementById("clearSelection");
 const sellTowerBtn = document.getElementById("sellTower");
+const enemyPreviewEl = document.getElementById("enemyPreview");
+const enemyListEl = document.getElementById("enemyList");
+const enemyTooltipEl = document.getElementById("enemyTooltip");
 const debugPanelEl = document.getElementById("debugPanel");
 const debugAddMoneyBtn = document.getElementById("debugAddMoney");
 const debugInfMoneyBtn = document.getElementById("debugInfMoney");
@@ -77,7 +80,9 @@ const ASSETS = {
   luis: "images/towers/luisgamercool23.png",
   ducklord: "images/towers/th_ducklord.png",
   infernus: "images/enemies/infernus.png",
-  smoothie: "images/enemies/smoothie.png",
+  smoothie: "images/enemies/smoothie.jpg",
+  goku: "images/enemies/goku.png",
+  glep: "images/enemies/glep.png",
   "infernus-knockoff": "images/towers/infernus-knockoff.png",
   luisEnemy: "images/enemies/luisgamercool23-head.png",
   redcliff: "images/enemies/redcliff.png",
@@ -135,13 +140,13 @@ const TOWER_TYPES = {
   superschlingus: {
     id: "superschlingus",
     name: "superschlingus",
-    cost: 600,
-    damage: 7,
-    range: 125,
-    rate: 0.45,
-    projectileSpeed: 420,
+    cost: 750,
+    damage: 10,
+    range: 140,
+    rate: 0.4,
+    projectileSpeed: 450,
     color: "#9bc3ff",
-    description: "Extremely fast shots with lower damage.",
+    description: "Extremely fast shots with stronger damage.",
     paths: [
       {
         name: "Overdrive",
@@ -566,6 +571,7 @@ const ENEMY_TYPES = {
     name: "infernus",
     hp: 26,
     speed: 70,
+    damage: 1,
     reward: 4,
     image: "infernus",
     size: 36,
@@ -575,8 +581,19 @@ const ENEMY_TYPES = {
     name: "smoothie",
     hp: 22,
     speed: 140,
+    damage: 1,
     reward: 4,
     image: "smoothie",
+    size: 34,
+  },
+  goku: {
+    id: "goku",
+    name: "goku",
+    hp: 24,
+    speed: 150,
+    damage: 2,
+    reward: 5,
+    image: "goku",
     size: 34,
   },
   wannabe: {
@@ -584,6 +601,7 @@ const ENEMY_TYPES = {
     name: "Turking Wannabe",
     hp: 36,
     speed: 52,
+    damage: 2,
     reward: 5,
     image: "wannabe",
     size: 40,
@@ -593,6 +611,7 @@ const ENEMY_TYPES = {
     name: "redcliff",
     hp: 85,
     speed: 30,
+    damage: 3,
     reward: 9,
     image: "redcliff",
     size: 46,
@@ -602,6 +621,7 @@ const ENEMY_TYPES = {
     name: "Decapitated luisgamercool23",
     hp: 115,
     speed: 30,
+    damage: 4,
     reward: 12,
     image: "luisEnemy",
     size: 50,
@@ -611,9 +631,20 @@ const ENEMY_TYPES = {
     name: "Schlergus, Garden Bane",
     hp: 500,
     speed: 16,
+    damage: 8,
     reward: 80,
     image: "schlergus",
     size: 70,
+  },
+  glep: {
+    id: "glep",
+    name: "Glep, Garden Devourer",
+    hp: 900,
+    speed: 14,
+    damage: 12,
+    reward: 140,
+    image: "glep",
+    size: 82,
   },
 };
 
@@ -646,6 +677,7 @@ const BASE_WAVES = [
     groups: [
       { type: "redcliff", count: 2, interval: 1.4 },
       { type: "infernus", count: 8, interval: 0.8 },
+      { type: "goku", count: 2, interval: 0.55 },
     ],
   },
   {
@@ -662,6 +694,7 @@ const BASE_WAVES = [
     groups: [
       { type: "infernus", count: 10, interval: 0.7 },
       { type: "smoothie", count: 5, interval: 0.6 },
+      { type: "goku", count: 3, interval: 0.5 },
       { type: "redcliff", count: 3, interval: 1.2 },
     ],
   },
@@ -706,6 +739,7 @@ const BASE_WAVES = [
     groups: [
       { type: "infernus", count: 12, interval: 0.6 },
       { type: "smoothie", count: 8, interval: 0.5 },
+      { type: "goku", count: 5, interval: 0.45 },
       { type: "wannabe", count: 8, interval: 0.6 },
       { type: "redcliff", count: 4, interval: 1.0 },
     ],
@@ -872,30 +906,53 @@ const MAPS = [
       patternMin: 60,
       patternMax: 140,
     },
-    pathTiles: [
-      { c: 0, r: 2 },
-      { c: 1, r: 2 },
-      { c: 2, r: 2 },
-      { c: 3, r: 2 },
-      { c: 4, r: 2 },
-      { c: 5, r: 2 },
-      { c: 5, r: 3 },
-      { c: 5, r: 4 },
-      { c: 5, r: 5 },
-      { c: 5, r: 6 },
-      { c: 6, r: 6 },
-      { c: 7, r: 6 },
-      { c: 8, r: 6 },
-      { c: 9, r: 6 },
-      { c: 10, r: 6 },
-      { c: 11, r: 6 },
-      { c: 11, r: 5 },
-      { c: 11, r: 4 },
-      { c: 11, r: 3 },
-      { c: 12, r: 3 },
-      { c: 13, r: 3 },
-      { c: 14, r: 3 },
-      { c: 15, r: 3 },
+    paths: [
+      [
+        { c: 0, r: 2 },
+        { c: 1, r: 2 },
+        { c: 2, r: 2 },
+        { c: 3, r: 2 },
+        { c: 4, r: 2 },
+        { c: 5, r: 2 },
+        { c: 5, r: 3 },
+        { c: 5, r: 4 },
+        { c: 5, r: 5 },
+        { c: 5, r: 6 },
+        { c: 6, r: 6 },
+        { c: 7, r: 6 },
+        { c: 8, r: 6 },
+        { c: 9, r: 6 },
+        { c: 10, r: 6 },
+        { c: 11, r: 6 },
+        { c: 11, r: 5 },
+        { c: 11, r: 4 },
+        { c: 11, r: 3 },
+        { c: 12, r: 3 },
+        { c: 13, r: 3 },
+        { c: 14, r: 3 },
+        { c: 15, r: 3 },
+      ],
+      [
+        { c: 0, r: 6 },
+        { c: 1, r: 6 },
+        { c: 2, r: 6 },
+        { c: 3, r: 6 },
+        { c: 4, r: 6 },
+        { c: 5, r: 6 },
+        { c: 6, r: 6 },
+        { c: 7, r: 6 },
+        { c: 8, r: 6 },
+        { c: 9, r: 6 },
+        { c: 10, r: 6 },
+        { c: 11, r: 6 },
+        { c: 11, r: 5 },
+        { c: 11, r: 4 },
+        { c: 11, r: 3 },
+        { c: 12, r: 3 },
+        { c: 13, r: 3 },
+        { c: 14, r: 3 },
+        { c: 15, r: 3 },
+      ],
     ],
   },
   {
@@ -953,6 +1010,7 @@ let pathTiles = [];
 let pathSet = new Set();
 let gardenDecor = [];
 let pathDecor = [];
+let pathData = [];
 let pathPoints = [];
 let pathSegments = [];
 let pathLength = 0;
@@ -1104,6 +1162,7 @@ const FUR_SEQUENCE = "FUR";
 let enemyIdCounter = 1;
 let gameLoading = false;
 let gameLoaded = false;
+let enemyPreviewToken = "";
 const MAX_FRAME_DT = 0.06;
 
 const hover = {
@@ -1170,11 +1229,11 @@ function tileCenter(c, r) {
   };
 }
 
-function buildPathPoints() {
+function buildPathPoints(tiles) {
   const points = [
-    { x: -TILE / 2, y: tileCenter(pathTiles[0].c, pathTiles[0].r).y },
-    ...pathTiles.map((tile) => tileCenter(tile.c, tile.r)),
-    { x: BASE_WIDTH + TILE / 2, y: tileCenter(pathTiles[pathTiles.length - 1].c, pathTiles[pathTiles.length - 1].r).y },
+    { x: -TILE / 2, y: tileCenter(tiles[0].c, tiles[0].r).y },
+    ...tiles.map((tile) => tileCenter(tile.c, tile.r)),
+    { x: BASE_WIDTH + TILE / 2, y: tileCenter(tiles[tiles.length - 1].c, tiles[tiles.length - 1].r).y },
   ];
   return points;
 }
@@ -1197,20 +1256,37 @@ function buildPathSegments(points) {
 function applyMap(mapId) {
   const map = MAPS.find((item) => item.id === mapId) || MAPS[0];
   currentMap = map;
-  pathTiles = map.pathTiles;
+  const mapPaths = map.paths || [map.pathTiles];
+  const tileMap = new Map();
+  mapPaths.forEach((tiles) => {
+    tiles.forEach((tile) => {
+      tileMap.set(`${tile.c},${tile.r}`, tile);
+    });
+  });
+  pathTiles = Array.from(tileMap.values());
   pathSet = new Set(pathTiles.map((tile) => `${tile.c},${tile.r}`));
-  pathPoints = buildPathPoints();
-  const built = buildPathSegments(pathPoints);
-  pathSegments = built.segments;
-  pathLength = built.length;
+  pathData = mapPaths.map((tiles) => {
+    const points = buildPathPoints(tiles);
+    const built = buildPathSegments(points);
+    return { tiles, points, segments: built.segments, length: built.length };
+  });
+  const primary = pathData[0];
+  pathPoints = primary ? primary.points : [];
+  pathSegments = primary ? primary.segments : [];
+  pathLength = primary ? primary.length : 0;
   gardenDecor = buildGardenDecor();
   pathDecor = buildPathDecor();
   grassPattern = null;
 }
 
-function getPathPosition(distance) {
+function getPathPosition(distance, pathIndex = 0) {
+  const pathInfo = pathData[pathIndex] || pathData[0];
+  const segments = pathInfo ? pathInfo.segments : pathSegments;
+  if (!segments || segments.length === 0) {
+    return { x: BASE_WIDTH / 2, y: BASE_HEIGHT / 2 };
+  }
   let remaining = distance;
-  for (const seg of pathSegments) {
+  for (const seg of segments) {
     if (remaining <= seg.len) {
       const t = seg.len === 0 ? 0 : remaining / seg.len;
       return {
@@ -1220,7 +1296,7 @@ function getPathPosition(distance) {
     }
     remaining -= seg.len;
   }
-  const last = pathSegments[pathSegments.length - 1];
+  const last = segments[segments.length - 1];
   return { x: last.b.x, y: last.b.y };
 }
 
@@ -1394,6 +1470,7 @@ function unlockFurMode() {
     if (card) card.textContent = "infurrynus";
   }
   hintEl.textContent = "FUR mode activated.";
+  updateEnemyPreview(true);
   syncUI();
 }
 
@@ -1430,7 +1507,11 @@ class Enemy {
     this.rewardBank = 0;
     this.paidReward = 0;
     this.distance = 0;
-    this.pos = { ...pathPoints[0] };
+    const pathCount = pathData.length || 1;
+    this.pathIndex = pathCount > 1 ? Math.floor(Math.random() * pathCount) : 0;
+    const pathInfo = pathData[this.pathIndex] || pathData[0];
+    this.pathLength = pathInfo ? pathInfo.length : pathLength;
+    this.pos = pathInfo && pathInfo.points.length ? { ...pathInfo.points[0] } : { x: 0, y: 0 };
     this.slowTimer = 0;
     this.burnTimer = 0;
     this.burnDps = 0;
@@ -1457,16 +1538,24 @@ class Enemy {
     }
     const slowFactor = this.slowTimer > 0 ? 0.55 : 1;
     this.distance += this.speed * slowFactor * dt;
-    if (this.distance >= pathLength) {
+    const totalLength = this.pathLength || pathLength;
+    if (this.distance >= totalLength) {
       this.dead = true;
-      state.lives = Math.max(0, state.lives - 1);
-      floaters.push({ x: this.pos.x, y: this.pos.y, text: "-1 Life", color: "#ff5f56", life: 1.1 });
+      const damage = Math.max(1, this.type.damage || 1);
+      state.lives = Math.max(0, state.lives - damage);
+      floaters.push({
+        x: this.pos.x,
+        y: this.pos.y,
+        text: `-${damage} Life${damage === 1 ? "" : "s"}`,
+        color: "#ff5f56",
+        life: 1.1,
+      });
       if (state.lives <= 0) {
         triggerGameOver("Game Over", "The garden has fallen.");
       }
       return;
     }
-    this.pos = getPathPosition(this.distance);
+    this.pos = getPathPosition(this.distance, this.pathIndex);
   }
 }
 
@@ -1738,6 +1827,95 @@ function getWave(index) {
   return buildFreeplayWave(index - WAVES.length + 1);
 }
 
+function updateEnemyPreview(force = false) {
+  if (!enemyListEl) return;
+  const token = `${state.waveIndex}|${state.freeplay ? 1 : 0}|${state.furMode ? 1 : 0}`;
+  if (!force && token === enemyPreviewToken) return;
+  enemyPreviewToken = token;
+
+  const wave = getWave(state.waveIndex);
+  enemyListEl.innerHTML = "";
+  if (!wave || !wave.groups || wave.groups.length === 0) {
+    enemyListEl.textContent = "No enemies";
+    return;
+  }
+
+  const counts = new Map();
+  const order = [];
+  wave.groups.forEach((group) => {
+    if (!ENEMY_TYPES[group.type]) return;
+    if (!counts.has(group.type)) order.push(group.type);
+    counts.set(group.type, (counts.get(group.type) || 0) + group.count);
+  });
+
+  if (!order.length) {
+    enemyListEl.textContent = "No enemies";
+    return;
+  }
+
+  order.forEach((type) => {
+    const enemy = ENEMY_TYPES[type];
+    if (!enemy) return;
+    const card = document.createElement("div");
+    card.className = "enemy-chip";
+    card.dataset.type = type;
+
+    const img = document.createElement("img");
+    img.src = ASSETS[enemy.image] || "";
+    img.alt = enemy.name;
+
+    const name = document.createElement("div");
+    name.className = "enemy-name";
+    name.textContent = enemy.name;
+
+    const count = document.createElement("div");
+    count.className = "enemy-count";
+    count.textContent = `x${counts.get(type)}`;
+
+    card.append(img, name, count);
+    card.addEventListener("mouseenter", (event) => showEnemyTooltip(enemy, event));
+    card.addEventListener("mousemove", positionEnemyTooltip);
+    card.addEventListener("mouseleave", hideEnemyTooltip);
+    enemyListEl.appendChild(card);
+  });
+}
+
+function showEnemyTooltip(enemy, event) {
+  if (!enemyTooltipEl) return;
+  enemyTooltipEl.hidden = false;
+  enemyTooltipEl.innerHTML = `<strong>${enemy.name}</strong>
+    <div>HP: ${enemy.hp}</div>
+    <div>Speed: ${enemy.speed}</div>
+    <div>Reward: $${enemy.reward}</div>
+    <div>Lives damage: ${enemy.damage || 1}</div>`;
+  positionEnemyTooltip(event);
+}
+
+function hideEnemyTooltip() {
+  if (!enemyTooltipEl) return;
+  enemyTooltipEl.hidden = true;
+}
+
+function positionEnemyTooltip(event) {
+  if (!enemyTooltipEl || enemyTooltipEl.hidden) return;
+  const wrap = enemyPreviewEl || enemyListEl;
+  if (!wrap) return;
+  const rect = wrap.getBoundingClientRect();
+  let x = event.clientX - rect.left + 12;
+  let y = event.clientY - rect.top + 12;
+  enemyTooltipEl.style.left = `${x}px`;
+  enemyTooltipEl.style.top = `${y}px`;
+  const tipRect = enemyTooltipEl.getBoundingClientRect();
+  const maxX = rect.width - tipRect.width - 8;
+  const maxY = rect.height - tipRect.height - 8;
+  if (x > maxX) x = maxX;
+  if (y > maxY) y = maxY;
+  if (x < 8) x = 8;
+  if (y < 8) y = 8;
+  enemyTooltipEl.style.left = `${x}px`;
+  enemyTooltipEl.style.top = `${y}px`;
+}
+
 function buildFreeplayWave(stage) {
   const growth = Math.min(stage, 80);
   const base = 14 + Math.floor(growth * 2.4);
@@ -1753,6 +1931,7 @@ function buildFreeplayWave(stage) {
   const groups = [
     { type: "infernus", count: base, interval: fastInterval },
     { type: "smoothie", count: Math.max(6, Math.floor(base * 0.6)), interval: Math.max(0.25, fastInterval - 0.08) },
+    { type: "goku", count: Math.max(4, Math.floor(base * 0.5)), interval: Math.max(0.24, fastInterval - 0.1) },
     { type: "wannabe", count: base, interval: Math.max(0.35, fastInterval - 0.02) },
     { type: "redcliff", count: Math.max(4, Math.floor(base * 0.45)), interval: heavyInterval },
     { type: "luis", count: Math.max(2, Math.floor(base * 0.25)), interval: Math.max(0.85, heavyInterval + 0.1) },
@@ -1761,6 +1940,10 @@ function buildFreeplayWave(stage) {
   if (stage >= 1) {
     const bossCount = stage % 10 === 0 ? 2 : 1;
     groups.push({ type: "schlergus", count: bossCount, interval: 1.2 });
+  }
+
+  if (stage >= 20 && stage % 6 === 2) {
+    groups.push({ type: "glep", count: 1, interval: 1.35 });
   }
 
   return { name: `Freeplay ${stage}`, reward, groups, scale };
@@ -1988,47 +2171,52 @@ function drawGrid() {
 
 function drawPath() {
   const theme = getTheme();
-  ctx.save();
-  ctx.lineCap = "round";
-  ctx.lineJoin = "round";
-  ctx.shadowColor = "rgba(0,0,0,0.35)";
-  ctx.shadowBlur = 14;
-  ctx.strokeStyle = theme.pathOuter || "#9e7546";
-  ctx.lineWidth = TILE * 0.86;
-  ctx.beginPath();
-  pathPoints.forEach((pt, index) => {
-    if (index === 0) ctx.moveTo(pt.x, pt.y);
-    else ctx.lineTo(pt.x, pt.y);
-  });
-  ctx.stroke();
-  ctx.restore();
+  const pathsToDraw = pathData.length ? pathData.map((p) => p.points) : pathPoints.length ? [pathPoints] : [];
+  if (!pathsToDraw.length) return;
 
-  ctx.save();
-  ctx.lineCap = "round";
-  ctx.lineJoin = "round";
-  ctx.strokeStyle = theme.pathInner || "#c79b63";
-  ctx.lineWidth = TILE * 0.62;
-  ctx.beginPath();
-  pathPoints.forEach((pt, index) => {
-    if (index === 0) ctx.moveTo(pt.x, pt.y);
-    else ctx.lineTo(pt.x, pt.y);
-  });
-  ctx.stroke();
-  ctx.restore();
+  pathsToDraw.forEach((points) => {
+    ctx.save();
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.shadowColor = "rgba(0,0,0,0.35)";
+    ctx.shadowBlur = 14;
+    ctx.strokeStyle = theme.pathOuter || "#9e7546";
+    ctx.lineWidth = TILE * 0.86;
+    ctx.beginPath();
+    points.forEach((pt, index) => {
+      if (index === 0) ctx.moveTo(pt.x, pt.y);
+      else ctx.lineTo(pt.x, pt.y);
+    });
+    ctx.stroke();
+    ctx.restore();
 
-  ctx.save();
-  ctx.lineCap = "round";
-  ctx.lineJoin = "round";
-  ctx.strokeStyle = theme.pathDash || "rgba(70, 45, 20, 0.35)";
-  ctx.lineWidth = 2;
-  ctx.setLineDash([14, 12]);
-  ctx.beginPath();
-  pathPoints.forEach((pt, index) => {
-    if (index === 0) ctx.moveTo(pt.x, pt.y);
-    else ctx.lineTo(pt.x, pt.y);
+    ctx.save();
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.strokeStyle = theme.pathInner || "#c79b63";
+    ctx.lineWidth = TILE * 0.62;
+    ctx.beginPath();
+    points.forEach((pt, index) => {
+      if (index === 0) ctx.moveTo(pt.x, pt.y);
+      else ctx.lineTo(pt.x, pt.y);
+    });
+    ctx.stroke();
+    ctx.restore();
+
+    ctx.save();
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.strokeStyle = theme.pathDash || "rgba(70, 45, 20, 0.35)";
+    ctx.lineWidth = 2;
+    ctx.setLineDash([14, 12]);
+    ctx.beginPath();
+    points.forEach((pt, index) => {
+      if (index === 0) ctx.moveTo(pt.x, pt.y);
+      else ctx.lineTo(pt.x, pt.y);
+    });
+    ctx.stroke();
+    ctx.restore();
   });
-  ctx.stroke();
-  ctx.restore();
 
   ctx.save();
   ctx.fillStyle = theme.stone || "rgba(255, 255, 255, 0.35)";
@@ -2421,6 +2609,8 @@ function syncUI() {
       debugHitboxesBtn.textContent = state.debug.showHitboxes ? "Hitboxes: On" : "Hitboxes: Off";
     }
   }
+
+  updateEnemyPreview();
 }
 
 function resize() {

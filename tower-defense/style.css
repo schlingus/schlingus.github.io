@@ -502,6 +502,81 @@ button:disabled {
   gap: 8px;
 }
 
+.enemy-preview {
+  position: relative;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: var(--panel-strong);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 16px 30px var(--shadow);
+  display: grid;
+  gap: 10px;
+}
+
+.enemy-preview-header {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.enemy-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.enemy-chip {
+  display: grid;
+  grid-template-columns: 36px 1fr auto;
+  gap: 8px;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: default;
+}
+
+.enemy-chip img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.45));
+}
+
+.enemy-chip .enemy-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.enemy-chip .enemy-count {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.enemy-tooltip {
+  position: absolute;
+  z-index: 5;
+  min-width: 160px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(8, 16, 22, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.35);
+  color: var(--text);
+  font-size: 0.85rem;
+  pointer-events: none;
+  transform: translateY(-6px);
+}
+
+.enemy-tooltip strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.95rem;
+}
+
 canvas {
   width: 100%;
   height: auto;

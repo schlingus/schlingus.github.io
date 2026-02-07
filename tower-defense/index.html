@@ -54,7 +54,7 @@
                 <img src="images/towers/superschlingus.png" alt="superschlingus" />
                 <div>
                   <div class="tower-name">superschlingus</div>
-                  <div class="tower-meta">$600 · Ultra fast shots</div>
+                  <div class="tower-meta">$750 · Ultra fast shots</div>
                 </div>
               </button>
               <button class="tower-card" data-tower="turking">
@@ -143,15 +143,6 @@
             </div>
           </div>
 
-          <div class="panel-section tips">
-            <h2>How to play</h2>
-            <ul>
-              <li>Pick a tower, then click an empty tile to place it.</li>
-              <li>Hold the path and focus fire near the bends.</li>
-              <li>Click a placed tower to upgrade it.</li>
-              <li>Start each wave when you feel ready.</li>
-            </ul>
-          </div>
         </aside>
 
         <section class="stage-wrap">
@@ -182,7 +173,7 @@
               <div class="wave-name" id="waveName">Wave 1: Garden Wake</div>
               <div class="wave-meta">
                 <span id="waveCount">0 / 0</span>
-                <span id="nextSpawn">Awaiting orders</span>
+                <span id="nextSpawn"> Awaiting orders</span>
               </div>
             </div>
             <div class="controls">
@@ -191,6 +182,11 @@
               <button id="togglePause">Pause</button>
               <button id="toggleAutostart">Autostart: Off</button>
             </div>
+          </div>
+          <div class="enemy-preview" id="enemyPreview">
+            <div class="enemy-preview-header">Wave Enemies</div>
+            <div class="enemy-list" id="enemyList"></div>
+            <div class="enemy-tooltip" id="enemyTooltip" hidden></div>
           </div>
         </section>
 
