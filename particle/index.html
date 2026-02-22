@@ -33,7 +33,7 @@
     <!-- Combined UI Overlay -->
     <div class="fixed top-4 left-4 z-50 flex flex-col gap-4 max-w-xs w-full">
         <div class="panel p-5 rounded-2xl shadow-2xl">
-            <h1 class="text-xl font-bold mb-1 text-white">schlingus</h1>
+            <h1 class="text-xl font-bold mb-1 text-white">schlingus' particle simulation</h1>
             <p class="text-[10px] text-gray-400 mb-4 uppercase tracking-widest">
                 dont put density too high, its not worth it
             </p>
@@ -42,7 +42,7 @@
                 <!-- Density - Scaled up to 100 Million -->
                 <div>
                     <div class="flex justify-between text-sm mb-1">
-                        <label>Dot Density</label>
+                        <label>dot density</label>
                         <span id="count-val">800</span>
                     </div>
                     <input type="range" id="particle-count" min="100" max="100000000000" step="1000" value="800" class="w-full">
@@ -51,7 +51,7 @@
                 <!-- Pull Power -->
                 <div>
                     <div class="flex justify-between text-sm mb-1">
-                        <label>Pull Power</label>
+                        <label>pull power</label>
                         <span id="strength-val">1.8</span>
                     </div>
                     <input type="range" id="strength-slider" min="0.1" max="100" step="0.5" value="1.8" class="w-full">
@@ -60,7 +60,7 @@
                 <!-- Avoidance -->
                 <div>
                     <div class="flex justify-between text-sm mb-1">
-                        <label>Personal Space (Avoidance)</label>
+                        <label>personal space (Avoidance)</label>
                         <span id="avoid-val">1.2</span>
                     </div>
                     <input type="range" id="avoid-strength" min="0.1" max="5.0" step="0.1" value="1.2" class="w-full">
@@ -69,7 +69,7 @@
                 <!-- Friction -->
                 <div>
                     <div class="flex justify-between text-sm mb-1">
-                        <label>Drift (Momentum)</label>
+                        <label>drift (momentum)</label>
                         <span id="friction-val">0.96</span>
                     </div>
                     <input type="range" id="friction-input" min="0.80" max="0.999" step="0.001" value="0.96" class="w-full">
@@ -77,7 +77,7 @@
 
                 <!-- Glow Toggle -->
                 <div class="flex items-center justify-between">
-                    <label class="text-sm">Glow Intensity</label>
+                    <label class="text-sm">glow intensity</label>
                     <div class="flex gap-2">
                         <button id="glow-off" class="px-3 py-1 bg-gray-800 rounded text-[10px]">OFF</button>
                         <button id="glow-on" class="px-3 py-1 bg-blue-600 rounded text-[10px] font-bold">HIGH</button>
@@ -92,7 +92,7 @@
         </div>
         
         <div id="perf-warning" class="hidden panel p-3 rounded-xl text-[10px] text-amber-400 border-amber-500/30 animate-pulse">
-            Extreme density. Complex AI behaviors disabled to save FPS.
+            extreme density, fps saver on 👍
         </div>
     </div>
 
