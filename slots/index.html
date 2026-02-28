@@ -468,6 +468,7 @@
 
         const STORAGE_KEY = "SLOT_MACHINE_V1_SYMBOLS";
         const SPIN_COST = 5;
+        const HOUSE_TRIPLE_BOOST = 0.30;
 
         function handleRoll() {
             if (state.isRolling) return;
@@ -502,7 +503,9 @@
             ];
             const chanceDisplay = document.getElementById('chance-display');
 
-            const results = reels.map(() => getSymbol());
+            const forcedTriple = Math.random() < HOUSE_TRIPLE_BOOST;
+            const tripleSymbol = getSymbol();
+            const results = reels.map(() => forcedTriple ? tripleSymbol : getSymbol());
 
             const reelItemHeight = 160;
             const dummyCount = 42;
@@ -563,16 +566,32 @@
             document.getElementById('reel-3').classList.remove('spinning');
             const result = results[0];
             const chanceDisplay = document.getElementById('chance-display');
-            setScreenSymbol(result);
             chanceDisplay.style.opacity = '1';
 
+            const symbolCounts = new Map();
+            results.forEach(symbol => {
+                symbolCounts.set(symbol.name, (symbolCounts.get(symbol.name) || 0) + 1);
+            });
+
             const isTripleMatch = results.every(symbol => symbol.name === result.name);
+            const pairSymbol = !isTripleMatch
+                ? results.find(symbol => symbolCounts.get(symbol.name) === 2)
+                : null;
+
             if (isTripleMatch) {
                 const payout = getSymbolPayout(result);
                 state.money += payout;
+                setScreenSymbol(result);
                 chanceDisplay.innerText = `TRIPLE MATCH (+$${payout})`;
                 document.documentElement.style.setProperty('--aura-glow', result.color + '55');
+            } else if (pairSymbol) {
+                const payout = Math.max(1, Math.round(getSymbolPayout(pairSymbol) / 4));
+                state.money += payout;
+                setScreenSymbol(pairSymbol);
+                chanceDisplay.innerText = `TWO OF A KIND (+$${payout})`;
+                document.documentElement.style.setProperty('--aura-glow', pairSymbol.color + '44');
             } else {
+                setScreenSymbol(result);
                 chanceDisplay.innerText = `NO MATCH (+$0)`;
                 document.documentElement.style.setProperty('--aura-glow', result.color + '33');
                 document.getElementById('machine-body').classList.add('shake');
