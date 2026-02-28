@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>schlingus slots</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rye&display=swap');
+        
+        :root {
+            --aura-color: #ffffff;
+            --aura-glow: rgba(255, 255, 255, 0.15);
+            --machine-metal: #990000; /* Red Interior */
+            --gold-trim: #ffd700;
+            --deep-red: #660000;
+            --window-bg: #ffffff; /* White background for auras */
+        }
+
+        body {
+            font-family: 'Bebas Neue', sans-serif;
+            background-color: #0f0f12;
+            color: #ffffff;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .display-font { 
+            font-family: 'Rye', serif;
+            letter-spacing: 0.04em;
+        }
+
+        /* --- THE ETHEREAL CANVAS --- */
+        #main-viewport {
+            position: fixed;
+            inset: 0;
+            background: 
+                radial-gradient(circle at 50% 50%, var(--aura-glow) 0%, transparent 60%);
+            transition: background 0.8s ease;
+            z-index: -1;
+        }
+
+        /* --- MECHANICAL HOUSING --- */
+        .machine-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            perspective: 1200px;
+        }
+
+        .machine-body {
+            position: relative;
+            background: var(--machine-metal);
+            /* Gold Border */
+            border: 12px solid var(--gold-trim);
+            border-radius: 40px;
+            padding: 30px;
+            box-shadow: 
+                0 0 40px rgba(255, 215, 0, 0.3),
+                0 50px 100px rgba(0,0,0,0.6);
+            width: 90vw;
+            max-width: 500px;
+            z-index: 10;
+        }
+
+        .chamber-window {
+            position: relative;
+            background: var(--window-bg);
+            border-radius: 20px;
+            height: 160px;
+            display: flex;
+            gap: 10px;
+            padding: 0 10px;
+            overflow: hidden;
+            border: 6px solid var(--deep-red);
+            box-shadow: inset 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .chamber-window::before, .chamber-window::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 40px;
+            z-index: 2;
+            pointer-events: none;
+        }
+        .chamber-window::before { top: 0; background: linear-gradient(to bottom, rgba(255,255,255,0.9), transparent); }
+        .chamber-window::after { bottom: 0; background: linear-gradient(to top, rgba(255,255,255,0.9), transparent); }
+
+        .reel {
+            flex: 1;
+            position: relative;
+            height: 100%;
+            will-change: transform;
+        }
+
+        .reel-item {
+            height: 160px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .reel-symbol-img {
+            width: 86px;
+            height: 86px;
+            object-fit: contain;
+            filter: drop-shadow(0 3px 4px rgba(0,0,0,0.2));
+            user-select: none;
+            pointer-events: none;
+        }
+
+        .reel-item.reel-dummy .reel-symbol-img {
+            opacity: 0.48;
+            transform: scale(0.94);
+        }
+
+        .reel.spinning .reel-symbol-img {
+            animation: reel-flicker 0.16s linear infinite;
+        }
+
+        @keyframes reel-flicker {
+            0% { transform: scale(0.94) translateY(-2px); }
+            50% { transform: scale(0.98) translateY(2px); }
+            100% { transform: scale(0.94) translateY(-2px); }
+        }
+
+        #rarity-display {
+            min-height: 54px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            letter-spacing: normal !important;
+        }
+
+        .screen-symbol-img {
+            width: 58px;
+            height: 58px;
+            object-fit: contain;
+            filter: drop-shadow(0 3px 4px rgba(0,0,0,0.2));
+            user-select: none;
+            pointer-events: none;
+        }
+
+        .best-symbol-img {
+            width: 34px;
+            height: 34px;
+            object-fit: contain;
+            user-select: none;
+            pointer-events: none;
+        }
+
+        .registry-symbol-img {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+            user-select: none;
+            pointer-events: none;
+        }
+
+        .registry-symbol-placeholder {
+            width: 32px;
+            height: 32px;
+            border-radius: 999px;
+            border: 1px dashed rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 900;
+            margin: 0 auto;
+            opacity: 0.6;
+        }
+
+        .inventory-symbol-img {
+            width: 36px;
+            height: 36px;
+            object-fit: contain;
+            user-select: none;
+            pointer-events: none;
+        }
+
+        /* --- THE SIDE LEVER --- */
+        .lever-track {
+            position: relative;
+            width: 50px;
+            height: 180px;
+            background: var(--deep-red);
+            border: 6px solid var(--gold-trim);
+            border-left: none;
+            border-radius: 0 30px 30px 0;
+            margin-left: -12px;
+            z-index: 5;
+            display: flex;
+            justify-content: center;
+            box-shadow: 10px 0 20px rgba(0,0,0,0.3);
+            transform-style: preserve-3d;
+        }
+
+        .lever-slot {
+            position: absolute;
+            top: 25px;
+            bottom: 25px;
+            width: 8px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 4px;
+        }
+
+        .lever-pivot {
+            position: absolute;
+            top: 20px;
+            width: 100%;
+            height: 140px;
+            display: flex;
+            justify-content: center;
+            transform-origin: center bottom;
+            transform-style: preserve-3d;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+        }
+
+        .lever-arm {
+            position: absolute;
+            bottom: 0;
+            width: 14px;
+            height: 120px;
+            background: linear-gradient(to right, #ccc, #eee, #ccc);
+            border-radius: 7px;
+            transform-style: preserve-3d;
+            box-shadow: 5px 0 10px rgba(0,0,0,0.2);
+        }
+
+        .lever-ball {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 44px;
+            height: 44px;
+            background: radial-gradient(circle at 35% 35%, #ffd700, #ccac00);
+            border-radius: 50%;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+            border: 2px solid white;
+        }
+
+        .lever-pivot.pulled {
+            transform: rotateX(-50deg);
+        }
+
+        /* --- UI ELEMENTS --- */
+        .status-light {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #440000;
+            transition: all 0.2s ease;
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+
+        .status-light.active {
+            background: var(--gold-trim);
+            box-shadow: 0 0 15px var(--gold-trim);
+        }
+
+        .ethereal-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            border-radius: 12px;
+        }
+
+        .screen-panel {
+            background: rgba(0,0,0,0.2);
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 15px;
+        }
+
+        .flash-overlay {
+            position: fixed;
+            inset: 0;
+            background: white;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        @keyframes flash-anim {
+            0% { opacity: 0.5; }
+            100% { opacity: 0; }
+        }
+
+        .shake { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
+        .modal-bg {
+            background-color: #08080c;
+            background-image: radial-gradient(circle at 50% -20%, #2e1a1a 0%, #08080c 80%);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="main-viewport"></div>
+    <div id="flash" class="flash-overlay"></div>
+
+    <!-- Bankrupt Screen -->
+    <div id="bankrupt-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-6">
+        <div class="bg-red-950/95 backdrop-blur-xl w-full max-w-md p-10 rounded-3xl text-center shadow-2xl border-2 border-red-500/50">
+            <h2 class="display-font text-2xl font-black text-red-500 mb-2 italic">BROKE</h2>
+            <p class="text-xs opacity-70 mb-8 uppercase tracking-widest">haha mr no money, come back after you get a paycheck</p>
+            <button onclick="resetGame()" class="w-full bg-red-600 hover:bg-red-500 text-white font-black py-4 rounded-xl display-font text-[10px] tracking-widest transition-all">
+                come back after pay check
+            </button>
+        </div>
+    </div>
+
+    <div class="flex flex-col items-center gap-6">
+        
+        <div class="machine-container">
+            <div id="machine-body" class="machine-body">
+                <div class="flex justify-between items-center mb-6">
+                    <div class="flex gap-2">
+                        <div id="light-1" class="status-light active"></div>
+                        <div id="light-2" class="status-light active"></div>
+                        <div id="light-3" class="status-light active"></div>
+                    </div>
+                    <div class="flex items-center gap-2 bg-black/20 px-3 py-1 rounded-full border border-white/10">
+                        <span class="text-[8px] font-black opacity-60 uppercase tracking-widest">Balance</span>
+                        <span id="money-display" class="text-xs font-bold display-font text-white">$500</span>
+                    </div>
+                </div>
+
+                <div class="chamber-window">
+                    <div id="reel-1" class="reel"></div>
+                    <div id="reel-2" class="reel"></div>
+                    <div id="reel-3" class="reel"></div>
+                </div>
+
+                <div id="screen" class="mt-6 p-4 screen-panel text-center min-h-[70px] flex flex-col justify-center">
+                    <span id="rarity-display" class="text-[9px] font-black tracking-[0.5em] uppercase text-white/40">READY TO SPIN</span>
+                    <span id="chance-display" class="text-[11px] font-bold display-font opacity-0">...</span>
+                </div>
+            </div>
+
+            <div class="lever-track">
+                <div class="lever-slot"></div>
+                <div id="lever-pivot" class="lever-pivot" onclick="handleRoll()">
+                    <div class="lever-arm">
+                        <div class="lever-ball"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="w-full max-w-[500px] flex flex-col gap-3">
+            <div class="flex">
+                <div class="ethereal-card w-full flex flex-col items-center py-2">
+                    <span class="text-[7px] font-black opacity-40 uppercase tracking-widest">Total Spins</span>
+                    <span id="roll-count" class="text-lg font-black display-font">0</span>
+                </div>
+            </div>
+
+            <div class="flex justify-center gap-4 mt-2 px-4">
+                <label class="flex items-center gap-2 cursor-pointer opacity-60 hover:opacity-100">
+                    <input type="checkbox" id="auto-roll-toggle" class="sr-only peer">
+                    <div class="w-8 h-4 bg-white/10 rounded-full relative peer-checked:bg-yellow-500 transition-all">
+                        <div class="absolute top-1 left-1 w-2 h-2 bg-white rounded-full peer-checked:translate-x-4 peer-checked:bg-black transition-all"></div>
+                    </div>
+                    <span class="text-[10px] font-black uppercase tracking-widest">Auto</span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const RAW_SYMBOLS = [
+            { name: "Cherry", iconLabel: "🍒", weight: 24, color: "#ef4444", rarity: "Classic" },
+            { name: "Lemon", iconLabel: "🍋", weight: 20, color: "#f59e0b", rarity: "Classic" },
+            { name: "Orange", iconLabel: "🍊", weight: 16, color: "#fb923c", rarity: "Classic" },
+            { name: "Plum", iconLabel: "🍇", weight: 13, color: "#8b5cf6", rarity: "Fruit" },
+            { name: "Bell", iconLabel: "🔔", weight: 10, color: "#eab308", rarity: "Fruit" },
+            { name: "Clover", iconLabel: "🍀", weight: 8, color: "#16a34a", rarity: "Lucky" },
+            { name: "Star", iconLabel: "⭐", weight: 5, color: "#38bdf8", rarity: "Bonus" },
+            { name: "BAR", iconLabel: "BAR", weight: 3, color: "#334155", rarity: "Bar" },
+            { name: "Lucky 7", iconLabel: "7", weight: 2, color: "#7c3aed", rarity: "Jackpot" },
+            { name: "Diamond 7", iconLabel: "💎7", weight: 1, color: "#06b6d4", rarity: "Jackpot" },
+            { name: "MEGA JACKPOT", iconLabel: "🎰", weight: 1, color: "#ec4899", rarity: "Legendary" }
+        ];
+
+        function escapeSvg(value) {
+            return String(value)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#39;");
+        }
+
+        function createSymbolIconUri(label, color) {
+            const safeLabel = escapeSvg(label);
+            const textSize = label.length > 2 ? 34 : 66;
+            const textY = label.length > 2 ? 61 : 64;
+            const borderColor = color + "88";
+            const svg = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96">
+                    <defs>
+                        <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="#ffffff"/>
+                            <stop offset="100%" stop-color="#e9edf4"/>
+                        </linearGradient>
+                    </defs>
+                    <rect x="6" y="6" width="84" height="84" rx="22" fill="url(#g)" stroke="${borderColor}" stroke-width="6"/>
+                    <text x="48" y="${textY}" text-anchor="middle" font-size="${textSize}" font-weight="900"
+                        font-family="Apple Color Emoji, Segoe UI Emoji, Noto Color Emoji, Arial, sans-serif">${safeLabel}</text>
+                </svg>
+            `;
+            return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+        }
+
+        const SYMBOLS = RAW_SYMBOLS.map(symbol => ({
+            ...symbol,
+            icon: createSymbolIconUri(symbol.iconLabel, symbol.color)
+        }));
+        const REEL_STRIP = SYMBOLS.flatMap(symbol => Array.from({ length: symbol.weight }, () => symbol));
+
+        function resolveSymbol(symbol) {
+            return SYMBOLS.find(entry => entry.name === symbol.name) || symbol;
+        }
+
+        function createSymbolImageElement(symbol, className) {
+            const resolvedSymbol = resolveSymbol(symbol);
+            const img = document.createElement('img');
+            img.src = resolvedSymbol.icon || createSymbolIconUri(resolvedSymbol.iconLabel || "?", resolvedSymbol.color || "#ffffff");
+            img.alt = resolvedSymbol.name;
+            img.title = resolvedSymbol.name;
+            img.className = className;
+            img.draggable = false;
+            return img;
+        }
+
+        function setScreenSymbol(symbol) {
+            const rarityDisplay = document.getElementById('rarity-display');
+            rarityDisplay.innerHTML = '';
+            rarityDisplay.appendChild(createSymbolImageElement(symbol, 'screen-symbol-img'));
+            rarityDisplay.title = symbol.name;
+        }
+
+        let state = {
+            rolls: 0,
+            money: 500,
+            isRolling: false,
+            spinTicker: null
+        };
+
+        const STORAGE_KEY = "SLOT_MACHINE_V1_SYMBOLS";
+        const SPIN_COST = 5;
+
+        function handleRoll() {
+            if (state.isRolling) return;
+            if (state.money < SPIN_COST) {
+                document.getElementById('bankrupt-modal').classList.remove('hidden');
+                return;
+            }
+
+            state.money -= SPIN_COST;
+            updateUI();
+            
+            state.isRolling = true;
+            const pivot = document.getElementById('lever-pivot');
+            pivot.classList.add('pulled');
+            
+            setTimeout(() => {
+                pivot.classList.remove('pulled');
+                startSpin();
+            }, 400);
+        }
+
+        function resetGame() {
+            localStorage.removeItem(STORAGE_KEY);
+            location.reload();
+        }
+
+        function startSpin() {
+            const reels = [
+                document.getElementById('reel-1'),
+                document.getElementById('reel-2'),
+                document.getElementById('reel-3')
+            ];
+            const chanceDisplay = document.getElementById('chance-display');
+
+            const results = reels.map(() => getSymbol());
+
+            const reelItemHeight = 160;
+            const dummyCount = 42;
+
+            if (state.spinTicker) clearInterval(state.spinTicker);
+            chanceDisplay.innerText = "SPINNING...";
+            chanceDisplay.style.opacity = '1';
+            state.spinTicker = setInterval(() => {
+                const previewSymbol = getSymbol();
+                setScreenSymbol(previewSymbol);
+            }, 120);
+            
+            reels.forEach((reel, i) => {
+                reel.innerHTML = '';
+                reel.classList.add('spinning');
+                for(let j=0; j<dummyCount; j++) {
+                    const dummy = getSymbol();
+                    const el = document.createElement('div');
+                    el.className = 'reel-item reel-dummy';
+                    el.appendChild(createSymbolImageElement(dummy, 'reel-symbol-img'));
+                    reel.appendChild(el);
+                }
+                const final = document.createElement('div');
+                final.className = 'reel-item';
+                final.appendChild(createSymbolImageElement(results[i], 'reel-symbol-img'));
+                reel.appendChild(final);
+
+                reel.style.transition = 'none';
+                reel.style.transform = 'translateY(0)';
+                reel.offsetHeight;
+                
+                reel.style.transition = `transform ${1.25 + (i * 0.4)}s cubic-bezier(0.12, 0.62, 0.2, 1)`;
+                reel.style.transform = `translateY(-${dummyCount * reelItemHeight}px)`;
+            });
+
+            setTimeout(() => finishRoll(results), 2250);
+        }
+
+        function getSymbol() {
+            if (!REEL_STRIP.length) return SYMBOLS[0];
+            return REEL_STRIP[Math.floor(Math.random() * REEL_STRIP.length)];
+        }
+
+        function getSymbolPayout(symbol) {
+            const rank = Math.max(0, SYMBOLS.findIndex(entry => entry.name === symbol.name));
+            return Math.max(5, Math.round(4 + Math.pow(1.5, rank + 1)));
+        }
+
+        function finishRoll(results) {
+            state.rolls++;
+            state.isRolling = false;
+            if (state.spinTicker) {
+                clearInterval(state.spinTicker);
+                state.spinTicker = null;
+            }
+            document.getElementById('reel-1').classList.remove('spinning');
+            document.getElementById('reel-2').classList.remove('spinning');
+            document.getElementById('reel-3').classList.remove('spinning');
+            const result = results[0];
+            const chanceDisplay = document.getElementById('chance-display');
+            setScreenSymbol(result);
+            chanceDisplay.style.opacity = '1';
+
+            const isTripleMatch = results.every(symbol => symbol.name === result.name);
+            if (isTripleMatch) {
+                const payout = getSymbolPayout(result);
+                state.money += payout;
+                chanceDisplay.innerText = `TRIPLE MATCH (+$${payout})`;
+                document.documentElement.style.setProperty('--aura-glow', result.color + '55');
+            } else {
+                chanceDisplay.innerText = `NO MATCH (+$0)`;
+                document.documentElement.style.setProperty('--aura-glow', result.color + '33');
+                document.getElementById('machine-body').classList.add('shake');
+                setTimeout(() => document.getElementById('machine-body').classList.remove('shake'), 500);
+            }
+
+            updateUI();
+            save();
+            if (document.getElementById('auto-roll-toggle').checked) setTimeout(handleRoll, 800);
+        }
+
+        function updateUI() {
+            document.getElementById('roll-count').innerText = state.rolls;
+            document.getElementById('money-display').innerText = `$${state.money}`;
+        }
+
+        function save() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                r: state.rolls, m: state.money
+            }));
+        }
+
+        function load() {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) return;
+            const data = JSON.parse(raw);
+            state.rolls = data.r || 0;
+            state.money = typeof data.m === 'number' ? data.m : 500;
+            updateUI();
+        }
+
+        load();
+    </script>
+</body>
+</html>

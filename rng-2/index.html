@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>schlingus slots</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Space+Grotesk:wght@400;500;700&display=swap');
+
+        :root {
+            --reel-item-height: 208;
+            --aura-glow-strong: rgba(255, 146, 43, 0.42);
+            --aura-glow-soft: rgba(255, 146, 43, 0.16);
+            --text: #edf2ff;
+            --muted: #9eacc7;
+            --line: rgba(255, 255, 255, 0.16);
+            --panel: rgba(255, 255, 255, 0.06);
+            --panel-hover: rgba(255, 255, 255, 0.12);
+            --accent: #f59e0b;
+            --accent-2: #f97316;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100dvh;
+            font-family: 'Space Grotesk', sans-serif;
+            color: var(--text);
+            background: #000;
+            padding: 16px;
+            overflow-x: hidden;
+        }
+
+        #main-viewport {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+            transition: background 0.14s linear;
+            background:
+                radial-gradient(circle at 50% 50%, var(--aura-glow-strong) 0%, rgba(0, 0, 0, 0) 42%),
+                radial-gradient(circle at 50% 50%, var(--aura-glow-soft) 0%, rgba(0, 0, 0, 0) 68%);
+            filter: hue-rotate(0deg) saturate(1.05);
+            background-size: 100% 100%, 100% 100%;
+        }
+
+        #main-viewport.idle-animating {
+            animation: idle-hue 12s linear infinite, idle-breathe 5s ease-in-out infinite;
+        }
+
+        #main-viewport.spinning {
+            animation: none;
+            filter: none;
+            background-size: 100% 100%, 100% 100%;
+        }
+
+        @keyframes idle-hue {
+            0% { filter: hue-rotate(0deg) saturate(1.05); }
+            50% { filter: hue-rotate(30deg) saturate(1.2); }
+            100% { filter: hue-rotate(0deg) saturate(1.05); }
+        }
+
+        @keyframes idle-breathe {
+            0%, 100% { background-size: 100% 100%, 100% 100%; }
+            50% { background-size: 118% 118%, 130% 130%; }
+        }
+
+        .app {
+            width: min(980px, 100%);
+            min-height: calc(100dvh - 32px);
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .hud {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .hud-item {
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            background: var(--panel);
+            padding: 7px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .hud-label {
+            font-size: 0.65rem;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--muted);
+            font-weight: 700;
+        }
+
+        .hud-value {
+            font-size: 0.84rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            font-family: 'Chakra Petch', sans-serif;
+        }
+
+        #best-aura {
+            max-width: 180px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        #machine-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .status-lights {
+            display: flex;
+            gap: 10px;
+            margin-top: 6px;
+        }
+
+        .status-light {
+            width: 10px;
+            height: 10px;
+            border-radius: 999px;
+            background: #34d399;
+            box-shadow: 0 0 10px rgba(52, 211, 153, 0.9);
+            animation: pulse 2.1s ease-in-out infinite;
+        }
+
+        .status-light:nth-child(2) {
+            animation-delay: 0.25s;
+        }
+
+        .status-light:nth-child(3) {
+            animation-delay: 0.5s;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.15); }
+        }
+
+        .reel-stage {
+            flex: 1;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 0;
+        }
+
+        .reel {
+            width: 100%;
+            max-width: 960px;
+            height: calc(var(--reel-item-height) * 1px);
+            overflow: hidden;
+        }
+
+        .reel-item {
+            height: calc(var(--reel-item-height) * 1px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: clamp(2.6rem, 10vw, 7rem);
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            text-align: center;
+            white-space: nowrap;
+            text-shadow:
+                0 0 16px rgba(255, 255, 255, 0.12),
+                0 0 36px rgba(255, 255, 255, 0.08);
+        }
+
+        .reel-item.rolling {
+            animation: roll-jitter 0.12s linear infinite;
+            filter: blur(1px);
+        }
+
+        @keyframes roll-jitter {
+            0% { transform: translateY(-6px) scale(1.01); }
+            50% { transform: translateY(5px) scale(0.99); }
+            100% { transform: translateY(-4px) scale(1.01); }
+        }
+
+        #screen {
+            text-align: center;
+            display: grid;
+            gap: 2px;
+            margin-top: -8px;
+            pointer-events: none;
+        }
+
+        #rarity-display {
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: clamp(1.35rem, 3vw, 2rem);
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #ffffff;
+        }
+
+        #chance-display {
+            font-size: 0.84rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #c9d4eb;
+        }
+
+        .control-zone {
+            width: min(420px, 100%);
+            margin-top: auto;
+            padding-bottom: clamp(16px, 4vh, 36px);
+            display: grid;
+            justify-items: center;
+            gap: 10px;
+        }
+
+        .auto-wrap {
+            width: 100%;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            background: var(--panel);
+            color: #dbe7ff;
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 0.74rem;
+            text-transform: uppercase;
+            letter-spacing: 0.13em;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .auto-wrap input {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--accent);
+        }
+
+        .roll-btn {
+            width: 100%;
+            border: none;
+            border-radius: 999px;
+            padding: 13px 16px;
+            background: linear-gradient(110deg, var(--accent) 0%, var(--accent-2) 100%);
+            color: #2f1304;
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: 0 10px 24px rgba(249, 115, 22, 0.32);
+            transition: transform 0.12s ease, box-shadow 0.16s ease;
+        }
+
+        .roll-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 14px 28px rgba(249, 115, 22, 0.42);
+        }
+
+        .action-row {
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .control-btn {
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            background: var(--panel);
+            color: #dce7fd;
+            padding: 10px 12px;
+            font-size: 0.74rem;
+            text-transform: uppercase;
+            letter-spacing: 0.13em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.15s ease;
+        }
+
+        .control-btn:hover {
+            background: var(--panel-hover);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            z-index: 50;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(6px);
+            padding: 24px 16px;
+            overflow-y: auto;
+        }
+
+        .modal-card {
+            width: min(900px, 100%);
+            margin: 0 auto;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 14px;
+            background: #111625;
+            box-shadow: 0 24px 42px rgba(0, 0, 0, 0.55);
+            padding: 16px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 1.18rem;
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
+        }
+
+        .close-btn {
+            border: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.08);
+            color: #ecf2ff;
+            border-radius: 10px;
+            width: 36px;
+            height: 36px;
+            line-height: 1;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        #index-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 10px;
+        }
+
+        #inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            gap: 10px;
+        }
+
+        .collection-card {
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            text-align: center;
+        }
+
+        .collection-card.locked {
+            opacity: 0.34;
+        }
+
+        .collection-tier {
+            font-size: 0.62rem;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            margin-bottom: 4px;
+            font-weight: 700;
+        }
+
+        .collection-name {
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 0.96rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            font-weight: 700;
+        }
+
+        .inventory-card {
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .inventory-name {
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            font-weight: 700;
+        }
+
+        .inventory-tier {
+            font-size: 0.62rem;
+            color: #bfcae2;
+            text-transform: uppercase;
+            letter-spacing: 0.11em;
+            font-weight: 700;
+        }
+
+        .bankrupt-wrap {
+            min-height: calc(100dvh - 48px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .bankrupt-card {
+            width: min(420px, 100%);
+            border-radius: 14px;
+            border: 1px solid rgba(255, 120, 120, 0.45);
+            background: linear-gradient(180deg, #3d1f2c 0%, #25141c 100%);
+            text-align: center;
+            padding: 18px;
+        }
+
+        .bankrupt-card h2 {
+            margin: 0;
+            font-family: 'Chakra Petch', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            font-size: 1.3rem;
+        }
+
+        .bankrupt-card p {
+            margin: 8px 0 14px;
+            font-size: 0.86rem;
+            color: #e8c7d2;
+        }
+
+        .restart-btn {
+            border: none;
+            width: 100%;
+            border-radius: 999px;
+            padding: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 700;
+            font-family: 'Chakra Petch', sans-serif;
+            color: white;
+            background: #ef4444;
+            cursor: pointer;
+        }
+
+        @media (max-width: 700px) {
+            :root {
+                --reel-item-height: 160;
+            }
+
+            body {
+                padding: 12px;
+            }
+
+            .app {
+                min-height: calc(100dvh - 24px);
+            }
+
+            .hud {
+                gap: 8px;
+            }
+
+            .hud-item {
+                padding: 6px 10px;
+            }
+
+            .control-zone {
+                width: 100%;
+                padding-bottom: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="main-viewport"></div>
+
+    <div id="bankrupt-modal" class="modal hidden">
+        <div class="bankrupt-wrap">
+            <div class="bankrupt-card">
+                <h2>Out Of Money</h2>
+                <p>You need more balance to keep rolling.</p>
+                <button onclick="resetGame()" class="restart-btn">Reset Game</button>
+            </div>
+        </div>
+    </div>
+
+    <main class="app">
+        <header class="hud">
+            <div class="hud-item">
+                <span class="hud-label">Rolls</span>
+                <span id="roll-count" class="hud-value">0</span>
+            </div>
+            <div class="hud-item">
+                <span class="hud-label">Best</span>
+                <span id="best-aura" class="hud-value">None</span>
+            </div>
+        </header>
+
+        <section id="machine-body">
+            <div class="status-lights">
+                <span id="light-1" class="status-light"></span>
+                <span id="light-2" class="status-light"></span>
+                <span id="light-3" class="status-light"></span>
+            </div>
+
+            <div class="reel-stage">
+                <div id="reel-1" class="reel"></div>
+            </div>
+
+            <div id="screen">
+                <span id="rarity-display">Standby</span>
+                <span id="chance-display">Press roll to start</span>
+            </div>
+
+            <div class="control-zone">
+                <label class="auto-wrap">
+                    <input type="checkbox" id="auto-roll-toggle">
+                    Auto Roll
+                </label>
+                <button onclick="handleRoll()" class="roll-btn">Roll</button>
+                <div class="action-row">
+                    <button onclick="toggleModal('index')" class="control-btn">Registry</button>
+                    <button onclick="toggleModal('inventory')" class="control-btn">Vault</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="index-modal" class="modal hidden">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>Registry</h2>
+                <button onclick="toggleModal('index')" class="close-btn">&times;</button>
+            </div>
+            <div id="index-grid"></div>
+        </div>
+    </div>
+
+    <div id="inventory-modal" class="modal hidden">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>Vault</h2>
+                <button onclick="toggleModal('inventory')" class="close-btn">&times;</button>
+            </div>
+            <div id="inventory-grid"></div>
+        </div>
+    </div>
+
+    <script>
+        const AURAS = [
+            { name: "caelum", chance: 2, color: "#ffa500", rarity: "terr 1" },
+            { name: "aj", chance: 5, color: "#4a412a", rarity: "tier 1" },
+            { name: "ok", chance: 15, color: "#2563eb", rarity: "teaair 2" },
+            { name: "infernus", chance: 20, color: "#4f46e5", rarity: "furry" },
+            { name: "infernus again", chance: 25, color: "#4f46e5", rarity: "furry" },
+            { name: "infernus again again", chance: 30, color: "#4f46e5", rarity: "furry" },
+            { name: "guy x45", chance: 35, color: "#4f46e5", rarity: "no-life" },
+            { name: "infernus x∞", chance: 40, color: "#4f46e5", rarity: "furry" },
+            { name: "guy x∞+", chance: 45, color: "#4f46e5", rarity: "guy" },
+            { name: "rar e", chance: 50, color: "#4f46e5", rarity: "teair 2" },
+            { name: "liam 2", chance: 55, color: "#4f46e5", rarity: "skeleton" },
+            { name: "image", chance: 60, color: "#4f46e5", rarity: "picture" },
+            { name: "gild", chance: 150, color: "#d97706", rarity: "teir 3" },
+            { name: "naturel", chance: 450, color: "#059669", rarity: "tier 3" },
+            { name: "qarts", chance: 850, color: "#64748b", rarity: "teair 3" },
+            { name: "rube", chance: 2500, color: "#dc2626", rarity: "ter 4" },
+            { name: "safir", chance: 7500, color: "#1d4ed8", rarity: "teer 4" },
+            { name: "dimind", chance: 25000, color: "#334155", rarity: "tear 5" },
+            { name: "luner", chance: 65000, color: "#0ea5e9", rarity: "mithos" },
+            { name: "soler", chance: 125000, color: "#f59e0b", rarity: "mithos" },
+            { name: "galaksy", chance: 1000000, color: "#9333ea", rarity: "egsotic" },
+            { name: "nebula", chance: 7500000, color: "#db2777", rarity: "celestal" },
+            { name: "ethereal", chance: 125000000, color: "#06b6d4", rarity: "beond" },
+        ];
+
+        let state = {
+            rolls: 0,
+            best: 0,
+            money: 100,
+            inventory: [],
+            unlocked: new Set(),
+            isRolling: false
+        };
+
+        const STORAGE_KEY = "AURA_SLOT_V8_RED_GOLD";
+
+        function handleRoll() {
+            if (state.isRolling) return;
+            state.isRolling = true;
+            setIdleAnimation(false);
+            startSpin();
+        }
+
+        function setAuraGlow(color, strongAlpha = '66', softAlpha = '22') {
+            document.documentElement.style.setProperty('--aura-glow-strong', color + strongAlpha);
+            document.documentElement.style.setProperty('--aura-glow-soft', color + softAlpha);
+        }
+
+        function setIdleAnimation(isIdle) {
+            const viewport = document.getElementById('main-viewport');
+            if (!viewport) return;
+            viewport.classList.toggle('idle-animating', isIdle);
+            viewport.classList.toggle('spinning', !isIdle);
+        }
+
+        function resetGame() {
+            localStorage.removeItem(STORAGE_KEY);
+            location.reload();
+        }
+
+        function startSpin() {
+            const reel = document.getElementById('reel-1');
+            const result = getAura();
+            const rarityDisplay = document.getElementById('rarity-display');
+            const chanceDisplay = document.getElementById('chance-display');
+            const spinDurationMs = 900;
+            const tickMs = 75;
+
+            chanceDisplay.innerText = 'Rolling...';
+            chanceDisplay.style.color = '#c9d4eb';
+
+            reel.innerHTML = '';
+            const rollingItem = document.createElement('div');
+            rollingItem.className = 'reel-item rolling';
+            reel.appendChild(rollingItem);
+
+            let elapsed = 0;
+            const timer = setInterval(() => {
+                elapsed += tickMs;
+                const dummy = AURAS[Math.floor(Math.random() * AURAS.length)];
+                rollingItem.innerText = dummy.name;
+                rollingItem.style.color = dummy.color;
+                rarityDisplay.innerText = dummy.name;
+                rarityDisplay.style.color = dummy.color;
+                setAuraGlow(dummy.color, '55', '1e');
+
+                if (elapsed >= spinDurationMs) {
+                    clearInterval(timer);
+                    rollingItem.classList.remove('rolling');
+                    rollingItem.innerText = result.name;
+                    rollingItem.style.color = result.color;
+                    finishRoll(result);
+                }
+            }, tickMs);
+        }
+
+        function getAura() {
+            const luck = 1 + (state.rolls / 1000);
+            const val = Math.random();
+            for (let i = AURAS.length - 1; i >= 0; i--) {
+                if (val < (1 / (AURAS[i].chance / luck))) return AURAS[i];
+            }
+            return AURAS[0];
+        }
+
+        function finishRoll(result) {
+            state.rolls++;
+            state.isRolling = false;
+
+            const rarityDisplay = document.getElementById('rarity-display');
+            const chanceDisplay = document.getElementById('chance-display');
+            rarityDisplay.innerText = result.name;
+            rarityDisplay.style.color = result.color;
+            chanceDisplay.innerText = `1 / ${result.chance.toLocaleString()}`;
+
+            setAuraGlow(result.color, '66', '22');
+            setIdleAnimation(true);
+
+            if (result.chance > state.best) {
+                state.best = result.chance;
+                const bestAura = document.getElementById('best-aura');
+                bestAura.innerText = result.name;
+                bestAura.style.color = result.color;
+            }
+
+            state.unlocked.add(result.name);
+            state.inventory.unshift({ ...result, id: Date.now() + Math.random() });
+
+            updateUI();
+            save();
+
+            if (document.getElementById('auto-roll-toggle').checked) {
+                setTimeout(handleRoll, 640);
+            }
+        }
+
+        function updateUI() {
+            document.getElementById('roll-count').innerText = state.rolls;
+        }
+
+        function save() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                r: state.rolls,
+                b: state.best,
+                m: state.money,
+                u: Array.from(state.unlocked),
+                i: state.inventory
+            }));
+        }
+
+        function load() {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) return;
+
+            const data = JSON.parse(raw);
+            state.rolls = data.r || 0;
+            state.best = data.b || 0;
+            state.money = data.m || 100;
+            state.unlocked = new Set(data.u || []);
+            state.inventory = data.i || [];
+
+            if (state.best > 0) {
+                const best = AURAS.find(a => a.chance === state.best);
+                if (best) {
+                    const bestAura = document.getElementById('best-aura');
+                    bestAura.innerText = best.name;
+                    bestAura.style.color = best.color;
+                }
+            }
+
+            updateUI();
+        }
+
+        function toggleModal(id) {
+            const m = document.getElementById(`${id}-modal`);
+            m.classList.toggle('hidden');
+            if (!m.classList.contains('hidden')) {
+                id === 'index' ? renderIndex() : renderInventory();
+            }
+        }
+
+        function renderIndex() {
+            document.getElementById('index-grid').innerHTML = AURAS.map(a => `
+                <div class="collection-card ${state.unlocked.has(a.name) ? '' : 'locked'}">
+                    <div class="collection-tier" style="color: ${a.color}">${a.rarity}</div>
+                    <div class="collection-name">${state.unlocked.has(a.name) ? a.name : '????'}</div>
+                </div>
+            `).join('');
+        }
+
+        function renderInventory() {
+            document.getElementById('inventory-grid').innerHTML = state.inventory.slice(0, 20).map(item => `
+                <div class="inventory-card">
+                    <div class="inventory-name" style="color: ${item.color}">${item.name}</div>
+                    <div class="inventory-tier">${item.rarity}</div>
+                </div>
+            `).join('');
+        }
+
+        load();
+        setIdleAnimation(true);
+    </script>
+</body>
+</html>
